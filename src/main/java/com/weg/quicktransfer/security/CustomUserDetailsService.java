@@ -1,0 +1,4 @@
+package com.weg.quicktransfer.security;
+
+public class CustomUserDetailsService {
+}
