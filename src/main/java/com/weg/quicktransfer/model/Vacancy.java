@@ -3,9 +3,7 @@ package com.weg.quicktransfer.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.relation.Role;
-
-import com.weg.quicktransfer.enums.Section;
+import com.weg.quicktransfer.enums.Shift;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,24 +18,27 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "managers")
+@Table(name = "vacancies")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Manager extends User{
+public class Vacancy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(nullable = false)
+    private Shift shift;
 
     @Column(nullable = false)
-    private Section section;
+    private Place place;
 
-    @OneToMany(mappedBy = "manager")
-    List<Interview> interviews = new ArrayList<>();
+    @OneToMany(mappedBy = "vacancy")
+    private List<Interview> interviews = new ArrayList<>();
 
-    public Manager(String name, String userName, String email, String password, Role role, Section section) {
-        super(name, userName, email, password, role);
-        this.section = section;
+    public Vacancy(Shift shift, Place place) {
+        this.shift = shift;
+        this.place = place;
     }
 }
