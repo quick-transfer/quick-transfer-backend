@@ -8,6 +8,7 @@ import com.weg.quicktransfer.repository.UserRepository;
 import com.weg.quicktransfer.exception.UnauthorizedException;
 import com.weg.quicktransfer.service.AuthService;
 import com.weg.quicktransfer.service.AuthResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,8 @@ public class AuthenticationBusinessRulesTest {
     private AuthService authService;
 
     @Test
-    public void rule001_FirstLogin_ShouldRequestPasswordReset() {
+    @DisplayName("System should ask to reset password on first login")
+    public void firstLoginShouldRequestPasswordReset() {
         User mockUser = mock(User.class);
         when(mockUser.getUsername()).thenReturn("new.user");
         when(mockUser.getPassword()).thenReturn("encrypted_password");
@@ -35,12 +37,13 @@ public class AuthenticationBusinessRulesTest {
 
         AuthResponse response = authService.login("new.user", "encrypted_password");
 
-        assertTrue(response.isRequiresPasswordReset(), "System should ask to reset password on first login");
+        assertTrue(response.isRequiresPasswordReset());
         assertEquals("/reset-password", response.getRedirectUrl());
     }
 
     @Test
-    public void rule002_Login_ValidUserAndPassword_ShouldReturnToken() {
+    @DisplayName("Should generate a valid access token")
+    public void loginValidUserAndPasswordShouldReturnToken() {
         User mockUser = mock(User.class);
         when(mockUser.isFirstLogin()).thenReturn(false);
         when(userRepository.findByUsername("valid.user")).thenReturn(Optional.of(mockUser));
@@ -48,11 +51,11 @@ public class AuthenticationBusinessRulesTest {
         AuthResponse response = authService.login("valid.user", "correct_password");
 
         assertFalse(response.isRequiresPasswordReset());
-        assertNotNull(response.getToken(), "Should generate a valid access token");
+        assertNotNull(response.getToken());
     }
 
     @Test
-    public void rule002_SystemAccess_InvalidUser_ShouldThrowException() {
+    public void systemAccessInvalidUserShouldThrowException() {
         when(userRepository.findByUsername("nonexistent.user")).thenReturn(Optional.empty());
 
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {

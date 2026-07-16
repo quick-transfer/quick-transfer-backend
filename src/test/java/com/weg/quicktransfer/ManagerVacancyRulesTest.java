@@ -7,6 +7,7 @@ import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repository.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.VacancyService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,10 +33,10 @@ public class ManagerVacancyRulesTest {
     private ArgumentCaptor<Vacancy> vacancyCaptor;
 
     @Test
-    public void rule003_VacancyCreation_ValidData_ShouldSaveSuccessfully() {
+    public void vacancyCreationValidDataShouldSaveSuccessfully() {
         Vacancy vacancy = new Vacancy();
         vacancy.setName("Junior Developer");
-        vacancy.setShift(Shift.PRIMEIRO);
+        vacancy.setShift(Shift.FIRST);
         vacancy.setAvailableSpots(3);
 
         when(vacancyRepository.save(any(Vacancy.class))).thenReturn(vacancy);
@@ -50,7 +51,7 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
-    public void rule004_FilterVacancies_BySection_ShouldReturnFilteredList() {
+    public void filterVacanciesBySectionShouldReturnFilteredList() {
         Section itSection = new Section();
         itSection.setName("IT");
 
@@ -66,7 +67,8 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
-    public void rule009_CloseVacancy_MinimumAmountNotMet_ShouldThrowException() {
+    @DisplayName("Should not allow closing a vacancy without reaching the minimum number of candidates")
+    public void closeVacancyMinimumAmountNotMetshouldThrowException() {
 
         Vacancy vacancy = new Vacancy();
         vacancy.setId(1L);
@@ -77,15 +79,15 @@ public class ManagerVacancyRulesTest {
 
         assertThrows(BusinessRuleException.class, () -> {
             vacancyService.closeVacancy(1L);
-        }, "Should not allow closing a vacancy without reaching the minimum number of candidates");
+        });
     }
 
     @Test
-    public void rules011_012_UseVacancyTemplate_ShouldCreateNewVacancyWithoutOriginalAmount() {
+    public void useVacancyTemplateShouldCreateNewVacancyWithoutOriginalAmount() {
 
         Vacancy template = new Vacancy();
         template.setName("Standard Template");
-        template.setShift(Shift.SEGUNDO);
+        template.setShift(Shift.SECOND);
         template.setAvailableSpots(10);
 
         when(vacancyRepository.findById(99L)).thenReturn(Optional.of(template));
@@ -93,7 +95,7 @@ public class ManagerVacancyRulesTest {
         Vacancy newVacancy = vacancyService.useTemplate(99L, 5);
 
         assertEquals("Standard Template", newVacancy.getName());
-        assertEquals(Shift.SEGUNDO, newVacancy.getShift());
+        assertEquals(Shift.SECOND, newVacancy.getShift());
         assertEquals(5, newVacancy.getAvailableSpots(), "Should assume the new amount entered by the manager");
         assertNull(newVacancy.getId(), "Should be a new entity");
     }

@@ -7,6 +7,7 @@ import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repository.UserRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.AdminService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,7 +31,8 @@ public class AdminUserManagementRulesTest {
     private ArgumentCaptor<User> userCaptor;
 
     @Test
-    public void adminRule_CreateManager_ValidData_ShouldSaveSuccessfully() {
+    @DisplayName("The saved user should be an instance of Manager")
+    public void adminRuleCreateManagerValidDataShouldSaveSuccessfully() {
         Manager newManager = new Manager();
         newManager.setUsername("manager.john");
         newManager.setEmail("john@weg.net");
@@ -45,12 +47,13 @@ public class AdminUserManagementRulesTest {
         verify(userRepository).save(userCaptor.capture());
 
         User capturedUser = userCaptor.getValue();
-        assertTrue(capturedUser instanceof Manager, "The saved user should be an instance of Manager");
+        assertTrue(capturedUser instanceof Manager);
         assertEquals("manager.john", capturedUser.getUsername());
     }
 
     @Test
-    public void adminRule_CreateStudent_DuplicatedUsername_ShouldThrowException() {
+    @DisplayName("Admin should not be able to create a user with an already existing username")
+    public void adminRuleCreateStudentDuplicatedUsernameShouldThrowException() {
         Student newStudent = new Student();
         newStudent.setUsername("student.maria");
 
@@ -61,13 +64,14 @@ public class AdminUserManagementRulesTest {
 
         assertThrows(BusinessRuleException.class, () -> {
             adminService.createUser(newStudent);
-        }, "Admin should not be able to create a user with an already existing username");
+        });
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
-    public void adminRule_UpdateUser_ShouldUpdateOnlyAllowedFields() {
+    @DisplayName("Username should remain the same")
+    public void adminRuleUpdateUserShouldUpdateOnlyAllowedFields() {
         Long userId = 1L;
         Coordinator existingCoordinator = new Coordinator();
         existingCoordinator.setId(userId);
@@ -83,12 +87,12 @@ public class AdminUserManagementRulesTest {
         User updatedUser = adminService.updateUser(userId, updateData);
 
         assertEquals("Peter New Name", updatedUser.getName());
-        assertEquals("coord.peter", updatedUser.getUsername(), "Username should remain the same");
+        assertEquals("coord.peter", updatedUser.getUsername());
         verify(userRepository).save(existingCoordinator);
     }
 
     @Test
-    public void adminRule_DeleteUser_ExistingUser_ShouldDeleteSuccessfully() {
+    public void adminRuleDeleteUserExistingUserShouldDeleteSuccessfully() {
         Long userId = 99L;
         User existingUser = new Student();
         existingUser.setId(userId);
@@ -101,13 +105,14 @@ public class AdminUserManagementRulesTest {
     }
 
     @Test
-    public void adminRule_DeleteUser_NonExistingUser_ShouldThrowException() {
+    @DisplayName("Should throw an exception when admin tries to delete a non-existing user")
+    public void adminRuleDeleteUserNonExistingUserShouldThrowException() {
         Long invalidUserId = 999L;
         when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
 
         assertThrows(BusinessRuleException.class, () -> {
             adminService.deleteUser(invalidUserId);
-        }, "Should throw an exception when admin tries to delete a non-existing user");
+        });
 
         verify(userRepository, never()).delete(any());
     }
