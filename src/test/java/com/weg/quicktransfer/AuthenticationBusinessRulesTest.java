@@ -4,10 +4,11 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.model.User;
-import com.weg.quicktransfer.repo.UserRepository;
+import com.weg.quicktransfer.repository.UserRepository;
 import com.weg.quicktransfer.exception.UnauthorizedException;
 import com.weg.quicktransfer.service.AuthService;
 import com.weg.quicktransfer.service.AuthResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ public class AuthenticationBusinessRulesTest {
     private AuthService authService;
 
     @Test
+    @DisplayName("System should ask to reset password on first login")
     public void firstLoginShouldRequestPasswordReset() {
         User mockUser = mock(User.class);
         when(mockUser.getUsername()).thenReturn("new.user");
@@ -35,11 +37,12 @@ public class AuthenticationBusinessRulesTest {
 
         AuthResponse response = authService.login("new.user", "encrypted_password");
 
-        assertTrue(response.isRequiresPasswordReset(), "System should ask to reset password on first login");
+        assertTrue(response.isRequiresPasswordReset());
         assertEquals("/reset-password", response.getRedirectUrl());
     }
 
     @Test
+    @DisplayName("Should generate a valid access token")
     public void loginValidUserAndPassword_ShouldReturnToken() {
         User mockUser = mock(User.class);
         when(mockUser.isFirstLogin()).thenReturn(false);
@@ -48,7 +51,7 @@ public class AuthenticationBusinessRulesTest {
         AuthResponse response = authService.login("valid.user", "correct_password");
 
         assertFalse(response.isRequiresPasswordReset());
-        assertNotNull(response.getToken(), "Should generate a valid access token");
+        assertNotNull(response.getToken());
     }
 
     @Test

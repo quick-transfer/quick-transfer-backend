@@ -33,7 +33,7 @@ public class InterviewFlowRulesTest {
     private InterviewService interviewService;
 
     @Test
-    public void rules008_010_ScheduleInterview_ShouldScheduleSendEmailAndAssociateCorrectly() {
+    public void scheduleInterviewShouldScheduleSendEmailAndAssociateCorrectly() {
         Manager manager = new Manager(); manager.setName("John Manager");
         Student student = new Student(); student.setEmail("student@weg.net");
 
@@ -54,7 +54,7 @@ public class InterviewFlowRulesTest {
     }
 
     @Test
-    public void rule024_ConfirmInterviewParticipation_ShouldChangeStatusToViewed() {
+    public void confirmInterviewParticipationShouldChangeStatusToViewed() {
         Interview interview = new Interview();
         Student student = new Student();
         student.setStudentInterviewStatus(StudentInterviewStatus.NAO_VISTO);

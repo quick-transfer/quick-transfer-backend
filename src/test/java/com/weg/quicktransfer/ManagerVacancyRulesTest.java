@@ -4,9 +4,10 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repo.VacancyRepository;
+import com.weg.quicktransfer.repository.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.VacancyService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,13 +33,14 @@ public class ManagerVacancyRulesTest {
     private ArgumentCaptor<Vacancy> vacancyCaptor;
 
     @Test
-    public void rule003_VacancyCreation_ValidData_ShouldSaveSuccessfully() {
+    public void vacancyCreationValidDataShouldSaveSuccessfully() {
         Vacancy vacancy = new Vacancy();
         vacancy.setName("Junior Developer");
-        vacancy.setShift(Shift.PRIMEIRO);
+        vacancy.setShift(Shift.FIRST);
         vacancy.setAvailableSpots(3);
 
         when(vacancyRepository.save(any(Vacancy.class))).thenReturn(vacancy);
+
         Vacancy savedVacancy = vacancyService.createVacancy(vacancy);
 
         verify(vacancyRepository).save(vacancyCaptor.capture());
@@ -49,7 +51,7 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
-    public void rule004_FilterVacancies_BySection_ShouldReturnFilteredList() {
+    public void filterVacanciesBySectionShouldReturnFilteredList() {
         Section itSection = new Section();
         itSection.setName("IT");
 
@@ -65,7 +67,9 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
-    public void rule009_CloseVacancy_MinimumAmountNotMet_ShouldThrowException() {
+    @DisplayName("Should not allow closing a vacancy without reaching the minimum number of candidates")
+    public void closeVacancyMinimumAmountNotMetshouldThrowException() {
+
         Vacancy vacancy = new Vacancy();
         vacancy.setId(1L);
         vacancy.setAvailableSpots(2);
@@ -75,11 +79,11 @@ public class ManagerVacancyRulesTest {
 
         assertThrows(BusinessRuleException.class, () -> {
             vacancyService.closeVacancy(1L);
-        }, "Should not allow closing a vacancy without reaching the minimum number of candidates");
+        });
     }
 
     @Test
-    public void rules011_012_UseVacancyTemplate_ShouldCreateNewVacancyWithoutOriginalAmount() {
+    public void useVacancyTemplateShouldCreateNewVacancyWithoutOriginalAmount() {
         Vacancy template = new Vacancy();
         template.setName("Standard Template");
         template.setShift(Shift.SECOND);
