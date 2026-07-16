@@ -1,7 +1,9 @@
 package com.weg.quicktransfer;
 
+import com.weg.quicktransfer.dto.ClassEntityRequestDTO;
+import com.weg.quicktransfer.dto.ClassEntityResponseDTO;
+import com.weg.quicktransfer.mapper.ClassEntityMapper;
 import com.weg.quicktransfer.model.ClassEntity;
-import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.ClassEntityRepo;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,151 +29,127 @@ class ClassEntityServiceTest {
     @Mock
     private ClassEntityRepo classEntityRepo;
 
+    @Mock
+    private ClassEntityMapper classEntityMapper;
+
     @InjectMocks
     private ClassEntityService classEntityService;
 
     private ClassEntity classEntity;
+    private ClassEntityRequestDTO requestDTO;
+    private ClassEntityResponseDTO responseDTO;
     private Course course;
 
     @BeforeEach
     void setUp() {
+        course = new Course();
+        course.setId(1L);
+        course.setName("Java");
+        course.setClasses(new ArrayList<>());
 
-        Coordinator coordinator = new Coordinator();
-
-        course = new Course(
-                "Java",
-                coordinator,
-                new ArrayList<>()
-        );
-
-        classEntity = new ClassEntity(
-                course,
-                LocalDate.now(),
-                new ArrayList<Student>(),
-                "JAVA01"
-        );
-
+        classEntity = new ClassEntity();
         classEntity.setId(1L);
+        classEntity.setCourse(course);
+        classEntity.setFinishDate(LocalDate.now());
+        classEntity.setStudents(new ArrayList<Student>());
+        classEntity.setAcronym("JAVA01");
+
+        requestDTO = new ClassEntityRequestDTO();
+        requestDTO.setCourseId(1L);
+        requestDTO.setFinishDate(LocalDate.now());
+        requestDTO.setAcronym("JAVA01");
+
+        responseDTO = new ClassEntityResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setCourseId(1L);
+        responseDTO.setFinishDate(LocalDate.now());
+        responseDTO.setAcronym("JAVA01");
     }
 
     @Test
-    @DisplayName("Should create class")
-    void shouldCreateClass() {
+    @DisplayName("Should create class entity and return response dto")
+    void shouldCreateClassEntity() {
+        when(classEntityMapper.toEntity(requestDTO)).thenReturn(classEntity);
+        when(classEntityRepo.save(classEntity)).thenReturn(classEntity);
+        when(classEntityMapper.toResponseDTO(classEntity)).thenReturn(responseDTO);
 
-        when(classEntityRepo.create(any(ClassEntity.class)))
-                .thenReturn(classEntity);
-
-        ClassEntity result = classEntityService.create(classEntity);
+        ClassEntityResponseDTO result = classEntityService.create(requestDTO);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("JAVA01", result.getAcronym());
 
-        verify(classEntityRepo, times(1))
-                .create(classEntity);
+        verify(classEntityMapper).toEntity(requestDTO);
+        verify(classEntityRepo).save(classEntity);
+        verify(classEntityMapper).toResponseDTO(classEntity);
     }
 
     @Test
-    @DisplayName("Should find class by id")
-    void shouldFindClassById() {
+    @DisplayName("Should find class entity by id and return response dto")
+    void shouldFindClassEntityById() {
+        when(classEntityRepo.findById(1L)).thenReturn(classEntity);
+        when(classEntityMapper.toResponseDTO(classEntity)).thenReturn(responseDTO);
 
-        when(classEntityRepo.findById(1L))
-                .thenReturn(classEntity);
-
-        ClassEntity result = classEntityService.findById(1L);
+        ClassEntityResponseDTO result = classEntityService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(classEntity.getId(), result.getId());
+        assertEquals(1L, result.getId());
+        assertEquals("JAVA01", result.getAcronym());
 
-        verify(classEntityRepo, times(1))
-                .findById(1L);
+        verify(classEntityRepo).findById(1L);
+        verify(classEntityMapper).toResponseDTO(classEntity);
     }
 
     @Test
-    @DisplayName("Should update class")
-    void shouldUpdateClass() {
+    @DisplayName("Should update class entity and return response dto")
+    void shouldUpdateClassEntity() {
+        ClassEntityRequestDTO updatedRequest = new ClassEntityRequestDTO();
+        updatedRequest.setCourseId(1L);
+        updatedRequest.setFinishDate(LocalDate.now().plusDays(30));
+        updatedRequest.setAcronym("JAVA02");
 
-        ClassEntity updatedClass = new ClassEntity(
-                course,
-                LocalDate.now().plusDays(30),
-                new ArrayList<>(),
-                "JAVA02"
-        );
+        ClassEntity updatedEntity = new ClassEntity();
+        updatedEntity.setId(1L);
+        updatedEntity.setCourse(course);
+        updatedEntity.setFinishDate(LocalDate.now().plusDays(30));
+        updatedEntity.setStudents(new ArrayList<Student>());
+        updatedEntity.setAcronym("JAVA02");
 
-        updatedClass.setId(1L);
+        ClassEntityResponseDTO updatedResponse = new ClassEntityResponseDTO();
+        updatedResponse.setId(1L);
+        updatedResponse.setCourseId(1L);
+        updatedResponse.setFinishDate(LocalDate.now().plusDays(30));
+        updatedResponse.setAcronym("JAVA02");
 
-        when(classEntityRepo.findById(1L))
-                .thenReturn(classEntity);
+        when(classEntityRepo.findById(1L)).thenReturn(classEntity);
+        when(classEntityMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
+        when(classEntityRepo.save(any(ClassEntity.class))).thenReturn(updatedEntity);
+        when(classEntityMapper.toResponseDTO(updatedEntity)).thenReturn(updatedResponse);
 
-        when(classEntityRepo.create(any(ClassEntity.class)))
-                .thenReturn(updatedClass);
-
-        ClassEntity result =
-                classEntityService.update(1L, updatedClass);
+        ClassEntityResponseDTO result = classEntityService.update(1L, updatedRequest);
 
         assertNotNull(result);
         assertEquals("JAVA02", result.getAcronym());
 
-        verify(classEntityRepo, times(1))
-                .findById(1L);
-
-        verify(classEntityRepo, times(1))
-                .create(any(ClassEntity.class));
+        verify(classEntityRepo).findById(1L);
+        verify(classEntityMapper).toEntity(updatedRequest);
+        verify(classEntityRepo).save(any(ClassEntity.class));
+        verify(classEntityMapper).toResponseDTO(updatedEntity);
     }
 
     @Test
-    @DisplayName("Should delete class")
-    void shouldDeleteClass() {
+    @DisplayName("Should delete class entity")
+    void shouldDeleteClassEntity() {
+        doNothing().when(classEntityRepo).deleteById(1L);
 
-        when(classEntityRepo.findById(1L))
-                .thenReturn(classEntity);
+        assertDoesNotThrow(() -> classEntityService.delete(1L));
 
-        doNothing()
-                .when(classEntityRepo)
-                .deleteById(1L);
-
-        assertDoesNotThrow(() ->
-                classEntityService.delete(1L));
-
-        verify(classEntityRepo, times(1))
-                .deleteById(1L);
+        verify(classEntityRepo).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should throw exception when acronym is null")
-    void shouldThrowExceptionWhenAcronymIsNull() {
-
-        ClassEntity invalidClass = new ClassEntity(
-                course,
-                LocalDate.now(),
-                new ArrayList<>(),
-                null
-        );
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> classEntityService.create(invalidClass)
-        );
-    }
-
-    @Test
-    @DisplayName("Should add student to class")
-    void shouldAddStudentToClass() {
-        Student student = mock(Student.class);
-
-        classEntity.addStudent(student);
-
-        assertTrue(classEntity.getStudents().contains(student));
-    }
-
-    @Test
-    @DisplayName("Should remove student from class")
-    void shouldRemoveStudentFromClass() {
-        Student student = mock(Student.class);
-
-        classEntity.addStudent(student);
-        classEntity.removeStudent(student);
-
-        assertFalse(classEntity.getStudents().contains(student));
+    @DisplayName("Should throw exception when request dto is null")
+    void shouldThrowExceptionWhenRequestDtoIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> classEntityService.create(null));
     }
 }
