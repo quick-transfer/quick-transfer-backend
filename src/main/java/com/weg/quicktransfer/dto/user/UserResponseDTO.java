@@ -1,9 +1,9 @@
 package com.weg.quicktransfer.dto.user;
 
-public record UserRequestDTO(
+public record UserResponseDTO(
+    Long id,
     String name,
     String userName,
-    String email,
-    String password
+    String email
 ) {
 }

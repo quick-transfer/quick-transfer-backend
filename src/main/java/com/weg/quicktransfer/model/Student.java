@@ -38,12 +38,17 @@ public class Student{
     @Column(nullable = false)
     private Boolean hasSeenEmail;
 
-    public Student(String name, String email, Double averageGrade, ClassEntity classEntity, StudentInterviewStatus status, Boolean hasSeenEmail) {
+    @OneToOne(mappedBy = "student")
+    private Interview interview;
+
+    public Student(String name, String email, Double averageGrade, ClassEntity classEntity,
+            StudentInterviewStatus status, Boolean hasSeenEmail, Interview interview) {
         this.name = name;
         this.email = email;
         this.averageGrade = averageGrade;
         this.classEntity = classEntity;
         this.status = status;
         this.hasSeenEmail = hasSeenEmail;
+        this.interview = interview;
     }
 }
