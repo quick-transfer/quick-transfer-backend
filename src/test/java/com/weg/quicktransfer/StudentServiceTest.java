@@ -1,5 +1,8 @@
 package com.weg.quicktransfer;
 
+import com.weg.quicktransfer.dto.StudentRequestDTO;
+import com.weg.quicktransfer.dto.StudentResponseDTO;
+import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
@@ -10,170 +13,221 @@ import com.weg.quicktransfer.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-public class StudentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class StudentServiceTest {
 
-    @Autowired
-    private StudentService studentService;
-
-    @MockitoBean
+    @Mock
     private StudentRepo studentRepo;
 
-    private Student validStudent;
+    @Mock
+    private StudentMapper studentMapper;
+
+    @InjectMocks
+    private StudentService studentService;
+
+    private Student student;
+    private StudentRequestDTO requestDTO;
+    private StudentResponseDTO responseDTO;
+    private ClassEntity classEntity;
 
     @BeforeEach
     void setUp() {
         Coordinator coordinator = new Coordinator();
-        Course course = new Course("Nome", coordinator, new ArrayList<ClassEntity>());
-        ClassEntity classEntity = new ClassEntity(course, LocalDate.now(), new ArrayList<Student>(), "SIGLA01");
+        Course course = new Course();
+        course.setId(1L);
+        course.setName("Java");
+        course.setCoordinator(coordinator);
+        course.setClasses(new ArrayList<>());
 
-        validStudent = new Student(
-                "Nome",
-                "email@dominio.com",
-                5.0,
-                classEntity,
-                classEntity,
-                StudentInterviewStatus.NOT_ASSIGNED,
-                false
-        );
+        classEntity = new ClassEntity();
+        classEntity.setId(1L);
+        classEntity.setCourse(course);
+        classEntity.setFinishDate(LocalDate.now());
+        classEntity.setStudents(new ArrayList<>());
+        classEntity.setAcronym("JAVA01");
 
-        when(studentRepo.createStudent(any(Student.class))).thenAnswer(invocation -> {
-            Student student = invocation.getArgument(0);
-            if (student.getId() == null) {
-                student.setId(1L);
-            }
-            return student;
-        });
+        student = new Student();
+        student.setId(1L);
+        student.setName("Nome");
+        student.setEmail("email@dominio.com");
+        student.setAverageGrade(5.0);
+        student.setClassEntity(classEntity);
+        student.setDesiredClass(classEntity);
+        student.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        student.setHasSeenEmail(false);
 
-        when(studentRepo.create(any(Student.class))).thenAnswer(invocation -> {
-            Student student = invocation.getArgument(0);
-            if (student.getId() == null) {
-                student.setId(1L);
-            }
-            return student;
-        });
+        requestDTO = new StudentRequestDTO();
+        requestDTO.setName("Nome");
+        requestDTO.setEmail("email@dominio.com");
+        requestDTO.setAverageGrade(5.0);
+        requestDTO.setClassEntityId(1L);
+        requestDTO.setDesiredClassId(1L);
+        requestDTO.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        requestDTO.setHasSeenEmail(false);
 
-        when(studentRepo.findById(any())).thenAnswer(invocation -> {
-            Long id = invocation.getArgument(0);
-            Student student = new Student(
-                    "Nome",
-                    "email@dominio.com",
-                    5.0,
-                    null,
-                    null,
-                    StudentInterviewStatus.NOT_ASSIGNED,
-                    false
-            );
-            student.setId(id);
-            return student;
-        });
+        responseDTO = new StudentResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setName("Nome");
+        responseDTO.setEmail("email@dominio.com");
+        responseDTO.setAverageGrade(5.0);
+        responseDTO.setClassEntityId(1L);
+        responseDTO.setDesiredClassId(1L);
+        responseDTO.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        responseDTO.setHasSeenEmail(false);
     }
 
     @Test
-    @DisplayName("Should create a student")
-    public void createStudent() {
-        Student created = studentRepo.createStudent(validStudent);
+    @DisplayName("Should create student and return response dto")
+    void shouldCreateStudent() {
+        when(studentMapper.toEntity(requestDTO)).thenReturn(student);
+        when(studentRepo.save(student)).thenReturn(student);
+        when(studentMapper.toResponseDTO(student)).thenReturn(responseDTO);
 
-        assertNotNull(created);
-        assertNotNull(created.getId());
-        assertEquals(validStudent.getName(), created.getName());
-        assertEquals(validStudent.getEmail(), created.getEmail());
-        assertEquals(validStudent.getScore(), created.getScore());
-    }
-
-    @Test
-    @DisplayName("Should throw exception if any atribute is null")
-    public void shouldThrowExceptionIfAnyAttributeIsNull() {
-        Student studentWithNullName = new Student(
-                null,
-                "email@dominio.com",
-                5.0,
-                null,
-                null,
-                StudentInterviewStatus.NOT_ASSIGNED,
-                false
-        );
-
-        assertThrows(RuntimeException.class, () -> studentService.createStudent(studentWithNullName));
-    }
-
-    @Test
-    @DisplayName("Should find student by id")
-    public void findById() {
-        validStudent.setId(1L);
-
-        Student found = studentRepo.findById(validStudent.getId());
-
-        assertNotNull(found);
-        assertEquals(validStudent.getId(), found.getId());
-    }
-
-    @Test
-    @DisplayName("Should update student")
-    public void updateStudent() {
-        validStudent.setId(1L);
-
-        Student updatedStudent = new Student(
-                "Novo Nome",
-                "novoemail@dominio.com",
-                8.5,
-                validStudent.getCurrentClass(),
-                validStudent.getDesiredClass(),
-                StudentInterviewStatus.ASSIGNED,
-                false
-        );
-
-        updatedStudent.setId(1L);
-
-        when(studentRepo.updateStudent(1L, updatedStudent))
-                .thenReturn(Student);
-
-        Student result = studentRepo.updateStudent(1L, updatedStudent);
+        StudentResponseDTO result = studentService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals("Novo Nome", result.getName());
-        assertEquals("novoemail@dominio.com", result.getEmail());
-        assertEquals(8.5, result.getScore());
+        assertEquals(1L, result.getId());
+        assertEquals("Nome", result.getName());
+        assertEquals("email@dominio.com", result.getEmail());
+        assertEquals(5.0, result.getAverageGrade());
+        assertFalse(result.isHasSeenEmail());
 
+        verify(studentMapper).toEntity(requestDTO);
+        verify(studentRepo).save(student);
+        verify(studentMapper).toResponseDTO(student);
+    }
+
+    @Test
+    @DisplayName("Should find student by id and return response dto")
+    void shouldFindStudentById() {
+        when(studentRepo.findById(1L)).thenReturn(student);
+        when(studentMapper.toResponseDTO(student)).thenReturn(responseDTO);
+
+        StudentResponseDTO result = studentService.findById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("Nome", result.getName());
+
+        verify(studentRepo).findById(1L);
+        verify(studentMapper).toResponseDTO(student);
+    }
+
+    @Test
+    @DisplayName("Should update student and return response dto")
+    void shouldUpdateStudent() {
+        StudentRequestDTO updatedRequest = new StudentRequestDTO();
+        updatedRequest.setName("Nome Atualizado");
+        updatedRequest.setEmail("novoemail@dominio.com");
+        updatedRequest.setAverageGrade(8.0);
+        updatedRequest.setClassEntityId(1L);
+        updatedRequest.setDesiredClassId(1L);
+        updatedRequest.setStatus(StudentInterviewStatus.VISTO);
+        updatedRequest.setHasSeenEmail(true);
+
+        Student updatedEntity = new Student();
+        updatedEntity.setId(1L);
+        updatedEntity.setName("Nome Atualizado");
+        updatedEntity.setEmail("novoemail@dominio.com");
+        updatedEntity.setAverageGrade(8.0);
+        updatedEntity.setClassEntity(classEntity);
+        updatedEntity.setDesiredClass(classEntity);
+        updatedEntity.setStatus(StudentInterviewStatus.VISTO);
+        updatedEntity.setHasSeenEmail(true);
+
+        StudentResponseDTO updatedResponse = new StudentResponseDTO();
+        updatedResponse.setId(1L);
+        updatedResponse.setName("Nome Atualizado");
+        updatedResponse.setEmail("novoemail@dominio.com");
+        updatedResponse.setAverageGrade(8.0);
+        updatedResponse.setClassEntityId(1L);
+        updatedResponse.setDesiredClassId(1L);
+        updatedResponse.setStatus(StudentInterviewStatus.VISTO);
+        updatedResponse.setHasSeenEmail(true);
+
+        when(studentRepo.findById(1L)).thenReturn(student);
+        when(studentMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
+        when(studentRepo.save(any(Student.class))).thenReturn(updatedEntity);
+        when(studentMapper.toResponseDTO(updatedEntity)).thenReturn(updatedResponse);
+
+        StudentResponseDTO result = studentService.update(1L, updatedRequest);
+
+        assertNotNull(result);
+        assertEquals("Nome Atualizado", result.getName());
+        assertEquals("novoemail@dominio.com", result.getEmail());
+        assertEquals(8.0, result.getAverageGrade());
+        assertTrue(result.isHasSeenEmail());
+
+        verify(studentRepo).findById(1L);
+        verify(studentMapper).toEntity(updatedRequest);
+        verify(studentRepo).save(any(Student.class));
+        verify(studentMapper).toResponseDTO(updatedEntity);
+    }
+
+    @Test
+    @DisplayName("Should mark interview email as read")
+    void shouldMarkInterviewEmailAsRead() {
+        student.setHasSeenEmail(false);
+
+        Student seenStudent = new Student();
+        seenStudent.setId(1L);
+        seenStudent.setName("Nome");
+        seenStudent.setEmail("email@dominio.com");
+        seenStudent.setAverageGrade(5.0);
+        seenStudent.setClassEntity(classEntity);
+        seenStudent.setDesiredClass(classEntity);
+        seenStudent.setStatus(StudentInterviewStatus.VISTO);
+        seenStudent.setHasSeenEmail(true);
+
+        StudentResponseDTO seenResponse = new StudentResponseDTO();
+        seenResponse.setId(1L);
+        seenResponse.setName("Nome");
+        seenResponse.setEmail("email@dominio.com");
+        seenResponse.setAverageGrade(5.0);
+        seenResponse.setClassEntityId(1L);
+        seenResponse.setDesiredClassId(1L);
+        seenResponse.setStatus(StudentInterviewStatus.VISTO);
+        seenResponse.setHasSeenEmail(true);
+
+        when(studentRepo.findById(1L)).thenReturn(student);
+        when(studentRepo.save(any(Student.class))).thenReturn(seenStudent);
+        when(studentMapper.toResponseDTO(seenStudent)).thenReturn(seenResponse);
+
+        StudentResponseDTO result = studentService.seeInterviewEmail(1L);
+
+        assertNotNull(result);
+        assertTrue(result.isHasSeenEmail());
+
+        verify(studentRepo).findById(1L);
+        verify(studentRepo).save(any(Student.class));
+        verify(studentMapper).toResponseDTO(seenStudent);
     }
 
     @Test
     @DisplayName("Should delete student")
-    public void deleteStudent() {
-        validStudent.setId(1L);
+    void shouldDeleteStudent() {
+        doNothing().when(studentRepo).deleteById(1L);
 
-        doNothing().when(studentRepo).deleteStudent(1L);
+        assertDoesNotThrow(() -> studentService.delete(1L));
 
-        assertDoesNotThrow(() -> studentRepo.deleteStudent(1L));
-
+        verify(studentRepo).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should mark email as read")
-    public void markEmailAsRead() {
-        validStudent.setId(1L);
-        validStudent.setEmailRead(false);
-
-        when(studentRepo.markEmailAsRead(1L))
-                .thenAnswer(invocation -> {
-                    validStudent.setEmailRead(true);
-                    return validStudent;
-                });
-
-        Student result = studentRepo.markEmailAsRead(1L);
-
-        assertTrue(result.isEmailRead());
-
+    @DisplayName("Should throw exception when request dto is null")
+    void shouldThrowExceptionWhenRequestDtoIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> studentService.create(null));
     }
 }

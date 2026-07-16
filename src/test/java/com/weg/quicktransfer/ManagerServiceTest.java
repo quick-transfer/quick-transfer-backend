@@ -1,13 +1,14 @@
+// ManagerServiceTest.java
 package com.weg.quicktransfer;
 
+import com.weg.quicktransfer.dto.ManagerRequestDTO;
+import com.weg.quicktransfer.dto.ManagerResponseDTO;
+import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.Manager;
 import com.weg.quicktransfer.model.Role;
 import com.weg.quicktransfer.model.Section;
 import com.weg.quicktransfer.repo.ManagerRepo;
 import com.weg.quicktransfer.service.ManagerService;
-import com.weg.quicktransfer.dto.ManagerRequestDTO;
-import com.weg.quicktransfer.dto.ManagerResponseDTO;
-import com.weg.quicktransfer.mapper.ManagerMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,46 +39,45 @@ class ManagerServiceTest {
 
     @BeforeEach
     void setUp() {
-
-        requestDTO = new ManagerRequestDTO(
-                "João",
-                "joao@weg.net",
-                "123456",
-                Section.MANUFACTURING
-        );
-
         manager = new Manager();
         manager.setId(1L);
-        manager.setName("João");
-        manager.setEmail("joao@weg.net");
+        manager.setName("Manager");
+        manager.setUsername("manager01");
+        manager.setEmail("manager@dominio.com");
+        manager.setPassword("123456");
+        manager.setRole(Role.MANAGER);
+        manager.setSection(null);
 
-        responseDTO = new ManagerResponseDTO(
-                1L,
-                "João",
-                "joao@weg.net",
-                Section.MANUFACTURING
-        );
-    }\
+        requestDTO = new ManagerRequestDTO();
+        requestDTO.setName("Manager");
+        requestDTO.setUsername("manager01");
+        requestDTO.setEmail("manager@dominio.com");
+        requestDTO.setPassword("123456");
+        requestDTO.setSection(null);
+
+        responseDTO = new ManagerResponseDTO();
+        responseDTO.setId(1L);
+        responseDTO.setName("Manager");
+        responseDTO.setUsername("manager01");
+        responseDTO.setEmail("manager@dominio.com");
+        responseDTO.setRole(Role.MANAGER);
+        responseDTO.setSection(null);
+    }
 
     @Test
-    @DisplayName("Should create manager")
+    @DisplayName("Should create manager and return response dto")
     void shouldCreateManager() {
+        when(managerMapper.toEntity(requestDTO)).thenReturn(manager);
+        when(managerRepo.save(manager)).thenReturn(manager);
+        when(managerMapper.toResponseDTO(manager)).thenReturn(responseDTO);
 
-        when(managerMapper.toEntity(requestDTO))
-                .thenReturn(manager);
-
-        when(managerRepo.save(manager))
-                .thenReturn(manager);
-
-        when(managerMapper.toResponseDTO(manager))
-                .thenReturn(responseDTO);
-
-        ManagerResponseDTO result =
-                managerService.create(requestDTO);
+        ManagerResponseDTO result = managerService.create(requestDTO);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("João", result.getName());
+        assertEquals("Manager", result.getName());
+        assertEquals("manager01", result.getUsername());
+        assertEquals(Role.MANAGER, result.getRole());
 
         verify(managerMapper).toEntity(requestDTO);
         verify(managerRepo).save(manager);
@@ -85,68 +85,79 @@ class ManagerServiceTest {
     }
 
     @Test
-    @DisplayName("Should find manager by id")
+    @DisplayName("Should find manager by id and return response dto")
     void shouldFindManagerById() {
+        when(managerRepo.findById(1L)).thenReturn(manager);
+        when(managerMapper.toResponseDTO(manager)).thenReturn(responseDTO);
 
-        when(managerRepo.findById(1L))
-                .thenReturn(manager);
+        ManagerResponseDTO result = managerService.findById(1L);
 
-        when(managerMapper.toResponseDTO(manager))
-                .thenReturn(responseDTO);
-
-        ManagerResponseDTO result =
-                managerService.findById(1L);
-
+        assertNotNull(result);
         assertEquals(1L, result.getId());
+        assertEquals("Manager", result.getName());
 
         verify(managerRepo).findById(1L);
         verify(managerMapper).toResponseDTO(manager);
     }
 
     @Test
-    @DisplayName("Should update manager")
+    @DisplayName("Should update manager and return response dto")
     void shouldUpdateManager() {
+        ManagerRequestDTO updatedRequest = new ManagerRequestDTO();
+        updatedRequest.setName("Manager Atualizado");
+        updatedRequest.setUsername("manager02");
+        updatedRequest.setEmail("manager2@dominio.com");
+        updatedRequest.setPassword("123456");
+        updatedRequest.setSection(null);
 
-        when(managerRepo.findById(1L))
-                .thenReturn(manager);
+        Manager updatedEntity = new Manager();
+        updatedEntity.setId(1L);
+        updatedEntity.setName("Manager Atualizado");
+        updatedEntity.setUsername("manager02");
+        updatedEntity.setEmail("manager2@dominio.com");
+        updatedEntity.setPassword("123456");
+        updatedEntity.setRole(Role.MANAGER);
+        updatedEntity.setSection(null);
 
-        when(managerMapper.toEntity(requestDTO))
-                .thenReturn(manager);
+        ManagerResponseDTO updatedResponse = new ManagerResponseDTO();
+        updatedResponse.setId(1L);
+        updatedResponse.setName("Manager Atualizado");
+        updatedResponse.setUsername("manager02");
+        updatedResponse.setEmail("manager2@dominio.com");
+        updatedResponse.setRole(Role.MANAGER);
+        updatedResponse.setSection(null);
 
-        when(managerRepo.save(any(Manager.class)))
-                .thenReturn(manager);
+        when(managerRepo.findById(1L)).thenReturn(manager);
+        when(managerMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
+        when(managerRepo.save(any(Manager.class))).thenReturn(updatedEntity);
+        when(managerMapper.toResponseDTO(updatedEntity)).thenReturn(updatedResponse);
 
-        when(managerMapper.toResponseDTO(manager))
-                .thenReturn(responseDTO);
-
-        ManagerResponseDTO result =
-                managerService.update(1L, requestDTO);
+        ManagerResponseDTO result = managerService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals("Manager Atualizado", result.getName());
+        assertEquals("manager02", result.getUsername());
+        assertEquals(Role.MANAGER, result.getRole());
 
         verify(managerRepo).findById(1L);
+        verify(managerMapper).toEntity(updatedRequest);
         verify(managerRepo).save(any(Manager.class));
+        verify(managerMapper).toResponseDTO(updatedEntity);
     }
 
     @Test
     @DisplayName("Should delete manager")
     void shouldDeleteManager() {
+        doNothing().when(managerRepo).deleteById(1L);
 
-        doNothing()
-                .when(managerRepo)
-                .deleteById(1L);
+        assertDoesNotThrow(() -> managerService.delete(1L));
 
-        assertDoesNotThrow(() ->
-                managerService.delete(1L));
-
-        verify(managerRepo)
-                .deleteById(1L);
+        verify(managerRepo).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Should throw exception when manager DTO is null")
-    void shouldThrowExceptionWhenManagerDtoIsNull() {
+    @DisplayName("Should throw exception when request dto is null")
+    void shouldThrowExceptionWhenRequestDtoIsNull() {
         assertThrows(IllegalArgumentException.class, () -> managerService.create(null));
     }
 }
