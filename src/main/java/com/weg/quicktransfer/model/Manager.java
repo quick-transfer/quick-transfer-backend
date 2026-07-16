@@ -7,6 +7,7 @@ import javax.management.relation.Role;
 
 import com.weg.quicktransfer.enums.Section;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,6 +30,7 @@ public class Manager extends User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Section section;
 
     @OneToMany(mappedBy = "manager")

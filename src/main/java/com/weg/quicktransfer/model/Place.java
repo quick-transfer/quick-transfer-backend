@@ -6,6 +6,7 @@ import java.util.List;
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,8 +29,10 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false)
     private Park park;
 
+    @Column(nullable = false)
     private Section section;
 
     @OneToMany(mappedBy = "place")

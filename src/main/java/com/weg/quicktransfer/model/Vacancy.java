@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.weg.quicktransfer.enums.Shift;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,8 +28,10 @@ public class Vacancy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false)
     private Shift shift;
 
+    @Column(nullable = false)
     private Place place;
 
     @OneToMany(mappedBy = "vacancy")
