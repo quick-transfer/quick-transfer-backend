@@ -30,7 +30,7 @@ public class Interview {
     private LocalDateTime dateTime;
 
     @ManyToOne
-    @JoinColumn(name = "vacancy_id")
+    @JoinColumn(name = "vacancy_id") 
     private Vacancy vacancy;
 
     @ManyToOne
