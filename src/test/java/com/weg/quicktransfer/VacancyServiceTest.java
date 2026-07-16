@@ -47,17 +47,17 @@ class VacancyServiceTest {
 
         vacancy = new Vacancy();
         vacancy.setId(1L);
-        vacancy.setShift(Shift.PRIMEIRO);
+        vacancy.setShift(Shift.FIRST);
         vacancy.setPlace(place);
         vacancy.setInterviews(new ArrayList<Interview>());
 
         requestDTO = new VacancyRequestDTO();
-        requestDTO.setShift(Shift.PRIMEIRO);
+        requestDTO.setShift(Shift.FIRST);
         requestDTO.setPlaceId(1L);
 
         responseDTO = new VacancyResponseDTO();
         responseDTO.setId(1L);
-        responseDTO.setShift(Shift.PRIMEIRO);
+        responseDTO.setShift(Shift.FIRST);
         responseDTO.setPlaceId(1L);
     }
 
@@ -72,7 +72,7 @@ class VacancyServiceTest {
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals(Shift.PRIMEIRO, result.getShift());
+        assertEquals(Shift.FIRST, result.getShift());
         assertEquals(1L, result.getPlaceId());
 
         verify(vacancyMapper).toEntity(requestDTO);
@@ -100,18 +100,18 @@ class VacancyServiceTest {
     @DisplayName("Should update vacancy and return response dto")
     void shouldUpdateVacancy() {
         VacancyRequestDTO updatedRequest = new VacancyRequestDTO();
-        updatedRequest.setShift(Shift.SEGUNDO);
+        updatedRequest.setShift(Shift.SECOND);
         updatedRequest.setPlaceId(1L);
 
         Vacancy updatedEntity = new Vacancy();
         updatedEntity.setId(1L);
-        updatedEntity.setShift(Shift.SEGUNDO);
+        updatedEntity.setShift(Shift.SECOND);
         updatedEntity.setPlace(place);
         updatedEntity.setInterviews(new ArrayList<Interview>());
 
         VacancyResponseDTO updatedResponse = new VacancyResponseDTO();
         updatedResponse.setId(1L);
-        updatedResponse.setShift(Shift.SEGUNDO);
+        updatedResponse.setShift(Shift.SECOND);
         updatedResponse.setPlaceId(1L);
 
         when(vacancyRepo.findById(1L)).thenReturn(vacancy);

@@ -9,6 +9,7 @@ import com.weg.quicktransfer.repository.ClassEntityRepository;
 import com.weg.quicktransfer.repository.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.CoordinatorService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +36,7 @@ public class CoordinatorOperationsRulesTest {
     private CoordinatorService coordinatorService;
 
     @Test
-    public void rule013_CreateCourse_CompleteData_ShouldSave() {
+    public void createCourseCompleteDataShouldSave() {
         Course course = new Course();
         course.setName("Industrial Mechanics");
 
@@ -48,7 +49,8 @@ public class CoordinatorOperationsRulesTest {
     }
 
     @Test
-    public void rule017_CreateClass_StartDateGreaterThanFinishDate_ShouldThrowException() {
+    @DisplayName("Should not allow creating a class with a finish date before the start date")
+    public void createClassStartDateGreaterThanFinishDateShouldThrowException() {
         ClassEntity studentClass = new ClassEntity();
         studentClass.setAcronym("MEC-2024");
         studentClass.setStartDate(LocalDate.of(2025, 1, 1));
@@ -56,13 +58,14 @@ public class CoordinatorOperationsRulesTest {
 
         assertThrows(IllegalArgumentException.class, () -> {
             coordinatorService.createClassEntity(studentClass);
-        }, "Should not allow creating a class with a finish date before the start date");
+        });
 
         verify(classEntityRepository, never()).save(any());
     }
 
     @Test
-    public void rule021_ApplyApprenticeToVacancy_StudentAlreadyApplied_ShouldThrowException() {
+    @DisplayName("Should not allow applying the same apprentice more than once to the same vacancy")
+    public void applyApprenticeToVacancyStudentAlreadyAppliedShouldThrowException() {
         Student student = new Student();
         student.setId(1L);
 
@@ -75,6 +78,6 @@ public class CoordinatorOperationsRulesTest {
 
         assertThrows(BusinessRuleException.class, () -> {
             coordinatorService.applyStudentToVacancy(student, 100L);
-        }, "Should not allow applying the same apprentice more than once to the same vacancy");
+        });
     }
 }
