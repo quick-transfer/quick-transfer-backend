@@ -26,7 +26,7 @@ public class Interview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "date-time")
+    @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
 
     @ManyToOne
