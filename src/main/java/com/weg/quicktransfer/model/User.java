@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import javax.management.relation.Role;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,14 +24,19 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, name = "user_name")
     private String userName;
     
+    @Column(nullable = false)
     private String email;
     
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private Role role;
 
     public User(String name, String userName, String email, String password, Role role) {
