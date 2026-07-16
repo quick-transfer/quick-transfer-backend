@@ -5,7 +5,6 @@ public record ManagerRequestDTO(
     String userName,
     String email,
     String password,
-    String role,
     String section
 ) {
 }
