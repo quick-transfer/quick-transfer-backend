@@ -1,4 +1,4 @@
 package com.weg.quicktransfer.repo;
 
-public class UserRepo {
+public interface UserRepo {
 }
