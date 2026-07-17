@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 public class Admin extends User{
 
-    public Admin(String name, String userName, String email, String password, Role role) {
-        super(name, userName, email, password, role);
+    public Admin(String name, String userName, String email, String password) {
+        super(name, userName, email, password, Role.ADMIN);
     }
 }
