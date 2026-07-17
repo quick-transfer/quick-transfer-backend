@@ -4,7 +4,7 @@ import com.weg.quicktransfer.dto.AdminRequestDTO;
 import com.weg.quicktransfer.dto.AdminResponseDTO;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.model.Role;
+import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.repo.AdminRepo;
 import com.weg.quicktransfer.service.AdminService;
 import org.junit.jupiter.api.BeforeEach;

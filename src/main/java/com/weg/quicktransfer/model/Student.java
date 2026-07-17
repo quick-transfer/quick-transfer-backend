@@ -35,7 +35,7 @@ public class Student{
     @Column(nullable = false)
     private StudentInterviewStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "has_seen_email")
     private Boolean hasSeenEmail;
 
     @OneToOne(mappedBy = "student")

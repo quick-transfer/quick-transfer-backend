@@ -4,8 +4,8 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repository.InterviewRepository;
-import com.weg.quicktransfer.repository.StudentRepository;
+import com.weg.quicktransfer.repo.InterviewRepository;
+import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.InterviewService;
 import com.weg.quicktransfer.service.EmailService;
 import org.junit.jupiter.api.Test;

@@ -4,7 +4,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repository.VacancyRepository;
+import com.weg.quicktransfer.repo.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.VacancyService;
 import org.junit.jupiter.api.DisplayName;
