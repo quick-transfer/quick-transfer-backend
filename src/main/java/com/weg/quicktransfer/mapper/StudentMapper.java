@@ -6,12 +6,11 @@ import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.model.ClassEntity;
-import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.model.Student;
 
 @Component
 public class StudentMapper {
-    public Student toEntity(StudentRequestDTO studentRequestDTO, ClassEntity classEntity, Interview interview) {
+    public Student toEntity(StudentRequestDTO studentRequestDTO, ClassEntity classEntity) {
         return new Student(
             studentRequestDTO.name(),
             studentRequestDTO.email(),
@@ -19,7 +18,7 @@ public class StudentMapper {
             classEntity,
             StudentInterviewStatus.valueOf(studentRequestDTO.statusStudent()),
             studentRequestDTO.hasSeenEmail(),
-            interview
+            null
         );
     }
 
