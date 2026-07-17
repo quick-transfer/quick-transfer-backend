@@ -32,15 +32,15 @@ public class Interview {
     private LocalDateTime dateTime;
 
     @ManyToOne
-    @JoinColumn(name = "vacancy_id") 
+    @JoinColumn(name = "vacancy_id", nullable = false) 
     private Vacancy vacancy;
 
     @ManyToOne
-    @JoinColumn(name = "place_id")
+    @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
     @ManyToOne
-    @JoinColumn(name = "manager_id")
+    @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
 
     @OneToOne(cascade = CascadeType.ALL)

@@ -28,7 +28,7 @@ public class Student{
     private Double averageGrade;
 
     @ManyToOne
-    @JoinColumn(name = "classentity_id")
+    @JoinColumn(name = "classentity_id", nullable = false)
     private ClassEntity classEntity;
 
     @Enumerated(EnumType.STRING)
