@@ -63,7 +63,7 @@ class PlaceServiceTest {
         when(placeRepo.save(place))
                 .thenReturn(place);
 
-        when(placeMapper.toResponseDTO(place))
+        when(placeMapper.toResponse(place))
                 .thenReturn(responseDTO);
 
         PlaceResponseDTO result =
@@ -75,7 +75,7 @@ class PlaceServiceTest {
 
         verify(placeMapper).toEntity(requestDTO);
         verify(placeRepo).save(place);
-        verify(placeMapper).toResponseDTO(place);
+        verify(placeMapper).toResponse(place);
     }
 
     @Test
@@ -85,7 +85,7 @@ class PlaceServiceTest {
         when(placeRepo.findById(1L))
                 .thenReturn(place);
 
-        when(placeMapper.toResponseDTO(place))
+        when(placeMapper.toResponse(place))
                 .thenReturn(responseDTO);
 
         PlaceResponseDTO result =
@@ -96,7 +96,7 @@ class PlaceServiceTest {
         assertEquals("Fábrica Jaraguá", result.getName());
 
         verify(placeRepo).findById(1L);
-        verify(placeMapper).toResponseDTO(place);
+        verify(placeMapper).toResponse(place);
     }
 
     @Test
@@ -128,7 +128,7 @@ class PlaceServiceTest {
         when(placeRepo.save(any(Place.class)))
                 .thenReturn(updatedEntity);
 
-        when(placeMapper.toResponseDTO(updatedEntity))
+        when(placeMapper.toResponse(updatedEntity))
                 .thenReturn(updatedResponse);
 
         PlaceResponseDTO result =
@@ -141,7 +141,7 @@ class PlaceServiceTest {
         verify(placeRepo).findById(1L);
         verify(placeMapper).toEntity(updatedRequest);
         verify(placeRepo).save(any(Place.class));
-        verify(placeMapper).toResponseDTO(updatedEntity);
+        verify(placeMapper).toResponse(updatedEntity);
     }
 
     @Test

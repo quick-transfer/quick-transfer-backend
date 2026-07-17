@@ -1,19 +1,22 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.AdminRequestDTO;
-import com.weg.quicktransfer.dto.AdminResponseDTO;
+import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
+import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.enums.Role;
-import com.weg.quicktransfer.repo.AdminRepo;
+import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.service.AdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +26,7 @@ import static org.mockito.Mockito.*;
 class AdminServiceTest {
 
     @Mock
-    private AdminRepo adminRepo;
+    private AdminRepository adminRepo;
 
     @Mock
     private AdminMapper adminMapper;
@@ -38,26 +41,29 @@ class AdminServiceTest {
     @BeforeEach
     void setUp() {
 
-        admin = new Admin();
-        admin.setId(1L);
-        admin.setName("Administrador");
-        admin.setUsername("admin01");
-        admin.setEmail("admin@weg.com");
-        admin.setPassword("123456");
-        admin.setRole(Role.ADMIN);
+        admin = Admin.builder()
+                .id(1L)
+                .name("Administrador")
+                .userName("admin01")
+                .email("admin@weg.com")
+                .password("123456")
+                .role(Role.ADMIN)
+                .build();
 
-        requestDTO = new AdminRequestDTO();
-        requestDTO.setName("Administrador");
-        requestDTO.setUsername("admin01");
-        requestDTO.setEmail("admin@weg.com");
-        requestDTO.setPassword("123456");
+        requestDTO = new AdminRequestDTO(
+                "Administrador",
+                "admin01",
+                "admin@weg.com",
+                "123456"
+        );
 
-        responseDTO = new AdminResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Administrador");
-        responseDTO.setUsername("admin01");
-        responseDTO.setEmail("admin@weg.com");
-        responseDTO.setRole(Role.ADMIN);
+        responseDTO = new AdminResponseDTO(
+                1L,
+                "Administrador",
+                "admin01",
+                "admin@weg.com",
+                Role.ADMIN
+        );
     }
 
     @Test
@@ -70,113 +76,21 @@ class AdminServiceTest {
         when(adminRepo.save(admin))
                 .thenReturn(admin);
 
-        when(adminMapper.toResponseDTO(admin))
+        when(adminMapper.toResponse(admin))
                 .thenReturn(responseDTO);
 
-        AdminResponseDTO result =
-                adminService.create(requestDTO);
+        AdminResponseDTO result = adminService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Administrador", result.getName());
-        assertEquals("admin01", result.getUsername());
-        assertEquals("admin@weg.com", result.getEmail());
-        assertEquals(Role.ADMIN, result.getRole());
+        assertEquals(1L, result.id());
+        assertEquals("Administrador", result.name());
+        assertEquals("admin01", result.userName());
+        assertEquals("admin@weg.com", result.email());
+        assertEquals(Role.ADMIN, result.role());
 
         verify(adminMapper).toEntity(requestDTO);
         verify(adminRepo).save(admin);
-        verify(adminMapper).toResponseDTO(admin);
-    }
-
-    @Test
-    @DisplayName("Should find admin by id and return response dto")
-    void shouldFindAdminById() {
-
-        when(adminRepo.findById(1L))
-                .thenReturn(admin);
-
-        when(adminMapper.toResponseDTO(admin))
-                .thenReturn(responseDTO);
-
-        AdminResponseDTO result =
-                adminService.findById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Administrador", result.getName());
-
-        verify(adminRepo).findById(1L);
-        verify(adminMapper).toResponseDTO(admin);
-    }
-
-    @Test
-    @DisplayName("Should update admin and return response dto")
-    void shouldUpdateAdmin() {
-
-        AdminRequestDTO updatedRequest =
-                new AdminRequestDTO();
-
-        updatedRequest.setName("Administrador Atualizado");
-        updatedRequest.setUsername("admin02");
-        updatedRequest.setEmail("admin2@weg.com");
-        updatedRequest.setPassword("654321");
-
-        Admin updatedEntity = new Admin();
-        updatedEntity.setId(1L);
-        updatedEntity.setName("Administrador Atualizado");
-        updatedEntity.setUsername("admin02");
-        updatedEntity.setEmail("admin2@weg.com");
-        updatedEntity.setPassword("654321");
-        updatedEntity.setRole(Role.ADMIN);
-
-        AdminResponseDTO updatedResponse =
-                new AdminResponseDTO();
-
-        updatedResponse.setId(1L);
-        updatedResponse.setName("Administrador Atualizado");
-        updatedResponse.setUsername("admin02");
-        updatedResponse.setEmail("admin2@weg.com");
-        updatedResponse.setRole(Role.ADMIN);
-
-        when(adminRepo.findById(1L))
-                .thenReturn(admin);
-
-        when(adminMapper.toEntity(updatedRequest))
-                .thenReturn(updatedEntity);
-
-        when(adminRepo.save(any(Admin.class)))
-                .thenReturn(updatedEntity);
-
-        when(adminMapper.toResponseDTO(updatedEntity))
-                .thenReturn(updatedResponse);
-
-        AdminResponseDTO result =
-                adminService.update(1L, updatedRequest);
-
-        assertNotNull(result);
-        assertEquals("Administrador Atualizado", result.getName());
-        assertEquals("admin02", result.getUsername());
-        assertEquals("admin2@weg.com", result.getEmail());
-
-        verify(adminRepo).findById(1L);
-        verify(adminMapper).toEntity(updatedRequest);
-        verify(adminRepo).save(any(Admin.class));
-        verify(adminMapper).toResponseDTO(updatedEntity);
-    }
-
-    @Test
-    @DisplayName("Should delete admin")
-    void shouldDeleteAdmin() {
-
-        doNothing()
-                .when(adminRepo)
-                .deleteById(1L);
-
-        assertDoesNotThrow(() ->
-                adminService.delete(1L));
-
-        verify(adminRepo)
-                .deleteById(1L);
+        verify(adminMapper).toResponse(admin);
     }
 
     @Test
@@ -187,5 +101,171 @@ class AdminServiceTest {
                 IllegalArgumentException.class,
                 () -> adminService.create(null)
         );
+
+        verify(adminRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should find admin by id and return response dto")
+    void shouldFindAdminById() {
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.of(admin));
+
+        when(adminMapper.toResponse(admin))
+                .thenReturn(responseDTO);
+
+        AdminResponseDTO result = adminService.findById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals("Administrador", result.name());
+        assertEquals("admin01", result.userName());
+        assertEquals("admin@weg.com", result.email());
+        assertEquals(Role.ADMIN, result.role());
+
+        verify(adminRepo).findById(1L);
+        verify(adminMapper).toResponse(admin);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when admin is not found by id")
+    void shouldThrowExceptionWhenAdminNotFound() {
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                RuntimeException.class,
+                () -> adminService.findById(1L)
+        );
+
+        verify(adminMapper, never()).toResponse(any());
+    }
+
+    @Test
+    @DisplayName("Should update admin and return response dto")
+    void shouldUpdateAdmin() {
+
+        AdminRequestDTO updatedRequest = new AdminRequestDTO(
+                "Administrador Atualizado",
+                "admin02",
+                "admin2@weg.com",
+                "654321"
+        );
+
+        Admin updatedAdmin = Admin.builder()
+                .id(1L)
+                .name("Administrador Atualizado")
+                .userName("admin02")
+                .email("admin2@weg.com")
+                .password("654321")
+                .role(Role.ADMIN)
+                .build();
+
+        AdminResponseDTO updatedResponse = new AdminResponseDTO(
+                1L,
+                "Administrador Atualizado",
+                "admin02",
+                "admin2@weg.com",
+                Role.ADMIN
+        );
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.of(admin));
+
+        when(adminRepo.save(any(Admin.class)))
+                .thenReturn(updatedAdmin);
+
+        when(adminMapper.toResponse(any(Admin.class)))
+                .thenReturn(updatedResponse);
+
+        AdminResponseDTO result =
+                adminService.update(1L, updatedRequest);
+
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals("Administrador Atualizado", result.name());
+        assertEquals("admin02", result.userName());
+        assertEquals("admin2@weg.com", result.email());
+
+        ArgumentCaptor<Admin> captor =
+                ArgumentCaptor.forClass(Admin.class);
+
+        verify(adminRepo).save(captor.capture());
+
+        Admin savedAdmin = captor.getValue();
+
+        assertEquals(
+                "Administrador Atualizado",
+                savedAdmin.getName()
+        );
+
+        assertEquals(
+                "admin02",
+                savedAdmin.getUserName()
+        );
+
+        assertEquals(
+                "admin2@weg.com",
+                savedAdmin.getEmail()
+        );
+
+        assertEquals(
+                "654321",
+                savedAdmin.getPassword()
+        );
+
+        verify(adminRepo).findById(1L);
+        verify(adminMapper).toResponse(any(Admin.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent admin")
+    void shouldThrowExceptionWhenUpdatingNonExistentAdmin() {
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                RuntimeException.class,
+                () -> adminService.update(1L, requestDTO)
+        );
+
+        verify(adminRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should delete admin")
+    void shouldDeleteAdmin() {
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.of(admin));
+
+        doNothing()
+                .when(adminRepo)
+                .deleteById(1L);
+
+        assertDoesNotThrow(
+                () -> adminService.delete(1L)
+        );
+
+        verify(adminRepo).findById(1L);
+        verify(adminRepo).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when deleting non-existent admin")
+    void shouldThrowExceptionWhenDeletingNonExistentAdmin() {
+
+        when(adminRepo.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                RuntimeException.class,
+                () -> adminService.delete(1L)
+        );
+
+        verify(adminRepo, never()).deleteById(anyLong());
     }
 }

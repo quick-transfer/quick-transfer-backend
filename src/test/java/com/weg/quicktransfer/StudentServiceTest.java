@@ -2,12 +2,12 @@ package com.weg.quicktransfer;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
+import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
-import com.weg.quicktransfer.model.StudentInterviewStatus;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,15 +20,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
 
     @Mock
-    private StudentRepository studentRepo;
+    private StudentRepository studentRepository;
 
     @Mock
     private StudentMapper studentMapper;
@@ -67,114 +69,108 @@ class StudentServiceTest {
         student.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
         student.setHasSeenEmail(false);
 
-        requestDTO = new StudentRequestDTO();
-        requestDTO.setName("Nome");
-        requestDTO.setEmail("email@dominio.com");
-        requestDTO.setAverageGrade(5.0);
-        requestDTO.setClassEntityId(1L);
-        requestDTO.setDesiredClassId(1L);
-        requestDTO.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
-        requestDTO.setHasSeenEmail(false);
-
-        responseDTO = new StudentResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Nome");
-        responseDTO.setEmail("email@dominio.com");
-        responseDTO.setAverageGrade(5.0);
-        responseDTO.setClassEntityId(1L);
-        responseDTO.setDesiredClassId(1L);
-        responseDTO.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
-        responseDTO.setHasSeenEmail(false);
+        // Inicialização utilizando os construtores canônicos dos Records
+        requestDTO = new StudentRequestDTO("Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
+        responseDTO = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
     }
 
     @Test
     @DisplayName("Should create student and return response dto")
     void shouldCreateStudent() {
         when(studentMapper.toEntity(requestDTO)).thenReturn(student);
-        when(studentRepo.save(student)).thenReturn(student);
-        when(studentMapper.toResponseDTO(student)).thenReturn(responseDTO);
+        when(studentRepository.save(student)).thenReturn(student);
+        when(studentMapper.toResponse(student)).thenReturn(responseDTO);
 
         StudentResponseDTO result = studentService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Nome", result.getName());
-        assertEquals("email@dominio.com", result.getEmail());
-        assertEquals(5.0, result.getAverageGrade());
-        assertFalse(result.isHasSeenEmail());
+        assertEquals(1L, result.id());
+        assertEquals("Nome", result.name());
+        assertEquals("email@dominio.com", result.email());
+        assertEquals(5.0, result.averageGrade());
+        assertFalse(result.hasSeenEmail());
 
         verify(studentMapper).toEntity(requestDTO);
-        verify(studentRepo).save(student);
-        verify(studentMapper).toResponseDTO(student);
+        verify(studentRepository).save(student);
+        verify(studentMapper).toResponse(student);
     }
 
     @Test
     @DisplayName("Should find student by id and return response dto")
     void shouldFindStudentById() {
-        when(studentRepo.findById(1L)).thenReturn(student);
-        when(studentMapper.toResponseDTO(student)).thenReturn(responseDTO);
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(studentMapper.toResponse(student)).thenReturn(responseDTO);
 
         StudentResponseDTO result = studentService.findById(1L);
 
-        assertNotNull(found);
-        assertEquals(validStudent.getId(), found.getId());
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals("Nome", result.name());
+
+        verify(studentRepository).findById(1L);
+        verify(studentMapper).toResponse(student);
     }
 
     @Test
-    @DisplayName("Should update student")
-    public void updateStudent() {
-        validStudent.setId(1L);
+    @DisplayName("Should update student and return response dto")
+    void shouldUpdateStudent() {
+        StudentRequestDTO updatedRequest = new StudentRequestDTO("Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
 
-        Student updatedStudent = new Student(
-                "Novo Nome",
-                "novoemail@dominio.com",
-                8.5,
-                validStudent.getCurrentClass(),
-                validStudent.getDesiredClass(),
-                StudentInterviewStatus.ASSIGNED,
-                false
-        );
+        Student updatedEntity = new Student();
+        updatedEntity.setId(1L);
+        updatedEntity.setName("Novo Nome");
+        updatedEntity.setEmail("novoemail@dominio.com");
+        updatedEntity.setAverageGrade(8.5);
+        updatedEntity.setClassEntity(classEntity);
+        updatedEntity.setDesiredClass(classEntity);
+        updatedEntity.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        updatedEntity.setHasSeenEmail(false);
 
-        updatedStudent.setId(1L);
+        StudentResponseDTO updatedResponse = new StudentResponseDTO(1L, "Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
 
-        when(studentRepo.updateStudent(1L, updatedStudent))
-                .thenReturn(Student);
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(studentMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
+        when(studentRepository.save(any(Student.class))).thenReturn(updatedEntity);
+        when(studentMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
-        Student result = studentRepo.updateStudent(1L, updatedStudent);
+        StudentResponseDTO result = studentService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals("Novo Nome", result.getName());
-        assertEquals("novoemail@dominio.com", result.getEmail());
-        assertEquals(8.5, result.getScore());
+        assertEquals("Novo Nome", result.name());
+        assertEquals("novoemail@dominio.com", result.email());
+        assertEquals(8.5, result.averageGrade());
 
+        verify(studentRepository).findById(1L);
+        verify(studentMapper).toEntity(updatedRequest);
+        verify(studentRepository).save(any(Student.class));
+        verify(studentMapper).toResponse(updatedEntity);
     }
 
     @Test
     @DisplayName("Should delete student")
-    public void deleteStudent() {
-        validStudent.setId(1L);
+    void shouldDeleteStudent() {
+        doNothing().when(studentRepository).deleteById(1L);
 
-        doNothing().when(studentRepo).deleteStudent(1L);
+        assertDoesNotThrow(() -> studentService.delete(1L));
 
-        assertDoesNotThrow(() -> studentRepo.deleteStudent(1L));
-
+        verify(studentRepository).deleteById(1L);
     }
 
     @Test
     @DisplayName("Should mark email as read")
-    public void markEmailAsRead() {
-        validStudent.setId(1L);
-        validStudent.setEmailRead(false);
+    void shouldMarkEmailAsRead() {
+        StudentResponseDTO readResponse = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, true);
 
-        when(studentRepo.markEmailAsRead(1L))
-                .thenAnswer(invocation -> {
-                    validStudent.setEmailRead(true);
-                    return validStudent;
-                });
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(studentRepository.save(any(Student.class))).thenReturn(student);
+        when(studentMapper.toResponse(any(Student.class))).thenReturn(readResponse);
 
-        Student result = studentRepo.markEmailAsRead(1L);
+        StudentResponseDTO result = studentService.markEmailAsRead(1L);
 
-        assertTrue(result.isEmailRead());
+        assertNotNull(result);
+        assertTrue(result.hasSeenEmail());
 
+        verify(studentRepository).findById(1L);
+        verify(studentRepository).save(any(Student.class));
     }
 }

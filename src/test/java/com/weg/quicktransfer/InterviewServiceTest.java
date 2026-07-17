@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
 class InterviewServiceTest {
 
     @Mock
-    private InterviewRepository interviewRepo;
+    private InterviewRepository interviewRepository;
 
     @Mock
     private InterviewMapper interviewMapper;
@@ -64,68 +65,53 @@ class InterviewServiceTest {
         interview.setPlace(place);
         interview.setVacancy(vacancy);
 
-        requestDTO = new InterviewRequestDTO();
-        requestDTO.setDateTime(LocalDateTime.of(2026, 7, 16, 15, 30));
-        requestDTO.setStudentId(1L);
-        requestDTO.setManagerId(2L);
-        requestDTO.setPlaceId(3L);
-        requestDTO.setVacancyId(4L);
-
-        responseDTO = new InterviewResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setDateTime(LocalDateTime.of(2026, 7, 16, 15, 30));
-        responseDTO.setStudentId(1L);
-        responseDTO.setManagerId(2L);
-        responseDTO.setPlaceId(3L);
-        responseDTO.setVacancyId(4L);
+        // Inicialização utilizando os construtores canônicos dos Records
+        requestDTO = new InterviewRequestDTO(LocalDateTime.of(2026, 7, 16, 15, 30), 1L, 2L, 3L, 4L);
+        responseDTO = new InterviewResponseDTO(1L, LocalDateTime.of(2026, 7, 16, 15, 30), 1L, 2L, 3L, 4L);
     }
 
     @Test
     @DisplayName("Should create interview and return response dto")
     void shouldCreateInterview() {
         when(interviewMapper.toEntity(requestDTO)).thenReturn(interview);
-        when(interviewRepo.save(interview)).thenReturn(interview);
-        when(interviewMapper.toResponseDTO(interview)).thenReturn(responseDTO);
+        when(interviewRepository.save(interview)).thenReturn(interview);
+        when(interviewMapper.toResponse(interview)).thenReturn(responseDTO);
 
         InterviewResponseDTO result = interviewService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(1L, result.getStudentId());
-        assertEquals(2L, result.getManagerId());
-        assertEquals(3L, result.getPlaceId());
-        assertEquals(4L, result.getVacancyId());
+        assertEquals(1L, result.id()); // Acesso ao componente id() do record
+        assertEquals(1L, result.studentId());
+        assertEquals(2L, result.managerId());
+        assertEquals(3L, result.placeId());
+        assertEquals(4L, result.vacancyId());
 
         verify(interviewMapper).toEntity(requestDTO);
-        verify(interviewRepo).save(interview);
-        verify(interviewMapper).toResponseDTO(interview);
+        verify(interviewRepository).save(interview);
+        verify(interviewMapper).toResponse(interview);
     }
 
     @Test
     @DisplayName("Should find interview by id and return response dto")
     void shouldFindInterviewById() {
-        when(interviewRepo.findById(1L)).thenReturn(interview);
-        when(interviewMapper.toResponseDTO(interview)).thenReturn(responseDTO);
+        when(interviewRepository.findById(1L)).thenReturn(Optional.of(interview));
+        when(interviewMapper.toResponse(interview)).thenReturn(responseDTO);
 
         InterviewResponseDTO result = interviewService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(1L, result.getStudentId());
+        assertEquals(1L, result.id());
+        assertEquals(1L, result.studentId());
 
-        verify(interviewRepo).findById(1L);
-        verify(interviewMapper).toResponseDTO(interview);
+        verify(interviewRepository).findById(1L);
+        verify(interviewMapper).toResponse(interview);
     }
 
     @Test
     @DisplayName("Should update interview and return response dto")
     void shouldUpdateInterview() {
-        InterviewRequestDTO updatedRequest = new InterviewRequestDTO();
-        updatedRequest.setDateTime(LocalDateTime.of(2026, 7, 17, 10, 0));
-        updatedRequest.setStudentId(1L);
-        updatedRequest.setManagerId(2L);
-        updatedRequest.setPlaceId(3L);
-        updatedRequest.setVacancyId(4L);
+        // Records são imutáveis; criamos novas instâncias para representar dados modificados
+        InterviewRequestDTO updatedRequest = new InterviewRequestDTO(LocalDateTime.of(2026, 7, 17, 10, 0), 1L, 2L, 3L, 4L);
 
         Interview updatedInterview = new Interview();
         updatedInterview.setId(1L);
@@ -135,39 +121,33 @@ class InterviewServiceTest {
         updatedInterview.setPlace(interview.getPlace());
         updatedInterview.setVacancy(interview.getVacancy());
 
-        InterviewResponseDTO updatedResponse = new InterviewResponseDTO();
-        updatedResponse.setId(1L);
-        updatedResponse.setDateTime(LocalDateTime.of(2026, 7, 17, 10, 0));
-        updatedResponse.setStudentId(1L);
-        updatedResponse.setManagerId(2L);
-        updatedResponse.setPlaceId(3L);
-        updatedResponse.setVacancyId(4L);
+        InterviewResponseDTO updatedResponse = new InterviewResponseDTO(1L, LocalDateTime.of(2026, 7, 17, 10, 0), 1L, 2L, 3L, 4L);
 
-        when(interviewRepo.findById(1L)).thenReturn(interview);
+        when(interviewRepository.findById(1L)).thenReturn(Optional.of(interview));
         when(interviewMapper.toEntity(updatedRequest)).thenReturn(updatedInterview);
-        when(interviewRepo.save(any(Interview.class))).thenReturn(updatedInterview);
-        when(interviewMapper.toResponseDTO(updatedInterview)).thenReturn(updatedResponse);
+        when(interviewRepository.save(any(Interview.class))).thenReturn(updatedInterview);
+        when(interviewMapper.toResponse(updatedInterview)).thenReturn(updatedResponse);
 
         InterviewResponseDTO result = interviewService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(LocalDateTime.of(2026, 7, 17, 10, 0), result.getDateTime());
+        assertEquals(1L, result.id());
+        assertEquals(LocalDateTime.of(2026, 7, 17, 10, 0), result.dateTime());
 
-        verify(interviewRepo).findById(1L);
+        verify(interviewRepository).findById(1L);
         verify(interviewMapper).toEntity(updatedRequest);
-        verify(interviewRepo).save(any(Interview.class));
-        verify(interviewMapper).toResponseDTO(updatedInterview);
+        verify(interviewRepository).save(any(Interview.class));
+        verify(interviewMapper).toResponse(updatedInterview);
     }
 
     @Test
     @DisplayName("Should delete interview")
     void shouldDeleteInterview() {
-        doNothing().when(interviewRepo).deleteById(1L);
+        doNothing().when(interviewRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> interviewService.delete(1L));
 
-        verify(interviewRepo).deleteById(1L);
+        verify(interviewRepository).deleteById(1L);
     }
 
     @Test

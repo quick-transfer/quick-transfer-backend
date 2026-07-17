@@ -1,8 +1,10 @@
 package com.weg.quicktransfer;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
@@ -33,6 +35,7 @@ public class ManagerVacancyRulesTest {
     private ArgumentCaptor<Vacancy> vacancyCaptor;
 
     @Test
+    @DisplayName("Should save vacancy successfully when valid data is provided")
     public void vacancyCreationValidDataShouldSaveSuccessfully() {
         Vacancy vacancy = new Vacancy();
         vacancy.setName("Junior Developer");
@@ -51,6 +54,7 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
+    @DisplayName("Should return filtered list when searching vacancies by section")
     public void filterVacanciesBySectionShouldReturnFilteredList() {
         Section itSection = new Section();
         itSection.setName("IT");
@@ -68,8 +72,7 @@ public class ManagerVacancyRulesTest {
 
     @Test
     @DisplayName("Should not allow closing a vacancy without reaching the minimum number of candidates")
-    public void closeVacancyMinimumAmountNotMetshouldThrowException() {
-
+    public void closeVacancyMinimumAmountNotMetShouldThrowException() {
         Vacancy vacancy = new Vacancy();
         vacancy.setId(1L);
         vacancy.setAvailableSpots(2);
@@ -83,6 +86,7 @@ public class ManagerVacancyRulesTest {
     }
 
     @Test
+    @DisplayName("Should create a new vacancy from a template replacing the original spots amount")
     public void useVacancyTemplateShouldCreateNewVacancyWithoutOriginalAmount() {
         Vacancy template = new Vacancy();
         template.setName("Standard Template");

@@ -1,11 +1,10 @@
 package com.weg.quicktransfer;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.weg.quicktransfer.model.*;
+import com.weg.quicktransfer.model.Coordinator;
+import com.weg.quicktransfer.model.Manager;
+import com.weg.quicktransfer.model.Student;
+import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repository.UserRepository;
-import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.AdminService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,10 +15,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class AdminUserManagementRulesTest {
+class AdminUserManagementRulesTest {
 
     @Mock
     private UserRepository userRepository;
@@ -32,88 +36,143 @@ public class AdminUserManagementRulesTest {
 
     @Test
     @DisplayName("The saved user should be an instance of Manager")
-    public void adminRuleCreateManagerValidDataShouldSaveSuccessfully() {
+    void adminRuleCreateManagerValidDataShouldSaveSuccessfully() {
         Manager newManager = new Manager();
-        newManager.setUsername("manager.john");
-        newManager.setEmail("john@weg.net");
-        newManager.setPassword("securePass123");
+        setField(newManager, "username", "manager.john");
+        setField(newManager, "email", "john@weg.net");
+        setField(newManager, "password", "securePass123");
 
         when(userRepository.findByUsername("manager.john")).thenReturn(Optional.empty());
-        when(userRepository.save(any(Manager.class))).thenReturn(newManager);
+        when(userRepository.save(any(Manager.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User savedUser = adminService.createUser(newManager);
 
         assertNotNull(savedUser);
-        verify(userRepository).save(userCaptor.capture());
+        assertInstanceOf(Manager.class, savedUser);
+        assertEquals("manager.john", readStringField(savedUser, "username", "userName"));
 
+        verify(userRepository).save(userCaptor.capture());
         User capturedUser = userCaptor.getValue();
-        assertTrue(capturedUser instanceof Manager);
-        assertEquals("manager.john", capturedUser.getUsername());
+
+        assertInstanceOf(Manager.class, capturedUser);
+        assertEquals("manager.john", readStringField(capturedUser, "username", "userName"));
+        assertEquals("john@weg.net", readStringField(capturedUser, "email"));
+        assertEquals("securePass123", readStringField(capturedUser, "password"));
     }
 
     @Test
     @DisplayName("Admin should not be able to create a user with an already existing username")
-    public void adminRuleCreateStudentDuplicatedUsernameShouldThrowException() {
+    void adminRuleCreateStudentDuplicatedUsernameShouldThrowException() {
         Student newStudent = new Student();
-        newStudent.setUsername("student.maria");
+        setField(newStudent, "username", "student.maria");
 
         User existingUser = new Manager();
-        existingUser.setUsername("student.maria");
+        setField(existingUser, "username", "student.maria");
 
         when(userRepository.findByUsername("student.maria")).thenReturn(Optional.of(existingUser));
 
-        assertThrows(BusinessRuleException.class, () -> {
-            adminService.createUser(newStudent);
-        });
+        assertThrows(IllegalArgumentException.class, () -> adminService.createUser(newStudent));
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("Username should remain the same")
-    public void adminRuleUpdateUserShouldUpdateOnlyAllowedFields() {
+    void adminRuleUpdateUserShouldUpdateOnlyAllowedFields() {
         Long userId = 1L;
+
         Coordinator existingCoordinator = new Coordinator();
-        existingCoordinator.setId(userId);
-        existingCoordinator.setUsername("coord.peter");
-        existingCoordinator.setName("Peter Old Name");
+        setField(existingCoordinator, "id", userId);
+        setField(existingCoordinator, "username", "coord.peter");
+        setField(existingCoordinator, "name", "Peter Old Name");
 
         Coordinator updateData = new Coordinator();
-        updateData.setName("Peter New Name");
+        setField(updateData, "name", "Peter New Name");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingCoordinator));
-        when(userRepository.save(any(Coordinator.class))).thenReturn(existingCoordinator);
+        when(userRepository.save(any(Coordinator.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User updatedUser = adminService.updateUser(userId, updateData);
 
-        assertEquals("Peter New Name", updatedUser.getName());
-        assertEquals("coord.peter", updatedUser.getUsername());
-        verify(userRepository).save(existingCoordinator);
+        assertNotNull(updatedUser);
+        assertInstanceOf(Coordinator.class, updatedUser);
+        assertEquals("Peter New Name", readStringField(updatedUser, "name"));
+        assertEquals("coord.peter", readStringField(updatedUser, "username", "userName"));
+
+        verify(userRepository).save(userCaptor.capture());
+
+        Coordinator savedCoordinator = (Coordinator) userCaptor.getValue();
+        assertEquals("Peter New Name", readStringField(savedCoordinator, "name"));
+        assertEquals("coord.peter", readStringField(savedCoordinator, "username", "userName"));
     }
 
     @Test
-    public void adminRuleDeleteUserExistingUserShouldDeleteSuccessfully() {
+    @DisplayName("Admin should delete an existing user successfully")
+    void adminRuleDeleteUserExistingUserShouldDeleteSuccessfully() {
         Long userId = 99L;
+
         User existingUser = new Student();
-        existingUser.setId(userId);
+        setField(existingUser, "id", userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 
-        adminService.deleteUser(userId);
+        assertDoesNotThrow(() -> adminService.deleteUser(userId));
 
         verify(userRepository, times(1)).delete(existingUser);
     }
 
     @Test
     @DisplayName("Should throw an exception when admin tries to delete a non-existing user")
-    public void adminRuleDeleteUserNonExistingUserShouldThrowException() {
+    void adminRuleDeleteUserNonExistingUserShouldThrowException() {
         Long invalidUserId = 999L;
         when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
 
-        assertThrows(BusinessRuleException.class, () -> {
-            adminService.deleteUser(invalidUserId);
-        });
+        assertThrows(IllegalArgumentException.class, () -> adminService.deleteUser(invalidUserId));
 
         verify(userRepository, never()).delete(any());
+    }
+
+    private static void setField(Object target, String fieldName, Object value) {
+        Field field = findField(target.getClass(), fieldName);
+        if (field == null) {
+            return;
+        }
+        try {
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Could not set field '" + fieldName + "' on " + target.getClass().getSimpleName(), e);
+        }
+    }
+
+    private static String readStringField(Object target, String... fieldNames) {
+        for (String fieldName : fieldNames) {
+            Field field = findField(target.getClass(), fieldName);
+            if (field == null) {
+                continue;
+            }
+            try {
+                field.setAccessible(true);
+                Object value = field.get(target);
+                if (value != null) {
+                    return String.valueOf(value);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Could not read field '" + fieldName + "' from " + target.getClass().getSimpleName(), e);
+            }
+        }
+        return null;
+    }
+
+    private static Field findField(Class<?> type, String fieldName) {
+        Class<?> current = type;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
     }
 }
