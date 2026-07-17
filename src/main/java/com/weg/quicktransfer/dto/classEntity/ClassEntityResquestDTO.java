@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.dto.classEntity;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -11,6 +12,7 @@ public record ClassEntityResquestDTO(
         Long courseId,
 
         @NotBlank(message = "finish date must not be empty")
+        @Future
         LocalDate finishDate,
 
         @NotBlank(message = "Class acronym must not be empty")
