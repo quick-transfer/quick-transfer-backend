@@ -9,7 +9,6 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "admins")
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
