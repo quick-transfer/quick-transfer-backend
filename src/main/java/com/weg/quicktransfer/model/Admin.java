@@ -2,7 +2,6 @@ package com.weg.quicktransfer.model;
 
 import com.weg.quicktransfer.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "admins")
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
