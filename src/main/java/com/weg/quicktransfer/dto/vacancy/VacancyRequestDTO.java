@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record VacancyRequestDTO(
-    @NotBlank
+    @NotBlank(message = "Shift must not be blank")
     String shift,
-    @NotNull
-    @Positive
+    @NotNull(message = "Place id must not be null")
+    @Positive(message = "Place id must be a positive number")
     Long placeId
 ) {
 }
