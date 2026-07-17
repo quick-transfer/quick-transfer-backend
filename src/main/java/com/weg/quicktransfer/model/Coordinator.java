@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.weg.quicktransfer.enums.Role;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "coordinators")
@@ -20,6 +21,7 @@ import com.weg.quicktransfer.enums.Role;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
 public class Coordinator extends User{
 
     @OneToMany(mappedBy = "coordinator", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
