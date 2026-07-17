@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "managers")
@@ -26,6 +27,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
 public class Manager extends User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
