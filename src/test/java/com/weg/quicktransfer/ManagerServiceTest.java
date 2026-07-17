@@ -1,13 +1,13 @@
 // ManagerServiceTest.java
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.ManagerRequestDTO;
-import com.weg.quicktransfer.dto.ManagerResponseDTO;
+import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
+import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.Manager;
-import com.weg.quicktransfer.model.Role;
-import com.weg.quicktransfer.model.Section;
-import com.weg.quicktransfer.repo.ManagerRepo;
+import com.weg.quicktransfer.enums.Role;
+import com.weg.quicktransfer.enums.Section;
+import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.service.ManagerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class ManagerServiceTest {
 
     @Mock
-    private ManagerRepo managerRepo;
+    private ManagerRepository managerRepo;
 
     @Mock
     private ManagerMapper managerMapper;

@@ -29,7 +29,7 @@ public class StudentMapper {
             student.getName(),
             student.getEmail(),
             student.getAverageGrade(),
-            student.getClass().getAcronym(),
+            student.getClassEntity().getAcronym(),
             student.getClassEntity().getCourse().getName(),
             student.getStatus().name(),
             student.getHasSeenEmail()

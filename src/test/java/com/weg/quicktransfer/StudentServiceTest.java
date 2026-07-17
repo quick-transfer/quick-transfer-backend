@@ -1,14 +1,14 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.StudentRequestDTO;
-import com.weg.quicktransfer.dto.StudentResponseDTO;
+import com.weg.quicktransfer.dto.student.StudentRequestDTO;
+import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.model.StudentInterviewStatus;
-import com.weg.quicktransfer.repo.StudentRepo;
+import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class StudentServiceTest {
 
     @Mock
-    private StudentRepo studentRepo;
+    private StudentRepository studentRepo;
 
     @Mock
     private StudentMapper studentMapper;

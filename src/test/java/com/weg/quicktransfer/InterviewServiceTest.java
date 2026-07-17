@@ -1,14 +1,14 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.InterviewRequestDTO;
-import com.weg.quicktransfer.dto.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.interview.InterviewRequestDTO;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.mapper.InterviewMapper;
 import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.model.Manager;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.model.Vacancy;
-import com.weg.quicktransfer.repo.InterviewRepo;
+import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.service.InterviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 class InterviewServiceTest {
 
     @Mock
-    private InterviewRepo interviewRepo;
+    private InterviewRepository interviewRepo;
 
     @Mock
     private InterviewMapper interviewMapper;

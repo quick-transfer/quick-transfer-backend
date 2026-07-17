@@ -1,11 +1,11 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.PlaceRequestDTO;
-import com.weg.quicktransfer.dto.PlaceResponseDTO;
+import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
+import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
 import com.weg.quicktransfer.mapper.PlaceMapper;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
-import com.weg.quicktransfer.repo.PlaceRepo;
+import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.service.PlaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class PlaceServiceTest {
 
     @Mock
-    private PlaceRepo placeRepo;
+    private PlaceRepository placeRepo;
 
     @Mock
     private PlaceMapper placeMapper;

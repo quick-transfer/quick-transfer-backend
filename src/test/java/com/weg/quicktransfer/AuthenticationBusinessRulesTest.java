@@ -4,7 +4,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.model.User;
-import com.weg.quicktransfer.repository.UserRepository;
+import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.exception.UnauthorizedException;
 import com.weg.quicktransfer.service.AuthService;
 import com.weg.quicktransfer.service.AuthResponse;

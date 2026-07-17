@@ -1,13 +1,13 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.VacancyRequestDTO;
-import com.weg.quicktransfer.dto.VacancyResponseDTO;
+import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
+import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
 import com.weg.quicktransfer.mapper.VacancyMapper;
 import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.model.Place;
-import com.weg.quicktransfer.model.Shift;
+import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.model.Vacancy;
-import com.weg.quicktransfer.repo.VacancyRepo;
+import com.weg.quicktransfer.repo.VacancyRepository;
 import com.weg.quicktransfer.service.VacancyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class VacancyServiceTest {
 
     @Mock
-    private VacancyRepo vacancyRepo;
+    private VacancyRepository vacancyRepo;
 
     @Mock
     private VacancyMapper vacancyMapper;
