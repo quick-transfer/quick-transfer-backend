@@ -3,12 +3,13 @@ package com.weg.quicktransfer.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.relation.Role;
-
+import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.enums.Section;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,13 +32,14 @@ public class Manager extends User{
     private Long id;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Section section;
 
     @OneToMany(mappedBy = "manager")
     List<Interview> interviews = new ArrayList<>();
 
-    public Manager(String name, String userName, String email, String password, Role role, Section section) {
-        super(name, userName, email, password, role);
+    public Manager(String name, String userName, String email, String password, Section section) {
+        super(name, userName, email, password, Role.MANAGER);
         this.section = section;
     }
 }

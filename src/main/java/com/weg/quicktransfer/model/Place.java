@@ -8,6 +8,8 @@ import com.weg.quicktransfer.enums.Section;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,9 +32,11 @@ public class Place {
     private Long id;
     
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Park park;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Section section;
 
     @OneToMany(mappedBy = "place")
