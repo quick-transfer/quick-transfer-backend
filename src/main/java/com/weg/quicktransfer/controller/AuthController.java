@@ -1,15 +1,13 @@
 package com.weg.quicktransfer.controller;
 
-import com.weg.quicktransfer.dto.maneger.LoginRequestDTO;
-import com.weg.quicktransfer.dto.maneger.LoginResponseDTO;
+import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
+import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.security.JwtService;
 import com.weg.quicktransfer.security.UserPrincipal;
-import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
