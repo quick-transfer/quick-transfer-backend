@@ -1,6 +1,6 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.classEntity.ClassEntityResquestDTO;
+import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
 import com.weg.quicktransfer.mapper.ClassEntityMapper;
 import com.weg.quicktransfer.model.ClassEntity;
@@ -37,7 +37,7 @@ class ClassEntityServiceTest {
     private ClassEntityService classEntityService;
 
     private ClassEntity classEntity;
-    private ClassEntityResquestDTO requestDTO;
+    private ClassEntityRequestDTO requestDTO;
     private ClassEntityResponseDTO responseDTO;
     private Course course;
 
@@ -55,7 +55,7 @@ class ClassEntityServiceTest {
         classEntity.setStudents(new ArrayList<Student>());
         classEntity.setAcronym("JAVA01");
 
-        requestDTO = new ClassEntityResquestDTO(1L, LocalDate.now(), "JAVA01");
+        requestDTO = new ClassEntityRequestDTO(1L, LocalDate.now(), "JAVA01");
         responseDTO = new ClassEntityResponseDTO(1L, 1L, LocalDate.now(), "JAVA01");
     }
 
@@ -97,7 +97,7 @@ class ClassEntityServiceTest {
     @DisplayName("Should update class entity and return response dto")
     void shouldUpdateClassEntity() {
         // Records são imutáveis, novos valores exigem uma nova instância
-        ClassEntityResquestDTO updatedRequest = new ClassEntityResquestDTO(1L, LocalDate.now().plusDays(30), "JAVA02");
+        ClassEntityRequestDTO updatedRequest = new ClassEntityRequestDTO(1L, LocalDate.now().plusDays(30), "JAVA02");
 
         ClassEntity updatedEntity = new ClassEntity();
         updatedEntity.setId(1L);

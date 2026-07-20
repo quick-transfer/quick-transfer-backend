@@ -13,7 +13,7 @@ public record ManagerRequestDTO(
     String name,
     @NotBlank(message = "Username must not be blank")
     @Size(max = 100, message = "The Username can have a maximum of 100 characters")
-    String userName,
+    String username,
     @NotBlank(message = "Email must not be blank")
     @Email(message = "Email must be a valid email address")
     String email,

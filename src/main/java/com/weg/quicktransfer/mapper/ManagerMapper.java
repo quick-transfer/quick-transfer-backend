@@ -12,7 +12,7 @@ public class ManagerMapper {
     public Manager toEntity(ManagerRequestDTO managerRequestDTO) {
         return new Manager(
             managerRequestDTO.name(),
-            managerRequestDTO.userName(),
+            managerRequestDTO.username(),
             managerRequestDTO.email(),
             managerRequestDTO.password(),
             Section.valueOf(managerRequestDTO.section())
@@ -23,7 +23,7 @@ public class ManagerMapper {
         return new ManagerResponseDTO(
             manager.getId(),
             manager.getName(),
-            manager.getUserName(),
+            manager.getUsername(),
             manager.getEmail(),
             manager.getSection().name()
         );

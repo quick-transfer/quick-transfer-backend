@@ -32,7 +32,7 @@ public abstract class User {
     private String name;
 
     @Column(nullable = false, name = "user_name")
-    private String userName;
+    private String username;
     
     @Column(nullable = false)
     private String email;
@@ -43,9 +43,9 @@ public abstract class User {
     @Column(nullable = false)
     private Role role;
 
-    public User(String name, String userName, String email, String password, Role role) {
+    public User(String name, String username, String email, String password, Role role) {
         this.name = name;
-        this.userName = userName;
+        this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;

@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Admin extends User{
 
-    public Admin(String name, String userName, String email, String password) {
-        super(name, userName, email, password, Role.ADMIN);
+    public Admin(String name, String username, String email, String password) {
+        super(name, username, email, password, Role.ADMIN);
     }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,7 +29,7 @@ public class Course {
     private Coordinator coordinator;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<ClassEntity> classes;
+    private List<ClassEntity> classes = new ArrayList<>();
 
     public Course(String name, Coordinator coordinator, List<ClassEntity> classes) {
         this.name = name;

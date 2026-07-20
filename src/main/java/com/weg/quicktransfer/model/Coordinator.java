@@ -27,8 +27,8 @@ public class Coordinator extends User{
     @OneToMany(mappedBy = "coordinator", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Course> courses = new ArrayList<>();
 
-    public Coordinator(String name, String userName, String email, String password) {
-        super(name, userName, email, password, Role.COORDINATOR);
+    public Coordinator(String name, String username, String email, String password) {
+        super(name, username, email, password, Role.COORDINATOR);
     }
 
 }
