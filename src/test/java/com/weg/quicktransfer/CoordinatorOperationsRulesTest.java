@@ -2,11 +2,12 @@ package com.weg.quicktransfer;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repository.CourseRepository;
-import com.weg.quicktransfer.repository.ClassEntityRepository;
-import com.weg.quicktransfer.repository.VacancyRepository;
+import com.weg.quicktransfer.repo.CourseRepository;
+import com.weg.quicktransfer.repo.ClassEntityRepository;
+import com.weg.quicktransfer.repo.VacancyRepository;
 import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.CoordinatorService;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,7 @@ public class CoordinatorOperationsRulesTest {
     private CoordinatorService coordinatorService;
 
     @Test
+    @DisplayName("Should create course when complete data is provided")
     public void createCourseCompleteDataShouldSave() {
         Course course = new Course();
         course.setName("Industrial Mechanics");
@@ -53,7 +55,6 @@ public class CoordinatorOperationsRulesTest {
     public void createClassStartDateGreaterThanFinishDateShouldThrowException() {
         ClassEntity studentClass = new ClassEntity();
         studentClass.setAcronym("MEC-2024");
-        studentClass.setStartDate(LocalDate.of(2025, 1, 1));
         studentClass.setFinishDate(LocalDate.of(2024, 1, 1));
 
         assertThrows(IllegalArgumentException.class, () -> {
@@ -71,8 +72,6 @@ public class CoordinatorOperationsRulesTest {
 
         Vacancy vacancy = new Vacancy();
         vacancy.setId(100L);
-        vacancy.setAppliedStudents(new ArrayList<>());
-        vacancy.getAppliedStudents().add(student);
 
         when(vacancyRepository.findById(100L)).thenReturn(Optional.of(vacancy));
 

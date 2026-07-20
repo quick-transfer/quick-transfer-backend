@@ -1,13 +1,16 @@
 package com.weg.quicktransfer;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.InterviewService;
 import com.weg.quicktransfer.service.EmailService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,9 +36,13 @@ public class InterviewFlowRulesTest {
     private InterviewService interviewService;
 
     @Test
+    @DisplayName("Should schedule interview, send notification email and save correctly")
     public void scheduleInterviewShouldScheduleSendEmailAndAssociateCorrectly() {
-        Manager manager = new Manager(); manager.setName("John Manager");
-        Student student = new Student(); student.setEmail("student@weg.net");
+        Manager manager = new Manager();
+        manager.setName("John Manager");
+
+        Student student = new Student();
+        student.setEmail("student@weg.net");
 
         Interview interview = new Interview();
         interview.setManager(manager);
@@ -54,6 +61,7 @@ public class InterviewFlowRulesTest {
     }
 
     @Test
+    @DisplayName("Should change student interview status to VIEWED when visualization is confirmed")
     public void confirmInterviewParticipationShouldChangeStatusToViewed() {
         Interview interview = new Interview();
         Student student = new Student();

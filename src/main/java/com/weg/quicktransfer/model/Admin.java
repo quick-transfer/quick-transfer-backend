@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import com.weg.quicktransfer.enums.Role;
 import jakarta.persistence.*;
+import lombok.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

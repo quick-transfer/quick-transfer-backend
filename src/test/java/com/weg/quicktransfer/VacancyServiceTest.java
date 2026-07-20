@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.*;
 class VacancyServiceTest {
 
     @Mock
-    private VacancyRepository vacancyRepo;
+    private VacancyRepository vacancyRepository;
 
     @Mock
     private VacancyMapper vacancyMapper;
@@ -51,57 +52,51 @@ class VacancyServiceTest {
         vacancy.setPlace(place);
         vacancy.setInterviews(new ArrayList<Interview>());
 
-        requestDTO = new VacancyRequestDTO();
-        requestDTO.setShift(Shift.FIRST);
-        requestDTO.setPlaceId(1L);
-
-        responseDTO = new VacancyResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setShift(Shift.FIRST);
-        responseDTO.setPlaceId(1L);
+        // Inicialização utilizando os construtores canônicos dos Records
+        requestDTO = new VacancyRequestDTO(Shift.FIRST, 1L);
+        responseDTO = new VacancyResponseDTO(1L, Shift.FIRST, 1L);
     }
 
     @Test
     @DisplayName("Should create vacancy and return response dto")
     void shouldCreateVacancy() {
         when(vacancyMapper.toEntity(requestDTO)).thenReturn(vacancy);
-        when(vacancyRepo.save(vacancy)).thenReturn(vacancy);
-        when(vacancyMapper.toResponseDTO(vacancy)).thenReturn(responseDTO);
+        when(vacancyRepository.save(vacancy)).thenReturn(vacancy);
+        when(vacancyMapper.toResponse(vacancy)).thenReturn(responseDTO);
 
         VacancyResponseDTO result = vacancyService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(Shift.FIRST, result.getShift());
-        assertEquals(1L, result.getPlaceId());
+        assertEquals(1L, result.id()); // Acesso ao componente id() do record
+        assertEquals(Shift.FIRST, result.shift());
+        assertEquals(1L, result.placeId());
 
         verify(vacancyMapper).toEntity(requestDTO);
-        verify(vacancyRepo).save(vacancy);
-        verify(vacancyMapper).toResponseDTO(vacancy);
+        verify(vacancyRepository).save(vacancy);
+        verify(vacancyMapper).toResponse(vacancy);
     }
 
     @Test
     @DisplayName("Should find vacancy by id and return response dto")
     void shouldFindVacancyById() {
-        when(vacancyRepo.findById(1L)).thenReturn(vacancy);
-        when(vacancyMapper.toResponseDTO(vacancy)).thenReturn(responseDTO);
+        when(vacancyRepository.findById(1L)).thenReturn(Optional.of(vacancy));
+        when(vacancyMapper.toResponse(vacancy)).thenReturn(responseDTO);
 
         VacancyResponseDTO result = vacancyService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(Shift.FIRST, result.getShift());
+        assertEquals(1L, result.id());
+        assertEquals(Shift.FIRST, result.shift());
 
-        verify(vacancyRepo).findById(1L);
-        verify(vacancyMapper).toResponseDTO(vacancy);
+        verify(vacancyRepository).findById(1L);
+        verify(vacancyMapper).toResponse(vacancy);
     }
 
     @Test
     @DisplayName("Should update vacancy and return response dto")
     void shouldUpdateVacancy() {
-        VacancyRequestDTO updatedRequest = new VacancyRequestDTO();
-        updatedRequest.setShift(Shift.SECOND);
-        updatedRequest.setPlaceId(1L);
+        // Records são imutáveis; novas instâncias representam as modificações de dados
+        VacancyRequestDTO updatedRequest = new VacancyRequestDTO(Shift.SECOND, 1L);
 
         Vacancy updatedEntity = new Vacancy();
         updatedEntity.setId(1L);
@@ -109,36 +104,33 @@ class VacancyServiceTest {
         updatedEntity.setPlace(place);
         updatedEntity.setInterviews(new ArrayList<Interview>());
 
-        VacancyResponseDTO updatedResponse = new VacancyResponseDTO();
-        updatedResponse.setId(1L);
-        updatedResponse.setShift(Shift.SECOND);
-        updatedResponse.setPlaceId(1L);
+        VacancyResponseDTO updatedResponse = new VacancyResponseDTO(1L, Shift.SECOND, 1L);
 
-        when(vacancyRepo.findById(1L)).thenReturn(vacancy);
+        when(vacancyRepository.findById(1L)).thenReturn(Optional.of(vacancy));
         when(vacancyMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
-        when(vacancyRepo.save(any(Vacancy.class))).thenReturn(updatedEntity);
-        when(vacancyMapper.toResponseDTO(updatedEntity)).thenReturn(updatedResponse);
+        when(vacancyRepository.save(any(Vacancy.class))).thenReturn(updatedEntity);
+        when(vacancyMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
         VacancyResponseDTO result = vacancyService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals(Shift.SEGUNDO, result.getShift());
+        assertEquals(1L, result.id());
+        assertEquals(Shift.SECOND, result.shift());
 
-        verify(vacancyRepo).findById(1L);
+        verify(vacancyRepository).findById(1L);
         verify(vacancyMapper).toEntity(updatedRequest);
-        verify(vacancyRepo).save(any(Vacancy.class));
-        verify(vacancyMapper).toResponseDTO(updatedEntity);
+        verify(vacancyRepository).save(any(Vacancy.class));
+        verify(vacancyMapper).toResponse(updatedEntity);
     }
 
     @Test
     @DisplayName("Should delete vacancy")
     void shouldDeleteVacancy() {
-        doNothing().when(vacancyRepo).deleteById(1L);
+        doNothing().when(vacancyRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> vacancyService.delete(1L));
 
-        verify(vacancyRepo).deleteById(1L);
+        verify(vacancyRepository).deleteById(1L);
     }
 
     @Test

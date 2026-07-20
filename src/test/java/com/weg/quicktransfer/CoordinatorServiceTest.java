@@ -4,7 +4,7 @@ import com.weg.quicktransfer.dto.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.CoordinatorResponseDTO;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.model.Coordinator;
-import com.weg.quicktransfer.repo.CoordinatorRepo;
+import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.service.CoordinatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -22,7 +24,7 @@ import static org.mockito.Mockito.*;
 class CoordinatorServiceTest {
 
     @Mock
-    private CoordinatorRepo coordinatorRepo;
+    private CoordinatorRepository coordinatorRepository;
 
     @Mock
     private CoordinatorMapper coordinatorMapper;
@@ -43,101 +45,84 @@ class CoordinatorServiceTest {
         coordinator.setEmail("coord@dominio.com");
         coordinator.setPassword("123456");
 
-        requestDTO = new CoordinatorRequestDTO();
-        requestDTO.setName("Coordenador");
-        requestDTO.setUsername("coord01");
-        requestDTO.setEmail("coord@dominio.com");
-        requestDTO.setPassword("123456");
-
-        responseDTO = new CoordinatorResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Coordenador");
-        responseDTO.setUsername("coord01");
-        responseDTO.setEmail("coord@dominio.com");
+        requestDTO = new CoordinatorRequestDTO("Coordenador", "coord01", "coord@dominio.com", "123456");
+        responseDTO = new CoordinatorResponseDTO(1L, "Coordenador", "coord01", "coord@dominio.com");
     }
 
     @Test
     @DisplayName("Should create coordinator and return response dto")
     void shouldCreateCoordinator() {
         when(coordinatorMapper.toEntity(requestDTO)).thenReturn(coordinator);
-        when(coordinatorRepo.save(coordinator)).thenReturn(coordinator);
-        when(coordinatorMapper.toResponseDTO(coordinator)).thenReturn(responseDTO);
+        when(coordinatorRepository.save(coordinator)).thenReturn(coordinator);
+        when(coordinatorMapper.toResponse(coordinator)).thenReturn(responseDTO);
 
         CoordinatorResponseDTO result = coordinatorService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Coordenador", result.getName());
-        assertEquals("coord01", result.getUsername());
+        assertEquals(1L, result.id());
+        assertEquals("Coordenador", result.name());
+        assertEquals("coord01", result.username());
 
         verify(coordinatorMapper).toEntity(requestDTO);
-        verify(coordinatorRepo).save(coordinator);
-        verify(coordinatorMapper).toResponseDTO(coordinator);
+        verify(coordinatorRepository).save(coordinator);
+        verify(coordinatorMapper).toResponse(coordinator);
     }
 
     @Test
     @DisplayName("Should find coordinator by id and return response dto")
     void shouldFindCoordinatorById() {
-        when(coordinatorRepo.findById(1L)).thenReturn(coordinator);
-        when(coordinatorMapper.toResponseDTO(coordinator)).thenReturn(responseDTO);
+        when(coordinatorRepository.findById(1L)).thenReturn(Optional.of(coordinator));
+        when(coordinatorMapper.toResponse(coordinator)).thenReturn(responseDTO);
 
         CoordinatorResponseDTO result = coordinatorService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Coordenador", result.getName());
+        assertEquals(1L, result.id());
+        assertEquals("Coordenador", result.name());
 
-        verify(coordinatorRepo).findById(1L);
-        verify(coordinatorMapper).toResponseDTO(coordinator);
+        verify(coordinatorRepository).findById(1L);
+        verify(coordinatorMapper).toResponse(coordinator);
     }
 
     @Test
     @DisplayName("Should update coordinator and return response dto")
     void shouldUpdateCoordinator() {
-        CoordinatorRequestDTO updatedRequest = new CoordinatorRequestDTO();
-        updatedRequest.setName("Coordenador Atualizado");
-        updatedRequest.setUsername("coord02");
-        updatedRequest.setEmail("coord2@dominio.com");
-        updatedRequest.setPassword("123456");
+        CoordinatorRequestDTO updatedRequest = new CoordinatorRequestDTO("Coordenador Atualizado", "coord02", "coord2@dominio.com", "123456");
 
         Coordinator updatedEntity = new Coordinator();
         updatedEntity.setId(1L);
         updatedEntity.setName("Coordenador Atualizado");
-        updatedEntity.setUsername("coord02");
+        updatedEntity.setUserName("coord02");
         updatedEntity.setEmail("coord2@dominio.com");
         updatedEntity.setPassword("123456");
 
-        CoordinatorResponseDTO updatedResponse = new CoordinatorResponseDTO();
-        updatedResponse.setId(1L);
-        updatedResponse.setName("Coordenador Atualizado");
-        updatedResponse.setUsername("coord02");
-        updatedResponse.setEmail("coord2@dominio.com");
+        CoordinatorResponseDTO updatedResponse = new CoordinatorResponseDTO(1L, "Coordenador Atualizado", "coord02", "coord2@dominio.com");
 
-        when(coordinatorRepo.findById(1L)).thenReturn(coordinator);
+        when(coordinatorRepository.findById(1L)).thenReturn(Optional.of(coordinator));
         when(coordinatorMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
-        when(coordinatorRepo.save(any(Coordinator.class))).thenReturn(updatedEntity);
-        when(coordinatorMapper.toResponseDTO(updatedEntity)).thenReturn(updatedResponse);
+        when(coordinatorRepository.save(any(Coordinator.class))).thenReturn(updatedEntity);
+        when(coordinatorMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
         CoordinatorResponseDTO result = coordinatorService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals("Coordenador Atualizado", result.getName());
-        assertEquals("coord02", result.getUsername());
+        assertEquals("Coordenador Atualizado", result.name());
+        assertEquals("coord02", result.username());
 
-        verify(coordinatorRepo).findById(1L);
+        verify(coordinatorRepository).findById(1L);
         verify(coordinatorMapper).toEntity(updatedRequest);
-        verify(coordinatorRepo).save(any(Coordinator.class));
-        verify(coordinatorMapper).toResponseDTO(updatedEntity);
+        verify(coordinatorRepository).save(any(Coordinator.class));
+        verify(coordinatorMapper).toResponse(updatedEntity);
     }
 
     @Test
     @DisplayName("Should delete coordinator")
     void shouldDeleteCoordinator() {
-        doNothing().when(coordinatorRepo).deleteById(1L);
+        doNothing().when(coordinatorRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> coordinatorService.delete(1L));
 
-        verify(coordinatorRepo).deleteById(1L);
+        verify(coordinatorRepository).deleteById(1L);
     }
 
     @Test
