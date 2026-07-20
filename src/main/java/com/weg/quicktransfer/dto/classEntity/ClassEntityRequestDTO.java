@@ -3,20 +3,21 @@ package com.weg.quicktransfer.dto.classEntity;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 
-public record ClassEntityResquestDTO(
+public record ClassEntityRequestDTO(
 
-        @NotBlank(message = "Course id must not be empty")
+        @NotNull(message = "Course id must not be null")
         Long courseId,
 
-        @NotBlank(message = "Sart date must not be empty")
+        @NotNull(message = "Sart date must not be null")
         @FutureOrPresent
         LocalDate startDate,
 
-        @NotBlank(message = "finish date must not be empty")
+        @NotNull(message = "finish date must not be null")
         @Future
         LocalDate finishDate,
 
