@@ -31,7 +31,7 @@ public class UserPrincipal implements UserDetails {
     // Retrieves the unique login identifier used to verify identity during authentication
     @Override
     public String getUsername() {
-        return user.getUserName();
+        return user.getUsername();
     }
 
     // Custom helper method to expose the person's real name outside of security scopes
