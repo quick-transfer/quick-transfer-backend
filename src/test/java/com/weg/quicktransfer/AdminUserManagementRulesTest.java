@@ -4,7 +4,7 @@ import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Manager;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.model.User;
-import com.weg.quicktransfer.repository.UserRepository;
+import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.service.AdminService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class AdminUserManagementRulesTest {
         setField(newManager, "email", "john@weg.net");
         setField(newManager, "password", "securePass123");
 
-        when(userRepository.findByUsername("manager.john")).thenReturn(Optional.empty());
+        when(userRepository.findByUserName("manager.john")).thenReturn(Optional.empty());
         when(userRepository.save(any(Manager.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User savedUser = adminService.createUser(newManager);
@@ -69,7 +69,7 @@ class AdminUserManagementRulesTest {
         User existingUser = new Manager();
         setField(existingUser, "username", "student.maria");
 
-        when(userRepository.findByUsername("student.maria")).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUserName("student.maria")).thenReturn(Optional.of(existingUser));
 
         assertThrows(IllegalArgumentException.class, () -> adminService.createUser(newStudent));
 
@@ -111,7 +111,7 @@ class AdminUserManagementRulesTest {
     void adminRuleDeleteUserExistingUserShouldDeleteSuccessfully() {
         Long userId = 99L;
 
-        User existingUser = new Student();
+        User existingUser = new Manager();
         setField(existingUser, "id", userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
