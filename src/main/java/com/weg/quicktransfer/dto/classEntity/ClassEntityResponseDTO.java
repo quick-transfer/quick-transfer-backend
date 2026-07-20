@@ -10,6 +10,6 @@ public record ClassEntityResponseDTO(
         String courseName,
         LocalDate finishDate,
         String acronym,
-        List<Student> studentNames
+        List<Student> students
 ) {
 }
