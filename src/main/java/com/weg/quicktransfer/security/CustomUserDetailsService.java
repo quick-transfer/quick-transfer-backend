@@ -19,8 +19,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     // Locates a user based on their username to establish their security context
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<<<<<<< HEAD
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+=======
+        var user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));       // Throws exception if user does not exist in database
+>>>>>>> fc3e39a0118ebf8d5173c94f0a6cdaac1af3763a
 
         return new UserPrincipal(user);                                                    // Wraps the domain user inside Spring's UserDetails wrapper
     }
