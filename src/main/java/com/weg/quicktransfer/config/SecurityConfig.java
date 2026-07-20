@@ -20,50 +20,56 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+// Marks this class as a source of bean definitions for the Spring context
 @Configuration
+// Enables Spring Security's web security support and MVC integration
 @EnableWebSecurity
+// Lombok annotation to automatically generate a constructor for final fields
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // Custom filter that intercepts requests to validate JWT tokens
     private final JwtAuthFilter jwtAuthFilter;
 
+    // Creates the Spring Security Filter Chain for dictating which filters are applied
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())                       // Disables CSRF protection (safe for stateless JWT)
+                .cors(Customizer.withDefaults())                                              // Enables CORS using the corsConfigurationSource bean
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))       // Configures session management to be stateless (no sessions)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()                // Allows public access to all authentication endpoints
+                        .anyRequest().authenticated()                                         // Requires authentication for all other API endpoints
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)   // Executes the JWT filter before standard login authentication
                 .build();
     }
 
+    // Configures CORS settings to dictate which external domains can access the API
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowedHeaders(List.of("*"));                                           // Allows all HTTP headers in cross-origin requests
+        config.setAllowCredentials(true);                                                     // Allows credentials (like auth headers) in cross-origin requests
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", config);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);                              // Applies this CORS configuration to all API endpoints
 
         return source;
     }
 
+    // Exposes the AuthenticationManager to be used manually in the login controller
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
+    // Defines the PasswordEncoder used for hashing and verifying user passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();                                                   // Uses the strong bcrypt algorithm for password hashing
     }
 }
