@@ -5,15 +5,7 @@ import java.util.List;
 
 import com.weg.quicktransfer.enums.Shift;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +26,8 @@ public class Vacancy {
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "place_id")
     private Place place;
 
     @OneToMany(mappedBy = "vacancy")

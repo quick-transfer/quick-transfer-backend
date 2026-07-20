@@ -20,49 +20,19 @@
                 <TimeBasedTriggeringPolicy interval="1" modulate="true" />
                 <SizeBasedTriggeringPolicy size="10 MB" />
             </Policies>
-            <DefaultRolloverStrategy max="7" />
+            <DefaultRolloverStrategy max="30" />
         </RollingFile>
     </Appenders>
 
     <Loggers>
-        <Logger name="org.springframework.security" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
+        <Logger name="org.springframework.security" level="info" />
 
-        <Logger name="org.hibernate" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
+        <Logger name="org.hibernate" level="warn" />
+        <Logger name="org.hibernate.validator" level="warn" />
 
-        <Logger name="org.hibernate.SQL" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
-
-        <Logger name="org.hibernate.orm.results.loading" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
-        <Logger name="org.hibernate.resource.transaction" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
-
-        <Logger name="org.hibernate.validator" level="warn" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
-
-        <Logger name="org.springframework.web" level="info" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
-
-        <Logger name="com.weg" level="debug" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="FileAppender" />
-        </Logger>
+        <Logger name="org.springframework.web" level="info" />
+->
+        <Logger name="com.weg" level="info" />
 
         <Root level="info">
             <AppenderRef ref="ConsoleAppender" />
