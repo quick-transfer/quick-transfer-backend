@@ -29,9 +29,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public class Manager extends User{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
