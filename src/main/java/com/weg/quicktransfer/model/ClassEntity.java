@@ -28,6 +28,9 @@ public class ClassEntity {
     @Column(name = "finish_date", nullable = false)
     private LocalDate finishDate;
 
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
     List<Student> students;
 
