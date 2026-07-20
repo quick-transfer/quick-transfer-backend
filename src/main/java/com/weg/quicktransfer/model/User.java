@@ -1,9 +1,13 @@
 package com.weg.quicktransfer.model;
 
-
 import com.weg.quicktransfer.enums.Role;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +17,6 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -27,21 +30,21 @@ public abstract class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, name = "user_name", unique = true)
-    private String userName;
-    
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, name = "user_name")
+    private String username;
+
+    @Column(nullable = false)
     private String email;
-    
+
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private Role role;
 
-    public User(String name, String userName, String email, String password, Role role) {
+    public User(String name, String username, String email, String password, Role role) {
         this.name = name;
-        this.userName = userName;
+        this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
