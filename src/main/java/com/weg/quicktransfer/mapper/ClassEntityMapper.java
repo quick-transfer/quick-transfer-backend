@@ -1,7 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
-import com.weg.quicktransfer.dto.classEntity.ClassEntityResquestDTO;
+import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClassEntityMapper {
 
-    public ClassEntity toEntity(ClassEntityResquestDTO classEntityResquestDTO, Course course){
+    public ClassEntity toEntity(ClassEntityRequestDTO classEntityResquestDTO, Course course){
         return new ClassEntity(
                 course,
                 classEntityResquestDTO.startDate(),
