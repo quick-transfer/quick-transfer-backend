@@ -1,7 +1,8 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.ClassEntityRequestDTO;
-import com.weg.quicktransfer.dto.ClassEntityResponseDTO;
+import com.weg.quicktransfer.dto.classEntity.ClassEntityResquestDTO;
+import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO ;
+import com.weg.quicktransfer.mapper.ClassEntityMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
