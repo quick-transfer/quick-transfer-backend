@@ -8,6 +8,7 @@ import java.util.List;
 public record ClassEntityResponseDTO(
         Long id,
         String courseName,
+        LocalDate startDate,
         LocalDate finishDate,
         String acronym,
         List<Student> students
