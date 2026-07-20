@@ -23,7 +23,7 @@ public class ManagerMapper {
         return new ManagerResponseDTO(
             manager.getId(),
             manager.getName(),
-            manager.getUsername(),
+            manager.getUserName(),
             manager.getEmail(),
             manager.getSection().name()
         );
