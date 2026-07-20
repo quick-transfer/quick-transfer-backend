@@ -34,7 +34,7 @@ public class AuthenticationBusinessRulesTest {
         when(mockUser.getPassword()).thenReturn("encrypted_password");
         when(mockUser.isFirstLogin()).thenReturn(true);
 
-        when(userRepository.findByUsername("new.user")).thenReturn(Optional.of(mockUser));
+        when(userRepository.findByUserName("new.user")).thenReturn(Optional.of(mockUser));
 
         LoginResponseDTO response = authService.login("new.user", "encrypted_password");
 
@@ -50,7 +50,7 @@ public class AuthenticationBusinessRulesTest {
         when(mockUser.getPassword()).thenReturn("correct_password");
         when(mockUser.isFirstLogin()).thenReturn(false);
 
-        when(userRepository.findByUsername("valid.user")).thenReturn(Optional.of(mockUser));
+        when(userRepository.findByUserName("valid.user")).thenReturn(Optional.of(mockUser));
 
         LoginResponseDTO response = authService.login("valid.user", "correct_password");
 
@@ -61,7 +61,7 @@ public class AuthenticationBusinessRulesTest {
     @Test
     @DisplayName("System access with invalid user should throw exception")
     public void systemAccessInvalidUserShouldThrowException() {
-        when(userRepository.findByUsername("nonexistent.user")).thenReturn(Optional.empty());
+        when(userRepository.findByUserName("nonexistent.user")).thenReturn(Optional.empty());
 
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
             authService.login("nonexistent.user", "password123");
