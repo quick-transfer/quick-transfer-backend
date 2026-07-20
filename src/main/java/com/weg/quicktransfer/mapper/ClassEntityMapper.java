@@ -12,6 +12,7 @@ public class ClassEntityMapper {
     public ClassEntity toEntity(ClassEntityResquestDTO classEntityResquestDTO, Course course){
         return new ClassEntity(
                 course,
+                classEntityResquestDTO.startDate(),
                 classEntityResquestDTO.finishDate(),
                 classEntityResquestDTO.acronym()
         );
@@ -21,6 +22,7 @@ public class ClassEntityMapper {
         return new ClassEntityResponseDTO(
                 classEntity.getId(),
                 classEntity.getCourse().getName(),
+                classEntity.getStartDate(),
                 classEntity.getFinishDate(),
                 classEntity.getAcronym(),
                 classEntity.getStudents()
