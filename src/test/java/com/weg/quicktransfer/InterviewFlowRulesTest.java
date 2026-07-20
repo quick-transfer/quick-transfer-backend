@@ -1,78 +1,78 @@
-// package com.weg.quicktransfer;
+package com.weg.quicktransfer;
 
-// import static org.mockito.Mockito.*;
-// import static org.mockito.ArgumentMatchers.*;
-// import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-// import com.weg.quicktransfer.enums.StudentInterviewStatus;
-// import com.weg.quicktransfer.model.*;
-// import com.weg.quicktransfer.repo.InterviewRepository;
-// import com.weg.quicktransfer.repo.StudentRepository;
-// import com.weg.quicktransfer.service.InterviewService;
-// import com.weg.quicktransfer.service.EmailService;
-// import org.junit.jupiter.api.DisplayName;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
+import com.weg.quicktransfer.enums.StudentInterviewStatus;
+import com.weg.quicktransfer.model.*;
+import com.weg.quicktransfer.repo.InterviewRepository;
+import com.weg.quicktransfer.repo.StudentRepository;
+import com.weg.quicktransfer.service.InterviewService;
+import com.weg.quicktransfer.service.EmailService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-// import java.time.LocalDateTime;
-// import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-// @ExtendWith(MockitoExtension.class)
-// public class InterviewFlowRulesTest {
+@ExtendWith(MockitoExtension.class)
+public class InterviewFlowRulesTest {
 
-//     @Mock
-//     private InterviewRepository interviewRepository;
+    @Mock
+    private InterviewRepository interviewRepository;
 
-//     @Mock
-//     private StudentRepository studentRepository;
+    @Mock
+    private StudentRepository studentRepository;
 
-//     @Mock
-//     private EmailService emailService;
+    @Mock
+    private EmailService emailService;
 
-//     @InjectMocks
-//     private InterviewService interviewService;
+    @InjectMocks
+    private InterviewService interviewService;
 
-//     @Test
-//     @DisplayName("Should schedule interview, send notification email and save correctly")
-//     public void scheduleInterviewShouldScheduleSendEmailAndAssociateCorrectly() {
-//         Manager manager = new Manager();
-//         manager.setName("John Manager");
+    @Test
+    @DisplayName("Should schedule interview, send notification email and save correctly")
+    public void scheduleInterviewShouldScheduleSendEmailAndAssociateCorrectly() {
+        Manager manager = new Manager();
+        manager.setName("John Manager");
 
-//         Student student = new Student();
-//         student.setEmail("student@weg.net");
+        Student student = new Student();
+        student.setEmail("student@weg.net");
 
-//         Interview interview = new Interview();
-//         interview.setManager(manager);
-//         interview.setStudent(student);
-//         interview.setDateTime(LocalDateTime.now().plusDays(2));
+        Interview interview = new Interview();
+        interview.setManager(manager);
+        interview.setStudent(student);
+        interview.setDateTime(LocalDateTime.now().plusDays(2));
 
-//         when(interviewRepository.save(any(Interview.class))).thenReturn(interview);
+        when(interviewRepository.save(any(Interview.class))).thenReturn(interview);
 
-//         interviewService.scheduleInterview(interview);
+        interviewService.scheduleInterview(interview);
 
-//         verify(interviewRepository, times(1)).save(interview);
-//         verify(emailService, times(1)).sendInterviewNotification(
-//                 eq("student@weg.net"),
-//                 contains("John Manager")
-//         );
-//     }
+        verify(interviewRepository, times(1)).save(interview);
+        verify(emailService, times(1)).sendInterviewNotification(
+                eq("student@weg.net"),
+                contains("John Manager")
+        );
+    }
 
-//     @Test
-//     @DisplayName("Should change student interview status to VIEWED when visualization is confirmed")
-//     public void confirmInterviewParticipationShouldChangeStatusToViewed() {
-//         Interview interview = new Interview();
-//         Student student = new Student();
-//         student.setStudentInterviewStatus(StudentInterviewStatus.NAO_VISTO);
-//         interview.setStudent(student);
+    @Test
+    @DisplayName("Should change student interview status to VIEWED when visualization is confirmed")
+    public void confirmInterviewParticipationShouldChangeStatusToViewed() {
+        Interview interview = new Interview();
+        Student student = new Student();
+        student.setStudentInterviewStatus(StudentInterviewStatus.NAO_VISTO);
+        interview.setStudent(student);
 
-//         when(interviewRepository.findById(10L)).thenReturn(Optional.of(interview));
+        when(interviewRepository.findById(10L)).thenReturn(Optional.of(interview));
 
-//         interviewService.confirmInterviewVisualization(10L);
+        interviewService.confirmInterviewVisualization(10L);
 
-//         assertEquals(StudentInterviewStatus.VISTO, student.getStudentInterviewStatus());
-//         verify(studentRepository, times(1)).save(student);
-//     }
-// }
+        assertEquals(StudentInterviewStatus.VISTO, student.getStudentInterviewStatus());
+        verify(studentRepository, times(1)).save(student);
+    }
+}
