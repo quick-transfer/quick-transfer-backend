@@ -3,6 +3,7 @@ package com.weg.quicktransfer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
 
 import jakarta.persistence.*;
@@ -23,17 +24,29 @@ public class Vacancy {
     private Long id;
     
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private Area area;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
     @ManyToOne
-    @JoinColumn(name = "place_id")
+    @JoinColumn(nullable = false, name = "place_id")
     private Place place;
 
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
 
-    public Vacancy(Shift shift, Place place) {
+    public Vacancy(String name, String description, Area area, Shift shift, Place place) {
+        this.name = name;
+        this.description = description;
+        this.area = area;
         this.shift = shift;
         this.place = place;
     }

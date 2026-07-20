@@ -6,12 +6,10 @@ public record CoordinatorResponseDTO(
 
         String name,
 
-        String userName,
+        String username,
 
         String email,
 
-        String password,
-
-        List<String> CoursesName
+        List<String> coursesName
 ) {
 }

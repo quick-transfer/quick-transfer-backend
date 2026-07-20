@@ -29,7 +29,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public class Manager extends User{
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Section section;
@@ -37,8 +36,8 @@ public class Manager extends User{
     @OneToMany(mappedBy = "manager")
     List<Interview> interviews = new ArrayList<>();
 
-    public Manager(String name, String userName, String email, String password, Section section) {
-        super(name, userName, email, password, Role.MANAGER);
+    public Manager(String name, String username, String email, String password, Section section) {
+        super(name, username, email, password, Role.MANAGER);
         this.section = section;
     }
 }

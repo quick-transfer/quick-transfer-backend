@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,7 @@ public class ClassEntity {
     private LocalDate startDate;
 
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
-    List<Student> students;
+    List<Student> students = new ArrayList<>();
 
     @Column(nullable = false)
     private String acronym;
