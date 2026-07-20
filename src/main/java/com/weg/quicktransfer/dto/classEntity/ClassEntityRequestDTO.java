@@ -14,6 +14,10 @@ public record ClassEntityRequestDTO(
         @Positive
         Long courseId,
 
+        @NotNull(message = "Sart date must not be empty")
+        @FutureOrPresent
+        LocalDate startDate,
+
         @NotNull(message = "Finish date must not be null")
         @Future
         LocalDate finishDate,
