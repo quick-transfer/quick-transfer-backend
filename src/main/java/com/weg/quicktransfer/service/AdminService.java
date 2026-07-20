@@ -7,9 +7,12 @@ import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
+import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.mapper.UserMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.model.User;
+import com.weg.quicktransfer.repo.AdminRepository;
+import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.UserRepository;
 import org.springframework.stereotype.Service;
@@ -36,5 +39,9 @@ public class AdminService {
         adminRepository.save(admin);
 
         return adminMapper.toResponse(admin);
+    }
+
+    public AdminResponseDTO findAdminById(Long id) {
+        return adminMapper.toResponse(adminRepository.findById(id));
     }
 }
