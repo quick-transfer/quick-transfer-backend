@@ -41,4 +41,10 @@ public class ClassEntity {
         this.students = students;
         this.acronym = acronym;
     }
+
+    public ClassEntity(Course course, LocalDate finishDate, String acronym) {
+        this.course = course;
+        this.finishDate = finishDate;
+        this.acronym = acronym;
+    }
 }

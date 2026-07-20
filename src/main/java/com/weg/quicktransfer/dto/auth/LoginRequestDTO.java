@@ -10,10 +10,6 @@ public record LoginRequestDTO(
 
         @NotBlank(message = "Password can't be blank")
         @Size(min = 14, message = "Password can't have less than 14 characters")
-        @Pattern(
-                regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{14,}$",
-                message = "The password must contain at least: 1 number, 1 capital letter, 1 lowercase letter and 1 special character"
-        )
         String password
 ) {
 }
