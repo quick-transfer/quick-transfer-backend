@@ -37,15 +37,17 @@ public class ClassEntity {
     @Column(nullable = false)
     private String acronym;
 
-    public ClassEntity(Course course, LocalDate finishDate, List<Student> students, String acronym) {
+    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, List<Student> students, String acronym) {
         this.course = course;
+        this.startDate = startDate;
         this.finishDate = finishDate;
         this.students = students;
         this.acronym = acronym;
     }
 
-    public ClassEntity(Course course, LocalDate finishDate, String acronym) {
+    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, String acronym) {
         this.course = course;
+        this.startDate = startDate;
         this.finishDate = finishDate;
         this.acronym = acronym;
     }
