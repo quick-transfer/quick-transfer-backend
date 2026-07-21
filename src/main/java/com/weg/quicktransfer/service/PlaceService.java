@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
 import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
@@ -22,6 +23,7 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
 
+    @Transactional
     public PlaceResponseDTO create(PlaceRequestDTO placeRequestDTO) {
         Place place = placeMapper.toEntity(placeRequestDTO);
 
@@ -30,18 +32,21 @@ public class PlaceService {
         return placeMapper.toResponse(place);
     }
 
+    @Transactional(readOnly = true)
     public List<PlaceResponseDTO> findAll() {
         List<Place> places = placeRepository.findAll();
 
         return places.stream().map(placeMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public PlaceResponseDTO findById(Long id) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
         return placeMapper.toResponse(place);
     }
 
+    @Transactional
     public PlaceResponseDTO update(Long id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
@@ -62,6 +67,7 @@ public class PlaceService {
         return placeMapper.toResponse(placeAtt);
     }
 
+    @Transactional
     public void delete(Long id) {
         if(!placeRepository.existsById(id)) {
             throw new PlaceNotFoundException(id);

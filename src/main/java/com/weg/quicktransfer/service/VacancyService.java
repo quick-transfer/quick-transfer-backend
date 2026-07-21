@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
@@ -26,6 +27,7 @@ public class VacancyService {
     private final VacancyMapper vacancyMapper;
     private final PlaceRepository placeRepository;
 
+    @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
 
@@ -36,18 +38,21 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancy);
     }
 
+    @Transactional(readOnly = true)
     public List<VacancyResponseDTO> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
 
         return vacancies.stream().map(vacancyMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public VacancyResponseDTO findById(Long id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
         return vacancyMapper.toResponse(vacancy);
     }
 
+    @Transactional
     public VacancyResponseDTO update(Long id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
@@ -82,6 +87,7 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancyAtt);
     }
 
+    @Transactional
     public void delete(Long id) {
         if(!vacancyRepository.existsById(id)) {
             throw new VacancyNotFoundException(id);

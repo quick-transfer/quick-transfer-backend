@@ -43,7 +43,7 @@ public class Place {
     private Section section;
 
     @OneToMany(mappedBy = "place")
-    List<Vacancy> vacancies = new ArrayList<>();
+    private List<Vacancy> vacancies = new ArrayList<>();
 
     @OneToMany(mappedBy = "place")
     private List<Interview> interviews = new ArrayList<>();
