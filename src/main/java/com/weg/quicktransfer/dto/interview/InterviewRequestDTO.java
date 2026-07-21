@@ -9,12 +9,11 @@ import jakarta.validation.constraints.Positive;
 
 
 public record InterviewRequestDTO(
-
     @NotBlank(message = "The interviewer name must not be null or empty")
     String interviewerName,
 
     @NotNull(message = "Date and time must not be null")
-    @Future
+    @Future(message = "Date and time must be in the future")
     LocalDateTime dateTime,
 
     @NotNull(message = "Place ID must not be null")

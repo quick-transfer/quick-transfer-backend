@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 public record InterviewUpdateRequestDTO(
     String interviewerName,
 
-    @Future
+    @Future(message = "Date and time must be in the future")
     LocalDateTime dateTime,
 
     @Positive(message = "Place ID must be a positive number")

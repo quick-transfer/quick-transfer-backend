@@ -33,10 +33,10 @@ public abstract class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, name = "user_name")
+    @Column(nullable = false, name = "user_name", unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)

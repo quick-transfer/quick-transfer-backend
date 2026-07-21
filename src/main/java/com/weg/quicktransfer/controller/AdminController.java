@@ -1,0 +1,29 @@
+package com.weg.quicktransfer.controller;
+
+import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
+import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.service.AdminService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/admin")
+@RequiredArgsConstructor
+public class AdminController {
+
+    private final AdminService adminService;
+
+    @PostMapping("/create/admin")
+    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
+    }
+
+    @GetMapping("/find/admin/{id}")
+    public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
+    }
+
+
+}
