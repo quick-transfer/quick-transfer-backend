@@ -59,6 +59,15 @@ public class AdminService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminResponseDTO> findAllAdmin() {
+        List<Admin> admins = adminRepository.findAll();
+
+        return admins.stream()
+                .map(adminMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
     public AdminResponseDTO updateAdminById(Long id, String name, String email) {
         if (id <= 0) {
