@@ -99,7 +99,7 @@ public class AdminService {
         }
 
         if (!adminRepository.existsById(id)) {
-            throw new UserNotFoundException("Admin does not exists");
+            throw new UserNotFoundException("Admin does not exist");
         }
 
         adminRepository.deleteById(id);
