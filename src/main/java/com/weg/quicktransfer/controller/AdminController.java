@@ -43,7 +43,7 @@ public class AdminController {
             @RequestParam String name,
             @RequestParam String email
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, username, email));
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, name, email));
     }
 
     @DeleteMapping("/delete/admin/{id}")
