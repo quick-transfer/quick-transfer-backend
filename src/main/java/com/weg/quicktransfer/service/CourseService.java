@@ -23,24 +23,32 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final CoordinatorService coordinatorService;
 
+    //returns a new Course
     public CourseResponseDTO create(CourseRequestDTO courseRequestDTO){
+        //throws exception if a Course exists with that name
         if(courseRepository.existsByName(courseRequestDTO.name())){
             throw new CourseNotFoundException("Course already exists with this name");
         }
+        //finds coordinator by id
         Coordinator coordinator = coordinatorService.findById(courseRequestDTO.coordinatorId());
-
+        //transform CourseRequestDTO to entity
         Course course = courseMapper.toEntity(courseRequestDTO, coordinator);
-
+        //saves course
         courseRepository.save(course);
         List<String> classesAcronym = new ArrayList<>();
+        //returns CourseResponseDTO with empty list of class acronyms
         return courseMapper.toResponse(course, classesAcronym);
     }
 
     public List<CourseResponseDTO> findAll(){
+        //search all courses
         List<Course> courses = courseRepository.findAll();
+        //initializes list
         List<CourseResponseDTO> courseResponseDTOS = new ArrayList<>();
+        //goes through courses transforming each one to CourseResponseDTO with the list of class acronyms
         for(Course course : courses){
             List<String> classesAcronym = new ArrayList<>();
+            //Creates a list of the class acronyms
             for (ClassEntity classEntity : course.getClasses()){
                 classesAcronym.add(classEntity.getAcronym());
             }
