@@ -33,7 +33,7 @@ public class AdminController {
     }
 
     @GetMapping("/find/admin/all")
-    public ResponseEntity<List<AdminResponseDTO>> findAdminByName() {
+    public ResponseEntity<List<AdminResponseDTO>> findAllAdmins() {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
