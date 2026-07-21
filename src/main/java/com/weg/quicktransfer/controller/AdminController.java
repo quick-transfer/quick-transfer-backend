@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -20,10 +22,13 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
     }
 
-    @GetMapping("/find/admin/{id}")
+    @GetMapping("/find/admin/id/{id}")
     public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
     }
 
-
+    @GetMapping("/find/admin/name/{name}")
+    public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
+    }
 }

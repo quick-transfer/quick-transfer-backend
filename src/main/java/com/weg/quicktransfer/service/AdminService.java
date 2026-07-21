@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -40,12 +42,15 @@ public class AdminService {
                 .orElseThrow(() -> new UserNotFoundException("User do not exists")));
     }
 
-    public AdminResponseDTO findAdminByName(Long id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("Id can not be less than 0");
+    public List<AdminResponseDTO> findAdminByName(String name) {
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name can not be empty");
         }
 
-        return adminMapper.toResponse(adminRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User do not exists")));
+        List<Admin> admins = adminRepository.findByNameContaining(name);
+
+        return admins.stream()
+                .map(adminMapper::toResponse)
+                .toList();
     }
 }
