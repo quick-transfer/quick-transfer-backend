@@ -29,6 +29,9 @@ public class Vacancy {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false, name = "numbers_vacancies")
+    private Long numbersVacancies;
+
     @Column(nullable = false)
     private Area area;
 
@@ -43,9 +46,10 @@ public class Vacancy {
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
 
-    public Vacancy(String name, String description, Area area, Shift shift, Place place) {
+    public Vacancy(String name, String description, Long numbersVacancies, Area area, Shift shift, Place place) {
         this.name = name;
         this.description = description;
+        this.numbersVacancies = numbersVacancies;
         this.area = area;
         this.shift = shift;
         this.place = place;

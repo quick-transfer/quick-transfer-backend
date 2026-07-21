@@ -30,6 +30,9 @@ public class Place {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, name = "place_name")
+    private String placeName;
     
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,7 +48,8 @@ public class Place {
     @OneToMany(mappedBy = "place")
     private List<Interview> interviews = new ArrayList<>();
 
-    public Place(Park park, Section section) {
+    public Place(String placeName, Park park, Section section) {
+        this.placeName = placeName;
         this.park = park;
         this.section = section;
     }
