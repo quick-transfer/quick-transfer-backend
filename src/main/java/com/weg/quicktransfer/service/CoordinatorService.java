@@ -20,14 +20,17 @@ public class CoordinatorService {
     private final CoordinatorRepository coordinatorRepository;
     private final CoordinatorMapper coordinatorMapper;
 
+    //returns response of coordinator
     public CoordinatorResponseDTO findById(Long id){
-        if(id <= 0){
+        //checks if id is not 0 or negative
+        if(id <= 0) {
             throw new IllegalArgumentException("Id can not be less than 1");
         }
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-
+        //initializes list
         List<String> coursesName = new ArrayList<>();
 
+        //get courses names
         for(Course course : coordinator.getCourses()){
             coursesName.add(course.getName());
         }
