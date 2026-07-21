@@ -9,16 +9,15 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 public record ClassEntityRequestDTO(
-
         @NotNull(message = "Course id must not be null")
         Long courseId,
 
         @NotNull(message = "Sart date must not be null")
-        @FutureOrPresent
+        @FutureOrPresent(message = "Start date must be today or in the future")
         LocalDate startDate,
 
         @NotNull(message = "finish date must not be null")
-        @Future
+        @Future(message = "Finish date must be in the future")
         LocalDate finishDate,
 
         @NotBlank(message = "Class acronym must not be empty")

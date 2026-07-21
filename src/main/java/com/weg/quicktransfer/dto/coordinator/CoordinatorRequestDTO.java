@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 
 public record CoordinatorRequestDTO(
-
         @NotBlank(message = "Name must not be blank")
         @Size(max = 100, message = "The name can have a maximum of 100 characters")
         String name,
