@@ -65,11 +65,11 @@ public class VacancyService {
             vacancy.setNumbersVacancies(vacancyUpdateRequestDTO.numbersVacancies());
         }
 
-        if(vacancyUpdateRequestDTO.area() != null && vacancyUpdateRequestDTO.area().isBlank()) {
+        if(vacancyUpdateRequestDTO.area() != null && !vacancyUpdateRequestDTO.area().isBlank()) {
             vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area()));
         }
 
-        if(vacancyUpdateRequestDTO.shift() != null && vacancyUpdateRequestDTO.shift().isBlank()) {
+        if(vacancyUpdateRequestDTO.shift() != null && !vacancyUpdateRequestDTO.shift().isBlank()) {
             vacancy.setShift(Shift.valueOf(vacancyUpdateRequestDTO.shift()));
         }
 
@@ -83,7 +83,7 @@ public class VacancyService {
     }
 
     public void delete(Long id) {
-        if(vacancyRepository.existsById(id)) {
+        if(!vacancyRepository.existsById(id)) {
             throw new VacancyNotFoundException(id);
         }
 
