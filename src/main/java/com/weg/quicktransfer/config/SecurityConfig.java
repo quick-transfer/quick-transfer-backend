@@ -54,7 +54,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))       // Configures session management to be stateless (no sessions)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/error").permitAll()                // Allows public access to all authentication endpoints
-                        .anyRequest().permitAll()                                        // Requires authentication for all other API endpoints
+                        .anyRequest().authenticated()                                         // Requires authentication for all other API endpoints
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)   // Executes the JWT filter before standard login authentication
                 .build();

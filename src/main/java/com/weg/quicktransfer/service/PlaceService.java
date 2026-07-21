@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
 import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
+import com.weg.quicktransfer.enums.Park;
+import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.mapper.PlaceMapper;
 import com.weg.quicktransfer.model.Place;
@@ -40,7 +42,23 @@ public class PlaceService {
     }
 
     public PlaceResponseDTO update(Long id, PlaceRequestDTO placeRequestDTO) {
-        return null;
+        Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
+
+        if(!placeRequestDTO.placeName().isBlank()) {
+            place.setPlaceName(placeRequestDTO.placeName());
+        }
+
+        if(!placeRequestDTO.park().isBlank()) {
+            place.setPark(Park.valueOf(placeRequestDTO.park()));
+        }
+
+        if(!placeRequestDTO.section().isBlank()) {
+            place.setSection(Section.valueOf(placeRequestDTO.section()));
+        }
+
+        Place placeAtt = placeRepository.save(place);
+
+        return placeMapper.toResponse(placeAtt);
     }
 
     public void delete(Long id) {
