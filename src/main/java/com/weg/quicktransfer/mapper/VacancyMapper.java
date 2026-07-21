@@ -15,6 +15,7 @@ public class VacancyMapper {
         return new Vacancy(
             vacancyRequestDTO.name(),
             vacancyRequestDTO.description(),
+            vacancyRequestDTO.numbersVacancies(),
             Area.valueOf(vacancyRequestDTO.area()),
             Shift.valueOf(vacancyRequestDTO.shift()),
             place
@@ -26,6 +27,7 @@ public class VacancyMapper {
             vacancy.getId(),
             vacancy.getName(),
             vacancy.getDescription(),
+            vacancy.getNumbersVacancies(),
             vacancy.getArea().name(),
             vacancy.getShift().name(),
             vacancy.getPlace().getPark().name(),

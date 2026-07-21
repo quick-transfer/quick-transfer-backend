@@ -16,6 +16,6 @@ public class InterviewService {
     private final InterviewMapper interviewMapper;
 
     public InterviewResponseDTO create(InterviewRequestDTO interviewRequestDTO) {
-        
+        return null;
     }
 }

@@ -9,6 +9,9 @@ public record VacancyRequestDTO(
     String name,
     @NotBlank(message = "Description must not be blank")
     String description,
+    @NotNull(message = "Number of vacancy must not be null")
+    @Positive(message = "Number of vacancy must be a positive")
+    Long numbersVacancies,
     @NotBlank(message = "Area must not be blank")
     String area,
     @NotBlank(message = "Shift must not be blank")
