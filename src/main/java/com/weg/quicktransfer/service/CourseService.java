@@ -86,4 +86,9 @@ public class CourseService {
     public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
         return null;
     }
+
+    @Transactional
+    public void delete(Long id){
+
+    }
 }
