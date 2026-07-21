@@ -93,7 +93,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAdminById(Long id) {
+    public void deleteById(Long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id can not be less than 1");
         }
