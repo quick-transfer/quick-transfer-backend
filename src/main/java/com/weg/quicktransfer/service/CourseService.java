@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
+import com.weg.quicktransfer.exception.CourseNotFoundException;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
