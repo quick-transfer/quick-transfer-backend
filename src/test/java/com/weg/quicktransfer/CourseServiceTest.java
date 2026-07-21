@@ -1,7 +1,7 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.CourseRequestDTO;
-import com.weg.quicktransfer.dto.CourseResponseDTO;
+import com.weg.quicktransfer.dto.course.CourseRequestDTO;
+import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.mapper.CourseMapper;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
@@ -67,7 +67,7 @@ class CourseServiceTest {
 
         assertNotNull(result);
         assertEquals(1L, result.id()); // Acesso ao componente id() do record
-        assertEquals("Java", result.name()); // Acesso ao componente name() do record
+        assertEquals("Java", result.courseName()); // Acesso ao componente name() do record
 
         verify(courseMapper).toEntity(requestDTO);
         verify(courseRepository).save(course);
@@ -84,7 +84,7 @@ class CourseServiceTest {
 
         assertNotNull(result);
         assertEquals(1L, result.id());
-        assertEquals("Java", result.name());
+        assertEquals("Java", result.courseName());
 
         verify(courseRepository).findById(1L);
         verify(courseMapper).toResponse(course);
@@ -112,7 +112,7 @@ class CourseServiceTest {
         CourseResponseDTO result = courseService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals("Java Avançado", result.name());
+        assertEquals("Java Avançado", result.courseName());
 
         verify(courseRepository).findById(1L);
         verify(courseMapper).toEntity(updatedRequest);
