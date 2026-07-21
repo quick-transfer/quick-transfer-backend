@@ -75,4 +75,9 @@ public class CourseService {
         }
         return courseResponseDTOS;
     }
+
+    @Transactional(readOnly = true)
+    public CourseResponseDTO findById(Long id){
+        return null;
+    }
 }
