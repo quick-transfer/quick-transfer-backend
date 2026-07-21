@@ -239,7 +239,7 @@ class AdminServiceTest {
         when(adminRepo.existsById(1L)).thenReturn(true);
         doNothing().when(adminRepo).deleteById(1L);
 
-        assertDoesNotThrow(() -> adminService.deleteAdminById(1L));
+        assertDoesNotThrow(() -> adminService.deleteById(1L));
 
         verify(adminRepo).existsById(1L);
         verify(adminRepo).deleteById(1L);
@@ -252,7 +252,7 @@ class AdminServiceTest {
 
         assertThrows(
                 UserNotFoundException.class,
-                () -> adminService.deleteAdminById(999L)
+                () -> adminService.deleteById(999L)
         );
 
         verify(adminRepo).existsById(999L);
@@ -264,7 +264,7 @@ class AdminServiceTest {
     void shouldThrowExceptionWhenDeletingWithInvalidId() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> adminService.deleteAdminById(0L)
+                () -> adminService.deleteById(0L)
         );
 
         verify(adminRepo, never()).existsById(anyLong());
