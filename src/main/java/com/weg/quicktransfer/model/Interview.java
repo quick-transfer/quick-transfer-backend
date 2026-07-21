@@ -46,7 +46,7 @@ public class Interview {
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Student student;
 
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,

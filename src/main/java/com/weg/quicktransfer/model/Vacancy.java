@@ -32,6 +32,7 @@ public class Vacancy {
     @Column(nullable = false, name = "numbers_vacancies")
     private Long numbersVacancies;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Area area;
 
