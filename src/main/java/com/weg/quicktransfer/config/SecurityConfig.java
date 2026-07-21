@@ -2,6 +2,7 @@ package com.weg.quicktransfer.config;
 
 import com.weg.quicktransfer.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,18 @@ public class SecurityConfig {
     // Custom filter that intercepts requests to validate JWT tokens
     private final JwtAuthFilter jwtAuthFilter;
 
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${app.cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${app.cors.allowed-headers}")
+    private List<String> allowedHeaders;
+
+    @Value("${app.cors.allow-credentials}")
+    private boolean allowCredentials;
+
     // Creates the Spring Security Filter Chain for dictating which filters are applied
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +53,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))       // Configures session management to be stateless (no sessions)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()                // Allows public access to all authentication endpoints
+                        .requestMatchers("/auth/**").permitAll()                // Allows public access to all authentication endpoints
                         .anyRequest().authenticated()                                         // Requires authentication for all other API endpoints
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)   // Executes the JWT filter before standard login authentication
@@ -52,8 +65,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedHeaders(List.of("*"));                                           // Allows all HTTP headers in cross-origin requests
-        config.setAllowCredentials(true);                                                     // Allows credentials (like auth headers) in cross-origin requests
+        config.setAllowedOriginPatterns(allowedOrigins);
+        config.setAllowedMethods(allowedMethods);
+        config.setAllowedHeaders(allowedHeaders);
+        config.setAllowCredentials(allowCredentials);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);                              // Applies this CORS configuration to all API endpoints
