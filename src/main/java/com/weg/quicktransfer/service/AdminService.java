@@ -87,4 +87,13 @@ public class AdminService {
 
         return adminMapper.toResponse(admin);
     }
+
+    @Transactional
+    public void deleteAdminById(Long id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Id can not be less than 1");
+        }
+
+        adminRepository.deleteById(id);
+    }
 }

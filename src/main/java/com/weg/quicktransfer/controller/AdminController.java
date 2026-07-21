@@ -46,4 +46,9 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, username, email));
     }
 
+    @DeleteMapping("/delete/admin/{id}")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
