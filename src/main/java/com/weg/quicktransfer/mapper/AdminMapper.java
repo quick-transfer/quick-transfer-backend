@@ -19,6 +19,7 @@ public class AdminMapper {
 
     public AdminResponseDTO toResponse(Admin admin){
         return new AdminResponseDTO(
+                admin.getId(),
                 admin.getName(),
                 admin.getUsername(),
                 admin.getEmail()

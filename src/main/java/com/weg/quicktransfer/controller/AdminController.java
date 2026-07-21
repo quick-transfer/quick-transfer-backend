@@ -33,7 +33,7 @@ public class AdminController {
     }
 
     @GetMapping("/find/admin/all")
-    public ResponseEntity<List<AdminResponseDTO>> findAdminByName() {
+    public ResponseEntity<List<AdminResponseDTO>> findAllAdmin() {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
@@ -48,7 +48,7 @@ public class AdminController {
 
     @DeleteMapping("/delete/admin/{id}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
-        adminService.deleteById(id);
+        adminService.deleteAdminById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
