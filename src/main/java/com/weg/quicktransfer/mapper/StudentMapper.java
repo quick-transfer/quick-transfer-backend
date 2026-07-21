@@ -14,6 +14,7 @@ public class StudentMapper {
         return new Student(
             studentRequestDTO.name(),
             studentRequestDTO.email(),
+            studentRequestDTO.age(),
             studentRequestDTO.averageGrade(),
             classEntity,
             StudentInterviewStatus.valueOf(studentRequestDTO.statusStudent()),
@@ -27,6 +28,7 @@ public class StudentMapper {
             student.getId(),
             student.getName(),
             student.getEmail(),
+            student.getAge(),
             student.getAverageGrade(),
             student.getClassEntity().getAcronym(),
             student.getClassEntity().getCourse().getName(),
