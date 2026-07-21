@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public record InterviewResponseDTO(
     Long id,
+    String interviewerName,
     LocalDateTime dateTime,
     String park,
     String section,
