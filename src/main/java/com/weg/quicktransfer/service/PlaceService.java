@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
 import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
+import com.weg.quicktransfer.dto.place.PlaceUpdateRequestDTO;
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
@@ -41,19 +42,19 @@ public class PlaceService {
         return placeMapper.toResponse(place);
     }
 
-    public PlaceResponseDTO update(Long id, PlaceRequestDTO placeRequestDTO) {
+    public PlaceResponseDTO update(Long id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
-        if(!placeRequestDTO.placeName().isBlank()) {
-            place.setPlaceName(placeRequestDTO.placeName());
+        if(placeUpdateRequestDTO.placeName() != null && !placeUpdateRequestDTO.placeName().isBlank()) {
+            place.setPlaceName(placeUpdateRequestDTO.placeName());
         }
 
-        if(!placeRequestDTO.park().isBlank()) {
-            place.setPark(Park.valueOf(placeRequestDTO.park()));
+        if(placeUpdateRequestDTO.park() != null && !placeUpdateRequestDTO.park().isBlank()) {
+            place.setPark(Park.valueOf(placeUpdateRequestDTO.park()));
         }
 
-        if(!placeRequestDTO.section().isBlank()) {
-            place.setSection(Section.valueOf(placeRequestDTO.section()));
+        if(placeUpdateRequestDTO.section() != null && !placeUpdateRequestDTO.section().isBlank()) {
+            place.setSection(Section.valueOf(placeUpdateRequestDTO.section()));
         }
 
         Place placeAtt = placeRepository.save(place);
