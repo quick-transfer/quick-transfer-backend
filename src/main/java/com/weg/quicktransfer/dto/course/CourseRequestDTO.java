@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record CourseRequestDTO(
-
         @NotBlank(message = "Course name must not be empty")
         String name,
 
