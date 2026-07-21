@@ -31,4 +31,14 @@ public class AdminController {
     public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
     }
+
+    @PutMapping("/update/admin/{id}")
+    public ResponseEntity<AdminResponseDTO> updateAdmin(
+            @PathVariable Long id,
+            @RequestParam String username,
+            @RequestParam String email
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, username, email));
+    }
+
 }

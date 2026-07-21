@@ -6,10 +6,12 @@ import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.repo.AdminRepository;
+import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class AdminService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public AdminResponseDTO saveAdmin(AdminRequestDTO adminRequestDTO) {
         Admin admin = adminMapper.toEntity(adminRequestDTO);
 
@@ -33,6 +36,7 @@ public class AdminService {
         return adminMapper.toResponse(admin);
     }
 
+    @Transactional(readOnly = true)
     public AdminResponseDTO findAdminById(Long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id can not be less than 1");
@@ -42,8 +46,9 @@ public class AdminService {
                 .orElseThrow(() -> new UserNotFoundException("User do not exists")));
     }
 
+    @Transactional(readOnly = true)
     public List<AdminResponseDTO> findAdminByName(String name) {
-        if (name.isBlank()) {
+        if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
@@ -52,5 +57,25 @@ public class AdminService {
         return admins.stream()
                 .map(adminMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional
+    public AdminResponseDTO updateAdminById(Long id, String name, String email) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Id can not be less than 1");
+        }
+
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
+
+        if (StringUtils.hasText(name)) {
+            admin.setName(name);
+        }
+
+        if (StringUtils.hasText(email)) {
+            admin.setEmail(email);
+        }
+
+        return adminMapper.toResponse(admin);
     }
 }
