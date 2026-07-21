@@ -44,7 +44,7 @@ class AdminServiceTest {
         admin = Admin.builder()
                 .id(1L)
                 .name("Administrador")
-                .userName("admin01")
+                .username("admin01")
                 .email("admin@weg.com")
                 .password("123456")
                 .role(Role.ADMIN)
@@ -79,12 +79,12 @@ class AdminServiceTest {
         when(adminMapper.toResponse(admin))
                 .thenReturn(responseDTO);
 
-        AdminResponseDTO result = adminService.create(requestDTO);
+        AdminResponseDTO result = adminService.saveAdmin(requestDTO);
 
         assertNotNull(result);
         assertEquals(1L, result.id());
         assertEquals("Administrador", result.name());
-        assertEquals("admin01", result.userName());
+        assertEquals("admin01", result.username());
         assertEquals("admin@weg.com", result.email());
         assertEquals(Role.ADMIN, result.role());
 
@@ -99,7 +99,7 @@ class AdminServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> adminService.create(null)
+                () -> adminService.saveAdmin(null)
         );
 
         verify(adminRepo, never()).save(any());
@@ -115,12 +115,12 @@ class AdminServiceTest {
         when(adminMapper.toResponse(admin))
                 .thenReturn(responseDTO);
 
-        AdminResponseDTO result = adminService.findById(1L);
+        AdminResponseDTO result = adminService.findAdminById(1L);
 
         assertNotNull(result);
         assertEquals(1L, result.id());
         assertEquals("Administrador", result.name());
-        assertEquals("admin01", result.userName());
+        assertEquals("admin01", result.username());
         assertEquals("admin@weg.com", result.email());
         assertEquals(Role.ADMIN, result.role());
 
@@ -137,7 +137,7 @@ class AdminServiceTest {
 
         assertThrows(
                 RuntimeException.class,
-                () -> adminService.findById(1L)
+                () -> adminService.findAdminById(1L)
         );
 
         verify(adminMapper, never()).toResponse(any());
@@ -157,7 +157,7 @@ class AdminServiceTest {
         Admin updatedAdmin = Admin.builder()
                 .id(1L)
                 .name("Administrador Atualizado")
-                .userName("admin02")
+                .username("admin02")
                 .email("admin2@weg.com")
                 .password("654321")
                 .role(Role.ADMIN)
@@ -181,12 +181,12 @@ class AdminServiceTest {
                 .thenReturn(updatedResponse);
 
         AdminResponseDTO result =
-                adminService.update(1L, updatedRequest);
+                adminService.updateAdminById(1L, "Admin2", "admin@admin.com");
 
         assertNotNull(result);
         assertEquals(1L, result.id());
         assertEquals("Administrador Atualizado", result.name());
-        assertEquals("admin02", result.userName());
+        assertEquals("admin02", result.username());
         assertEquals("admin2@weg.com", result.email());
 
         ArgumentCaptor<Admin> captor =
@@ -203,7 +203,7 @@ class AdminServiceTest {
 
         assertEquals(
                 "admin02",
-                savedAdmin.getUserName()
+                savedAdmin.getUsername()
         );
 
         assertEquals(
