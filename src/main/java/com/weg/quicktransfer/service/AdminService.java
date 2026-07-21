@@ -89,11 +89,11 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAdminById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public void deleteById(Long id) {
+        
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
 
-        adminRepository.deleteById(id);
+        adminRepository.delete(admin);
     }
 }
