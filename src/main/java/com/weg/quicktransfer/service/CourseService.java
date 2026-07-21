@@ -15,6 +15,7 @@ import com.weg.quicktransfer.repo.CourseRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final CoordinatorRepository coordinatorRepository;
 
+    @Transactional
     //returns a new Course
     public CourseResponseDTO create(CourseRequestDTO courseRequestDTO){
         //throws exception if a Course exists with that name
@@ -56,6 +58,7 @@ public class CourseService {
         return courseMapper.toResponse(course, classesAcronym);
     }
 
+    @Transactional(readOnly = true)
     public List<CourseResponseDTO> findAll(){
         //search all courses
         List<Course> courses = courseRepository.findAll();
