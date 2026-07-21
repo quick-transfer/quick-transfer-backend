@@ -40,7 +40,7 @@ public class AdminController {
     @PutMapping("/update/admin/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
             @PathVariable Long id,
-            @RequestParam String username,
+            @RequestParam String name,
             @RequestParam String email
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, username, email));
