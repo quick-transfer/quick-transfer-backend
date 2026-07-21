@@ -5,6 +5,7 @@ import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.user.UserRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.enums.Role;
+import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.mapper.ManagerMapper;
@@ -42,6 +43,11 @@ public class AdminService {
     }
 
     public AdminResponseDTO findAdminById(Long id) {
-        return adminMapper.toResponse(adminRepository.findById(id));
+        if (id < 0) {
+            throw new IllegalArgumentException("Id can not be less than 0");
+        }
+
+        return adminMapper.toResponse(adminRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User do not exists")));
     }
 }
