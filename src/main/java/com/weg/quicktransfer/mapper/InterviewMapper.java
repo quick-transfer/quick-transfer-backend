@@ -14,6 +14,7 @@ import com.weg.quicktransfer.model.Vacancy;
 public class InterviewMapper {
     public Interview toEntity(InterviewRequestDTO interviewRequestDTO, Place place, Vacancy vacancy, Manager manager, Student student) {
         return new Interview(
+            interviewRequestDTO.interviewerName(),
             interviewRequestDTO.dateTime(),
             vacancy,
             place,
@@ -25,6 +26,7 @@ public class InterviewMapper {
     public InterviewResponseDTO toResponse(Interview interview) {
         return new InterviewResponseDTO(
             interview.getId(),
+            interview.getInterviewerName(),
             interview.getDateTime(),
             interview.getPlace().getPark().name(),
             interview.getPlace().getSection().name(),

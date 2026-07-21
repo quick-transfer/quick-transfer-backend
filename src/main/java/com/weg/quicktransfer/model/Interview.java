@@ -28,6 +28,9 @@ public class Interview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, name = "interviewer_name")
+    private String interviewerName;
+
     @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
 
@@ -46,7 +49,9 @@ public class Interview {
     @OneToOne(cascade = CascadeType.ALL)
     private Student student;
 
-    public Interview(LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager, Student student) {
+    public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
+            Student student) {
+        this.interviewerName = interviewerName;
         this.dateTime = dateTime;
         this.vacancy = vacancy;
         this.place = place;
