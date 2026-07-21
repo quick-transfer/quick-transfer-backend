@@ -15,7 +15,4 @@ public class InterviewService {
     private final InterviewRepository interviewRepository;
     private final InterviewMapper interviewMapper;
 
-    public InterviewResponseDTO create(InterviewRequestDTO interviewRequestDTO) {
-        
-    }
 }
