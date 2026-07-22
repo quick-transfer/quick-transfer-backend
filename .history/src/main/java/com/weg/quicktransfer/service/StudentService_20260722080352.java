@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
-import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
@@ -72,23 +71,7 @@ public class StudentService {
         }
 
         if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudent()));
+            student.setStatus(studentUpdateRequestDTO.);
         }
-
-        if(studentUpdateRequestDTO.hasSeenEmail() != null) {
-            student.setHasSeenEmail(studentUpdateRequestDTO.hasSeenEmail());
-        }
-
-        Student studentAtt = studentRepository.save(student);
-
-        return studentMapper.toResponse(studentAtt);
-    }
-
-    public void delete(Long id) {
-        if(studentRepository.existsById(id)) {
-            throw new StudentNotFoundException(id);
-        }
-
-        studentRepository.deleteById(id);
     }
 }

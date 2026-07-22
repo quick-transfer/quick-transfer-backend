@@ -84,11 +84,9 @@ public class StudentService {
         return studentMapper.toResponse(studentAtt);
     }
 
-    public void delete(Long id) {
+    public StudentResponseDTO delete(Long id) {
         if(studentRepository.existsById(id)) {
-            throw new StudentNotFoundException(id);
+            t
         }
-
-        studentRepository.deleteById(id);
     }
 }

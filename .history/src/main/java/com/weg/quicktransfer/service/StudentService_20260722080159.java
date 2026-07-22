@@ -8,10 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
-import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.mapper.StudentMapper;
-import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.StudentRepository;
 
@@ -49,7 +47,7 @@ public class StudentService {
     public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
-        ClassEntity classEntity = null;
+        C
 
         if(studentUpdateRequestDTO.name() != null && !studentUpdateRequestDTO.name().isBlank()) {
             student.setName(studentUpdateRequestDTO.name());
@@ -67,28 +65,8 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        if(studentUpdateRequestDTO.classId() != null) {
-            student.setClassEntity(classEntity);
+        if(studentUpdateRequestDTO.) {
+            
         }
-
-        if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudent()));
-        }
-
-        if(studentUpdateRequestDTO.hasSeenEmail() != null) {
-            student.setHasSeenEmail(studentUpdateRequestDTO.hasSeenEmail());
-        }
-
-        Student studentAtt = studentRepository.save(student);
-
-        return studentMapper.toResponse(studentAtt);
-    }
-
-    public void delete(Long id) {
-        if(studentRepository.existsById(id)) {
-            throw new StudentNotFoundException(id);
-        }
-
-        studentRepository.deleteById(id);
     }
 }

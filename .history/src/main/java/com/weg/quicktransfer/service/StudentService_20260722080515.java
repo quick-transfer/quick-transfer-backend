@@ -81,14 +81,6 @@ public class StudentService {
 
         Student studentAtt = studentRepository.save(student);
 
-        return studentMapper.toResponse(studentAtt);
-    }
-
-    public void delete(Long id) {
-        if(studentRepository.existsById(id)) {
-            throw new StudentNotFoundException(id);
-        }
-
-        studentRepository.deleteById(id);
+        return s
     }
 }

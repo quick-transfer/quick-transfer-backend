@@ -74,21 +74,5 @@ public class StudentService {
         if(studentUpdateRequestDTO.statusStudent() != null) {
             student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudent()));
         }
-
-        if(studentUpdateRequestDTO.hasSeenEmail() != null) {
-            student.setHasSeenEmail(studentUpdateRequestDTO.hasSeenEmail());
-        }
-
-        Student studentAtt = studentRepository.save(student);
-
-        return studentMapper.toResponse(studentAtt);
-    }
-
-    public void delete(Long id) {
-        if(studentRepository.existsById(id)) {
-            throw new StudentNotFoundException(id);
-        }
-
-        studentRepository.deleteById(id);
     }
 }
