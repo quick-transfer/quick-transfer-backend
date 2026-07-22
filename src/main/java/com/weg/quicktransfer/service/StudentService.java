@@ -34,18 +34,21 @@ public class StudentService {
         return studentMapper.toResponse(student);
     }
 
+    @Transactional(readOnly = true)
     public List<StudentResponseDTO> findAll() {
         List<Student> students = studentRepository.findAll();
 
         return students.stream().map(studentMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public StudentResponseDTO findById(Long id) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
         return studentMapper.toResponse(student);
     }
-
+    
+    @Transactional
     public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
@@ -84,6 +87,7 @@ public class StudentService {
         return studentMapper.toResponse(studentAtt);
     }
 
+    @Transactional
     public void delete(Long id) {
         if(studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);
