@@ -3,12 +3,9 @@ package com.weg.quicktransfer.service;
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
+import com.weg.quicktransfer.exception.CoordinatorNotFoundException;
 import com.weg.quicktransfer.exception.CourseNotFoundException;
-import com.weg.quicktransfer.exception.PlaceNotFoundException;
-import com.weg.quicktransfer.exception.UserNotFoundException;
-import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.mapper.CourseMapper;
-import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
@@ -18,7 +15,6 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,63 +28,54 @@ public class CourseService {
     @Transactional
     //returns a new Course
     public CourseResponseDTO create(CourseRequestDTO courseRequestDTO){
-        //throws exception if a Course exists with that name
-        if(courseRepository.existsByName(courseRequestDTO.name())){
-            throw new CourseNotFoundException("Course already exists with this name");
-        }
-        //finds coordinator by id
-        if(courseRequestDTO.coordinatorId() <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+        Coordinator coordinator = coordinatorRepository.findById(courseRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseRequestDTO.coordinatorId()));
 
-        Coordinator coordinator = coordinatorRepository.findById(courseRequestDTO.coordinatorId()).orElseThrow(() -> new UserNotFoundException(courseRequestDTO.coordinatorId()));
-        //initializes list
-        List<String> coursesName = new ArrayList<>();
-
-        //get courses names
-        for(Course course : coordinator.getCourses()){
-            coursesName.add(course.getName());
-        }
-        //transform CourseRequestDTO to entity
         Course course = courseMapper.toEntity(courseRequestDTO, coordinator);
 
-        //saves course
         courseRepository.save(course);
-        List<String> classesAcronym = new ArrayList<>();
-        //returns CourseResponseDTO with empty list of class acronyms
-        return courseMapper.toResponse(course, classesAcronym);
+
+        return courseMapper.toResponse(course);
     }
 
     @Transactional(readOnly = true)
     public List<CourseResponseDTO> findAll(){
-        //search all courses
         List<Course> courses = courseRepository.findAll();
-        //initializes list
-        List<CourseResponseDTO> courseResponseDTOS = new ArrayList<>();
-        //goes through courses transforming each one to CourseResponseDTO with the list of class acronyms
-        for(Course course : courses){
-            List<String> classesAcronym = new ArrayList<>();
-            //Creates a list of the class acronyms
-            for (ClassEntity classEntity : course.getClasses()){
-                classesAcronym.add(classEntity.getAcronym());
-            }
-            courseResponseDTOS.add(courseMapper.toResponse(course, classesAcronym));
-        }
-        return courseResponseDTOS;
+
+        return courses.stream().map(courseMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public CourseResponseDTO findById(Long id){
-        return null;
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
+
+        return courseMapper.toResponse(course);
     }
 
     @Transactional
     public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
-        return null;
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
+
+        Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(courseUpdateRequestDTO.coordinatorId()));
+
+        if(courseUpdateRequestDTO.name() != null && !courseUpdateRequestDTO.name().isBlank()) {
+            course.setName(courseUpdateRequestDTO.name());
+        }
+
+        if(courseUpdateRequestDTO.coordinatorId() != null) {
+            course.setCoordinator(coordinator);
+        }
+
+        courseRepository.save(course);
+
+        return courseMapper.toResponse(course);
     }
 
     @Transactional
     public void delete(Long id){
+        if(!courseRepository.existsById(id)) {
+            throw new CourseNotFoundException(id);
+        }
 
+        courseRepository.deleteById(id);
     }
 }

@@ -6,8 +6,6 @@ import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class CourseMapper {
 
@@ -18,12 +16,12 @@ public class CourseMapper {
         );
     }
     //
-    public CourseResponseDTO toResponse(Course course, List<String> classesAcronym){
+    public CourseResponseDTO toResponse(Course course){
         return new CourseResponseDTO(
                 course.getId(),
                 course.getName(),
                 course.getCoordinator().getName(),
-                classesAcronym
+                course.getCoordinator().getEmail()
         );
     }
 }

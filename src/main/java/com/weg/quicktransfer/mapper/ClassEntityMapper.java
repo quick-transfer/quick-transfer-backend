@@ -24,8 +24,7 @@ public class ClassEntityMapper {
                 classEntity.getCourse().getName(),
                 classEntity.getStartDate(),
                 classEntity.getFinishDate(),
-                classEntity.getAcronym(),
-                classEntity.getStudents()
+                classEntity.getAcronym()
         );
     }
 }
