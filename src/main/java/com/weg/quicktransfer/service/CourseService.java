@@ -65,9 +65,9 @@ public class CourseService {
             course.setCoordinator(coordinator);
         }
 
-        courseRepository.save(course);
+        Course courseAtt = courseRepository.save(course);
 
-        return courseMapper.toResponse(course);
+        return courseMapper.toResponse(courseAtt);
     }
 
     @Transactional

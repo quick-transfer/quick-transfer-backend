@@ -55,17 +55,17 @@ public class CoordinatorService {
             coordinator.setUsername(coordinatorUpdateRequestDTO.username());
         }
 
-        if(coordinatorUpdateRequestDTO.email() != null && coordinatorUpdateRequestDTO.email().isBlank()) {
+        if(coordinatorUpdateRequestDTO.email() != null && !coordinatorUpdateRequestDTO.email().isBlank()) {
             coordinator.setEmail(coordinatorUpdateRequestDTO.email());
         }
 
-        if(coordinatorUpdateRequestDTO.password() != null && coordinatorUpdateRequestDTO.password().isBlank()) {
+        if(coordinatorUpdateRequestDTO.password() != null && !coordinatorUpdateRequestDTO.password().isBlank()) {
             coordinator.setPassword(coordinatorUpdateRequestDTO.password());
         }
 
-        coordinatorRepository.save(coordinator);
+        Coordinator coordinatorAtt = coordinatorRepository.save(coordinator);
 
-        return coordinatorMapper.toResponse(coordinator);
+        return coordinatorMapper.toResponse(coordinatorAtt);
     }
 
     @Transactional
