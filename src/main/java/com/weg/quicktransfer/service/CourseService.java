@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
+import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
 import com.weg.quicktransfer.exception.CourseNotFoundException;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
@@ -74,5 +75,20 @@ public class CourseService {
             courseResponseDTOS.add(courseMapper.toResponse(course, classesAcronym));
         }
         return courseResponseDTOS;
+    }
+
+    @Transactional(readOnly = true)
+    public CourseResponseDTO findById(Long id){
+        return null;
+    }
+
+    @Transactional
+    public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
+        return null;
+    }
+
+    @Transactional
+    public void delete(Long id){
+
     }
 }
