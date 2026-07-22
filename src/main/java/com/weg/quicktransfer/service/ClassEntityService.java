@@ -68,7 +68,7 @@ public class ClassEntityService {
             classEntity.setFinishDate(classEntityUpdateRequestDTO.finishDate());
         }
 
-        if(classEntityUpdateRequestDTO.acronym() != null && classEntityUpdateRequestDTO.acronym().isBlank()) {
+        if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {
             classEntity.setAcronym(classEntityUpdateRequestDTO.acronym());
         }
 
@@ -79,7 +79,7 @@ public class ClassEntityService {
 
     @Transactional
     public void delete(Long id) {
-        if(classEntityRepository.existsById(id)) {
+        if(!classEntityRepository.existsById(id)) {
             throw new ClassEntityNotFoundException(id);
         }
 
