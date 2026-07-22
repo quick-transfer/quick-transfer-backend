@@ -51,7 +51,6 @@ class CourseServiceTest {
         course.setCoordinator(coordinator);
         course.setClasses(new ArrayList<ClassEntity>());
 
-        // Inicialização usando os construtores canônicos dos Records
         requestDTO = new CourseRequestDTO("Java", 1L);
         responseDTO = new CourseResponseDTO(1L, "Java", "José", "jose@gmail.com");
     }
