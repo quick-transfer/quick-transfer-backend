@@ -205,7 +205,7 @@ public class ManagerService {
                                       Data:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 600; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + formatedDate + """
+                      """ + formatedDate + """
                                     </td>
                                   </tr>
             
@@ -214,7 +214,7 @@ public class ManagerService {
                                       Horário:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 600; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + formattedTime + """
+                                  """ + formattedTime + """
                                     </td>
                                   </tr>
             
@@ -223,7 +223,7 @@ public class ManagerService {
                                       Local:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 500; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + interview.getPlace().getPlaceName() +"""
+                                  """ + interview.getPlace().getPlaceName() +"""
                                     </td>
                                   </tr>
             
@@ -232,7 +232,7 @@ public class ManagerService {
                                       Setor:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 500; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + interview.getPlace().getSection().toString() + """
+                                  """ + interview.getPlace().getSection().toString() + """
                                     </td>
                                   </tr>
             
@@ -241,7 +241,7 @@ public class ManagerService {
                                       Parque Fabril:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 500; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + interview.getPlace().getPark().toString() + """
+                                  """ + interview.getPlace().getPark().toString() + """
                                     </td>
                                   </tr>
             
@@ -250,7 +250,7 @@ public class ManagerService {
                                       Entrevistador(a):
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 500; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + interview.getInterviewerName() + """
+                                  """ + interview.getInterviewerName() + """
                                     </td>
                                   </tr>
             
@@ -259,7 +259,7 @@ public class ManagerService {
                                       Gerente do Setor:
                                     </td>
                                     <td class="value-col" width="64%" style="font-size: 14px; color: #111827; font-weight: 500; padding: 6px 12px 6px 0; vertical-align: top;">
-                                      """ + managerRepository.findByInterviewId(interviewId).orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId)) + """
+                                  """ + managerRepository.findByInterviewId(interviewId).orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId)) + """
                                     </td>
                                   </tr>
             
@@ -276,7 +276,7 @@ public class ManagerService {
                             Descrição da Vaga
                           </p>
                           <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #374151; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 14px 18px;">
-                            """ + interview.getVacancy().getDescription() + """
+                      """ + interview.getVacancy().getDescription() + """
                           </p>
                         </td>
                       </tr>
