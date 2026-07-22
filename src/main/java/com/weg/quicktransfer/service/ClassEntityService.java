@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -51,25 +53,21 @@ public class ClassEntityService {
     }
 
     @Transactional
-    public ClassEntityResponseDTO update(Long id, ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO) {
+    public ClassEntityResponseDTO update(Long id, LocalDate startDate, LocalDate finishDate, String acronym) {
         ClassEntity classEntity = classEntityRepository.findById(id).orElseThrow(() -> new ClassEntityNotFoundException(id));
 
-        Course course = courseRepository.findById(classEntityUpdateRequestDTO.courseId()).orElseThrow(() -> new CourseNotFoundException(classEntityUpdateRequestDTO.courseId()));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
-        if(classEntityUpdateRequestDTO.courseId() != null) {
-            classEntity.setCourse(course);
+        if(startDate != null) {
+            classEntity.setStartDate(startDate);
         }
 
-        if(classEntityUpdateRequestDTO.startDate() != null) {
-            classEntity.setStartDate(classEntityUpdateRequestDTO.startDate());
+        if(finishDate != null) {
+            classEntity.setFinishDate(finishDate);
         }
 
-        if(classEntityUpdateRequestDTO.finishDate() != null) {
-            classEntity.setFinishDate(classEntityUpdateRequestDTO.finishDate());
-        }
-
-        if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {
-            classEntity.setAcronym(classEntityUpdateRequestDTO.acronym());
+        if(StringUtils.hasText(acronym)) {
+            classEntity.setAcronym(acronym);
         }
 
         ClassEntity classEntityAtt = classEntityRepository.save(classEntity);

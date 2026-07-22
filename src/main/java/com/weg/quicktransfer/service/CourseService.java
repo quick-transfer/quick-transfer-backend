@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -52,16 +53,16 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
+    public CourseResponseDTO update(Long id, String name, Long coordinatorId){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
-        Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(courseUpdateRequestDTO.coordinatorId()));
+        Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(coordinatorId));
 
-        if(courseUpdateRequestDTO.name() != null && !courseUpdateRequestDTO.name().isBlank()) {
-            course.setName(courseUpdateRequestDTO.name());
+        if(StringUtils.hasText(name)) {
+            course.setName(name);
         }
 
-        if(courseUpdateRequestDTO.coordinatorId() != null) {
+        if(coordinatorId != null && coordinatorId > 0) {
             course.setCoordinator(coordinator);
         }
 
