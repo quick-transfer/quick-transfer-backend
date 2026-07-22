@@ -89,7 +89,7 @@ public class StudentService {
 
     @Transactional
     public void delete(Long id) {
-        if(studentRepository.existsById(id)) {
+        if(!studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);
         }
 

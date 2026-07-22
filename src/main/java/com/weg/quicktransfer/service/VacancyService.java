@@ -56,7 +56,7 @@ public class VacancyService {
     public VacancyResponseDTO update(Long id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
-        Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(vacancyUpdateRequestDTO.placeId()));
+        Place place = placeRepository.findById(vacancyUpdateRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyUpdateRequestDTO.placeId()));
 
         if(vacancyUpdateRequestDTO.name() != null && !vacancyUpdateRequestDTO.name().isBlank()) {
             vacancy.setName(vacancyUpdateRequestDTO.name());
