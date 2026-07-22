@@ -9,10 +9,12 @@ import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
+import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Student;
+import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +24,13 @@ import lombok.RequiredArgsConstructor;
 public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
+    private final ClassEntityRepository classEntityRepository;
 
     @Transactional
     public StudentResponseDTO create(StudentRequestDTO studentRequestDTO) {
-        
+        ClassEntity classEntity = classEntityRepository.findById(studentRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentRequestDTO.classId()));
 
-        Student student = studentMapper.toEntity(studentRequestDTO, null);
+        Student student = studentMapper.toEntity(studentRequestDTO, classEntity);
 
         studentRepository.save(student);
 
@@ -52,7 +55,7 @@ public class StudentService {
     public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
-        ClassEntity classEntity = null;
+        ClassEntity classEntity = classEntityRepository.findById(studentUpdateRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentUpdateRequestDTO.classId()));
 
         if(studentUpdateRequestDTO.name() != null && !studentUpdateRequestDTO.name().isBlank()) {
             student.setName(studentUpdateRequestDTO.name());
