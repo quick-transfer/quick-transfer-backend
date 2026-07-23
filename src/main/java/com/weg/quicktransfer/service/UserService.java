@@ -79,9 +79,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> findAll() {
-        List<Admin> admins = userRepository.findAll();
+        List<User> users = userRepository.findAll();
 
-        return admins.stream()
+        return users.stream()
                 .map(userMapper::toResponse)
                 .toList();
     }

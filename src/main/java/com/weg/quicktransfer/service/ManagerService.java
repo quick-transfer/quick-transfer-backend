@@ -91,10 +91,6 @@ public class ManagerService {
             manager.setName(updateRequestDTO.name());
         }
 
-        if(StringUtils.hasText(updateRequestDTO.email())) {
-            manager.setEmail(updateRequestDTO.email());
-        }
-
         if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$")) {
             manager.setPassword(updateRequestDTO.password());
         }

@@ -20,27 +20,27 @@ public class ManagerController {
 
     private final ManagerService managerService;
 
-    @PostMapping("/create/manager")
+    @PostMapping("/create")
     public ResponseEntity<ManagerResponseDTO> createManager(@RequestBody ManagerRequestDTO managerRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(managerService.create(managerRequestDTO));
     }
 
-    @GetMapping("/find/manager/id/{id}")
+    @GetMapping("/find/id/{id}")
     public ResponseEntity<ManagerResponseDTO> findManagerById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findById(id));
     }
 
-    @GetMapping("/find/manager/name/{name}")
+    @GetMapping("/find/name/{name}")
     public ResponseEntity<List<ManagerResponseDTO>> findCManagerByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findByName(name));
     }
 
-    @GetMapping("/find/manager/all")
+    @GetMapping("/find/all")
     public ResponseEntity<List<ManagerResponseDTO>> findAllManagerss() {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll());
     }
 
-    @PutMapping("/update/manager/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable Long id,
             @RequestBody ManagerUpdateRequestDTO updateRequestDTO
@@ -48,7 +48,7 @@ public class ManagerController {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO));
     }
 
-    @DeleteMapping("/delete/manager/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
         managerService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).build();

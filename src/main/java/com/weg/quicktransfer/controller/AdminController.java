@@ -30,22 +30,22 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
     }
 
-    @GetMapping("/find/admin/id/{id}")
+    @GetMapping("/find/id/{id}")
     public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
     }
 
-    @GetMapping("/find/admin/name/{name}")
+    @GetMapping("/find/name/{name}")
     public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
     }
 
-    @GetMapping("/find/admin/all")
+    @GetMapping("/find/all")
     public ResponseEntity<List<AdminResponseDTO>> findAllAdmins() {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
-    @PutMapping("/update/admin/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
             @PathVariable Long id,
             @RequestBody AdminUpdateRequestDTO updatedRequest
@@ -53,7 +53,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, updatedRequest));
     }
 
-    @DeleteMapping("/delete/admin/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();

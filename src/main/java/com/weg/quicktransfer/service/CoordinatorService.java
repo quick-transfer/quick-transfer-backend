@@ -64,14 +64,6 @@ public class CoordinatorService {
             coordinator.setName(coordinatorUpdateRequestDTO.name());
         }
 
-        if(coordinatorUpdateRequestDTO.username() != null && !coordinatorUpdateRequestDTO.username().isBlank()) {
-            coordinator.setUsername(coordinatorUpdateRequestDTO.username());
-        }
-
-        if(coordinatorUpdateRequestDTO.email() != null && !coordinatorUpdateRequestDTO.email().isBlank()) {
-            coordinator.setEmail(coordinatorUpdateRequestDTO.email());
-        }
-
         if(coordinatorUpdateRequestDTO.password() != null && !coordinatorUpdateRequestDTO.password().isBlank()) {
             coordinator.setPassword(passwordEncoder.encode(coordinatorUpdateRequestDTO.password()));
         }

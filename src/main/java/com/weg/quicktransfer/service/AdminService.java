@@ -86,10 +86,6 @@ public class AdminService {
             admin.setName(updateRequestDTO.name());
         }
 
-        if (StringUtils.hasText(email)) {
-            admin.setEmail(email);
-        }
-
         return adminMapper.toResponse(admin);
     }
 
