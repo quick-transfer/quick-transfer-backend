@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.security;
 
+import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,8 +16,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Usuário não encontrado com o username: " + username
+                ));
 
         return new UserPrincipal(user);
     }

@@ -24,6 +24,9 @@ public class Student{
     @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
+    private Long age;
+
     @Column(name = "average_grade")
     private Double averageGrade;
 
@@ -39,12 +42,14 @@ public class Student{
     private Boolean hasSeenEmail;
 
     @OneToOne(mappedBy = "student")
+    @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    public Student(String name, String email, Double averageGrade, ClassEntity classEntity,
+    public Student(String name, String email, Long age, Double averageGrade, ClassEntity classEntity,
             StudentInterviewStatus status, Boolean hasSeenEmail, Interview interview) {
         this.name = name;
         this.email = email;
+        this.age = age;
         this.averageGrade = averageGrade;
         this.classEntity = classEntity;
         this.status = status;

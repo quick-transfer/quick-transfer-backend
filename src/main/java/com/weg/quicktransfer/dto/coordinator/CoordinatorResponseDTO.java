@@ -1,17 +1,12 @@
 package com.weg.quicktransfer.dto.coordinator;
 
-import java.util.List;
-
 public record CoordinatorResponseDTO(
+        Long id,
 
         String name,
 
-        String userName,
+        String username,
 
-        String email,
-
-        String password,
-
-        List<String> CoursesName
+        String email
 ) {
 }

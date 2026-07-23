@@ -12,6 +12,7 @@ import com.weg.quicktransfer.model.Place;
 public class PlaceMapper {
     public Place toEntity(PlaceRequestDTO placeRequestDTO) {
         return new Place(
+            placeRequestDTO.placeName(),
             Park.valueOf(placeRequestDTO.park()),
             Section.valueOf(placeRequestDTO.section())
         );
@@ -20,6 +21,7 @@ public class PlaceMapper {
     public PlaceResponseDTO toResponse(Place place) {
         return new PlaceResponseDTO(
             place.getId(),
+            place.getPlaceName(),
             place.getPark().name(),
             place.getSection().name()
         );
