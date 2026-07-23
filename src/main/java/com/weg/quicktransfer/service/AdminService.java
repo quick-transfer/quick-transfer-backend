@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
@@ -73,7 +74,7 @@ public class AdminService {
     }
 
     @Transactional
-    public AdminResponseDTO updateAdminById(Long id, String name, String email) {
+    public AdminResponseDTO updateAdminById(Long id, AdminUpdateRequestDTO updateRequestDTO) {
         if (id <= 0) {
             throw new IllegalArgumentException("Id can not be less than 1");
         }
@@ -81,8 +82,8 @@ public class AdminService {
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
 
-        if (StringUtils.hasText(name)) {
-            admin.setName(name);
+        if (StringUtils.hasText(updateRequestDTO.name())) {
+            admin.setName(updateRequestDTO.name());
         }
 
         if (StringUtils.hasText(email)) {
