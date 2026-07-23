@@ -8,6 +8,7 @@ import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.user.UserRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
+import com.weg.quicktransfer.exception.FirstLoginException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.UserMapper;
 import com.weg.quicktransfer.model.Admin;
@@ -39,6 +40,17 @@ public class UserService {
 
     public LoginResponseDTO login(LoginRequestDTO request) {
 
+        if (userRepository.existsByUsername(request.username())) {
+            throw new UserNotFoundException("User not found with username: " + request.username());
+        }
+
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + request.username()));
+
+        if (user.isFirstLogin()) {
+            throw new FirstLoginException("It is user's first login");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
@@ -46,8 +58,7 @@ public class UserService {
                 )
         );
 
-        UserDetails userDetails =
-                (UserDetails) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         String token = jwtService.generateToken(userDetails);
 
@@ -65,12 +76,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponseDTO> findByName(String name) {
-        if (!StringUtils.hasText(name)) {
+    public List<UserResponseDTO> findByUsername(String username) {
+        if (!StringUtils.hasText(username)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        List<User> users = userRepository.findByNameContaining(name);
+        List<User> users = userRepository.findByNameContaining(username);
 
         return users.stream()
                 .map(userMapper::toResponse)
