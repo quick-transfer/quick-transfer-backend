@@ -2,6 +2,7 @@ package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.service.CoordinatorService;
@@ -20,8 +21,8 @@ public class CoordintaorController {
     private final CoordinatorService coordinatorService;
 
     @PostMapping("/create/coordinator")
-    public ResponseEntity<AdminResponseDTO> createCoordinator(@RequestBody AdminRequestDTO adminRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(coordinatorService.create(adminRequestDTO));
+    public ResponseEntity<CoordinatorResponseDTO> createCoordinator(@RequestBody CoordinatorRequestDTO coordinatorRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(coordinatorService.create(coordinatorRequestDTO));
     }
 
     @GetMapping("/find/coordinator/id/{id}")

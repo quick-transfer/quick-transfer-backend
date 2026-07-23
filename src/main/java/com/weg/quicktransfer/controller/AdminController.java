@@ -59,40 +59,6 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/create/manager")
-    public ResponseEntity<ManagerResponseDTO> createManager(@RequestBody ManagerRequestDTO managerRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(managerService.create(managerRequestDTO));
-    }
-
-    @GetMapping("/find/manager/id/{id}")
-    public ResponseEntity<AdminResponseDTO> findManagerById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.findById(id));
-    }
-
-    @GetMapping("/find/manager/name/{name}")
-    public ResponseEntity<List<AdminResponseDTO>> findCManagerByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.findByName(name));
-    }
-
-    @GetMapping("/find/manager/all")
-    public ResponseEntity<List<AdminResponseDTO>> findAllManagerss() {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll());
-    }
-
-    @PutMapping("/update/manager/{id}")
-    public ResponseEntity<AdminResponseDTO> updateManager(
-            @PathVariable Long id,
-            @RequestBody ManagerUpdateRequestDTO updateRequestDTO
-            ) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO));
-    }
-
-    @DeleteMapping("/delete/manager/{id}")
-    public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
-        adminService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     @PostMapping("/create/coordinator")
     public ResponseEntity<AdminResponseDTO> createCoordinator(@RequestBody AdminRequestDTO adminRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
