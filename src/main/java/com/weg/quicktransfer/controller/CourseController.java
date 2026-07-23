@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/course")
@@ -28,5 +30,10 @@ public class CourseController {
     @GetMapping("/find/name/{name}")
     public ResponseEntity<CourseResponseDTO> findCourseByName(@PathVariable String name){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findByName(name));
+    }
+
+    @GetMapping("/find/all")
+    public ResponseEntity<List<CourseResponseDTO>> findAllCourses(){
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll());
     }
 }
