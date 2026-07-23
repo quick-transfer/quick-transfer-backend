@@ -45,7 +45,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
             @PathVariable Long id,
             @RequestBody AdminUpdateRequestDTO updatedRequest

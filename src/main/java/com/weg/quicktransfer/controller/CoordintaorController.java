@@ -38,7 +38,7 @@ public class CoordintaorController {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findAll());
     }
 
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
             @PathVariable Long id,
             @RequestBody CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO

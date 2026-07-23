@@ -40,7 +40,7 @@ public class ManagerController {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll());
     }
 
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable Long id,
             @RequestBody ManagerUpdateRequestDTO updateRequestDTO
