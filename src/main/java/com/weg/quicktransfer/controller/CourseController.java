@@ -45,4 +45,10 @@ public class CourseController {
             ){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.update(id, courseUpdateRequestDTO));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteCourse(Long id){
+        courseService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
