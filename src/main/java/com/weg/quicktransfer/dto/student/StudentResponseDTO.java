@@ -15,8 +15,10 @@ public record StudentResponseDTO(
 
     String course,
 
-    String statusStudent,
+    String statusStudentInterview,
     
-    Boolean hasSeenEmail
+    Boolean hasSeenEmail,
+
+    String statusStudent
 ) {
 }

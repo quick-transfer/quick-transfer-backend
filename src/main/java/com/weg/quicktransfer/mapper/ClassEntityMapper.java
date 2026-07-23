@@ -1,6 +1,8 @@
 package com.weg.quicktransfer.mapper;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
+import com.weg.quicktransfer.enums.ShiftClass;
+import com.weg.quicktransfer.enums.StatusClass;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
@@ -14,6 +16,8 @@ public class ClassEntityMapper {
                 course,
                 classEntityResquestDTO.startDate(),
                 classEntityResquestDTO.finishDate(),
+                StatusClass.valueOf(classEntityResquestDTO.status()),
+                ShiftClass.valueOf(classEntityResquestDTO.shiftClass()),
                 classEntityResquestDTO.acronym()
         );
     }
@@ -24,6 +28,8 @@ public class ClassEntityMapper {
                 classEntity.getCourse().getName(),
                 classEntity.getStartDate(),
                 classEntity.getFinishDate(),
+                classEntity.getStatus().name(),
+                classEntity.getShiftClass().name(),
                 classEntity.getAcronym()
         );
     }

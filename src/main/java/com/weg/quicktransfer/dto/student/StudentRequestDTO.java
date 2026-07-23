@@ -29,7 +29,7 @@ public record StudentRequestDTO(
     Long classId,
 
     @NotBlank(message = "Student status must not be blank")
-    String statusStudent,
+    String statusStudentInterview,
 
     @NotNull(message = "Email view cannot be null")
     Boolean hasSeenEmail

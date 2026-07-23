@@ -11,6 +11,10 @@ public record ClassEntityResponseDTO(
 
         LocalDate finishDate,
 
+        String status,
+
+        String shiftClass,
+
         String acronym
 ) {
 }

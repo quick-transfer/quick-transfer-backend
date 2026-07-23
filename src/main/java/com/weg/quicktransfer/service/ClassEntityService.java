@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityUpdateRequestDTO;
+import com.weg.quicktransfer.enums.ShiftClass;
+import com.weg.quicktransfer.enums.StatusClass;
 import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.CourseNotFoundException;
 import com.weg.quicktransfer.mapper.ClassEntityMapper;
@@ -65,6 +67,14 @@ public class ClassEntityService {
 
         if(classEntityUpdateRequestDTO.finishDate() != null) {
             classEntity.setFinishDate(classEntityUpdateRequestDTO.finishDate());
+        }
+
+        if(classEntityUpdateRequestDTO.status() != null) {
+            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status()));
+        }
+
+        if(classEntityUpdateRequestDTO.shiftClass() != null) {
+            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass()));
         }
 
         if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {

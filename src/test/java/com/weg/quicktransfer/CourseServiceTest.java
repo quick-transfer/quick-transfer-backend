@@ -1,146 +1,171 @@
-//package com.weg.quicktransfer;
-//
-//import com.weg.quicktransfer.dto.course.CourseRequestDTO;
-//import com.weg.quicktransfer.dto.course.CourseResponseDTO;
-//import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
-//import com.weg.quicktransfer.mapper.CourseMapper;
-//import com.weg.quicktransfer.model.Coordinator;
-//import com.weg.quicktransfer.model.Course;
-//import com.weg.quicktransfer.model.ClassEntity;
-//import com.weg.quicktransfer.repo.CourseRepository;
-//import com.weg.quicktransfer.service.CourseService;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//class CourseServiceTest {
-//
-//    @Mock
-//    private CourseRepository courseRepository;
-//
-//    @Mock
-//    private CourseMapper courseMapper;
-//
-//    @InjectMocks
-//    private CourseService courseService;
-//
-//    private Course course;
-//    private CourseRequestDTO requestDTO;
-//    private CourseResponseDTO responseDTO;
-//    private Coordinator coordinator;
-//
-//    @BeforeEach
-//    void setUp() {
-//        coordinator = new Coordinator();
-//        coordinator.setId(1L);
-//        coordinator.setName("Jorge");
-//        coordinator.setName("jorge@gmail.com");
-//
-//        ClassEntity classEntity = new ClassEntity();
-//        classEntity.setAcronym("MI-79");
-//
-//        List<ClassEntity> classEntities = new ArrayList<>();
-//        classEntities.add(classEntity);
-//
-//        course = new Course();
-//        course.setId(1L);
-//        course.setName("Java");
-//        course.setCoordinator(coordinator);
-//        course.setClasses(classEntities);
-//
-//        // Inicialização usando os construtores canônicos dos Records
-//        requestDTO = new CourseRequestDTO("Java", 1L);
-//        responseDTO = new CourseResponseDTO(1L, "Java", "Jorge", "jorge@gmail.com");
-//    }
-//
-//    @Test
-//    @DisplayName("Should create course and return response dto")
-//    void shouldCreateCourse() {
-//        when(courseMapper.toEntity(requestDTO, coordinator)).thenReturn(course);
-//        when(courseRepository.save(course)).thenReturn(course);
-//        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
-//
-//        CourseResponseDTO result = courseService.create(requestDTO);
-//
-//        assertNotNull(result);
-//        assertEquals(1L, result.id()); // Acesso ao componente id() do record
-//        assertEquals("Java", result.courseName()); // Acesso ao componente name() do record
-//
-//        verify(courseMapper).toEntity(requestDTO, coordinator);
-//        verify(courseRepository).save(course);
-//        verify(courseMapper).toResponse(course);
-//    }
-//
-//    @Test
-//    @DisplayName("Should find course by id and return response dto")
-//    void shouldFindCourseById() {
-//        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
-//        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
-//
-//        CourseResponseDTO result = courseService.findById(1L);
-//
-//        assertNotNull(result);
-//        assertEquals(1L, result.id());
-//        assertEquals("Java", result.courseName());
-//
-//        verify(courseRepository).findById(1L);
-//        verify(courseMapper).toResponse(course);
-//    }
-//
-//    @Test
-//    @DisplayName("Should update course and return response dto")
-//    void shouldUpdateCourse() {
-//        // Records são imutáveis; criamos novas instâncias para representar dados modificados
-//        CourseUpdateRequestDTO updatedRequest = new CourseUpdateRequestDTO("Java Avançado", 1L);
-//
-//        Course updatedEntity = new Course();
-//        updatedEntity.setId(1L);
-//        updatedEntity.setName("Java Avançado");
-//        updatedEntity.setCoordinator(coordinator);
-//        updatedEntity.setClasses(new ArrayList<ClassEntity>());
-//
-//        CourseResponseDTO updatedResponse = new CourseResponseDTO(1L, "Java Avançado", "Jorge", "jorge@gmail.com");
-//
-//        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
-//        when(courseRepository.save(any(Course.class))).thenReturn(updatedEntity);
-//        when(courseMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
-//
-//        CourseResponseDTO result = courseService.update(1L, updatedRequest);
-//
-//        assertNotNull(result);
-//        assertEquals("Java Avançado", result.courseName());
-//
-//        verify(courseRepository).findById(1L);
-//        verify(courseRepository).save(any(Course.class));
-//        verify(courseMapper).toResponse(updatedEntity);
-//    }
-//
-//    @Test
-//    @DisplayName("Should delete course")
-//    void shouldDeleteCourse() {
-//        doNothing().when(courseRepository).deleteById(1L);
-//
-//        assertDoesNotThrow(() -> courseService.delete(1L));
-//
-//        verify(courseRepository).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("Should throw exception when request dto is null")
-//    void shouldThrowExceptionWhenRequestDtoIsNull() {
-//        assertThrows(IllegalArgumentException.class, () -> courseService.create(null));
-//    }
-//}
+package com.weg.quicktransfer;
+
+import com.weg.quicktransfer.dto.course.CourseRequestDTO;
+import com.weg.quicktransfer.dto.course.CourseResponseDTO;
+import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
+import com.weg.quicktransfer.exception.CourseNotFoundException;
+import com.weg.quicktransfer.mapper.CourseMapper;
+import com.weg.quicktransfer.model.ClassEntity;
+import com.weg.quicktransfer.model.Coordinator;
+import com.weg.quicktransfer.model.Course;
+import com.weg.quicktransfer.repo.CoordinatorRepository;
+import com.weg.quicktransfer.repo.CourseRepository;
+import com.weg.quicktransfer.service.CourseService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class CourseServiceTest {
+
+    @Mock
+    private CoordinatorRepository coordinatorRepository;
+
+    @Mock
+    private CourseRepository courseRepository;
+
+    @Mock
+    private CourseMapper courseMapper;
+
+    @InjectMocks
+    private CourseService courseService;
+
+    private Course course;
+    private CourseRequestDTO requestDTO;
+    private CourseResponseDTO responseDTO;
+    private Coordinator coordinator;
+
+    @BeforeEach
+    void setUp() {
+        coordinator = new Coordinator();
+        coordinator.setId(1L);
+        coordinator.setName("Jorge");
+        coordinator.setUsername("Jorge_melo123");
+        coordinator.setEmail("jorge@gmail.com");
+        coordinator.setPassword("Br123456780**");
+
+        ClassEntity classEntity = new ClassEntity();
+        classEntity.setAcronym("MI-79");
+
+        List<ClassEntity> classEntities = new ArrayList<>();
+        classEntities.add(classEntity);
+
+        course = new Course();
+        course.setId(1L);
+        course.setName("Java");
+        course.setCoordinator(coordinator);
+        course.setClasses(classEntities);
+
+        requestDTO = new CourseRequestDTO("Java", 1L);
+        responseDTO = new CourseResponseDTO(1L, "Java", "Jorge", "jorge@gmail.com");
+    }
+
+    @Test
+    @DisplayName("Should create course and return response dto")
+    void shouldCreateCourse() {
+        // Precisa ensinar o coordinatorRepository a encontrar o coordenador pelo id do DTO (1L)
+        when(coordinatorRepository.findById(1L)).thenReturn(Optional.of(coordinator));
+        when(courseMapper.toEntity(requestDTO, coordinator)).thenReturn(course);
+        when(courseRepository.save(course)).thenReturn(course);
+        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
+
+        CourseResponseDTO result = courseService.create(requestDTO);
+
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals("Java", result.courseName());
+
+        verify(coordinatorRepository).findById(1L);
+        verify(courseMapper).toEntity(requestDTO, coordinator);
+        verify(courseRepository).save(course);
+        verify(courseMapper).toResponse(course);
+    }
+
+    @Test
+    @DisplayName("Should find course by id and return response dto")
+    void shouldFindCourseById() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
+
+        CourseResponseDTO result = courseService.findById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.id());
+        assertEquals("Java", result.courseName());
+
+        verify(courseRepository).findById(1L);
+        verify(courseMapper).toResponse(course);
+    }
+
+    @Test
+    @DisplayName("Should update course and return response dto")
+    void shouldUpdateCourse() {
+        CourseUpdateRequestDTO updatedRequest = new CourseUpdateRequestDTO("Java Avançado", 1L);
+
+        Course updatedEntity = new Course();
+        updatedEntity.setId(1L);
+        updatedEntity.setName("Java Avançado");
+        updatedEntity.setCoordinator(coordinator);
+        updatedEntity.setClasses(new ArrayList<>());
+
+        CourseResponseDTO updatedResponse = new CourseResponseDTO(1L, "Java Avançado", "Jorge", "jorge@gmail.com");
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(coordinatorRepository.findById(1L)).thenReturn(Optional.of(coordinator));
+        when(courseRepository.save(any(Course.class))).thenReturn(updatedEntity);
+        when(courseMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
+
+        CourseResponseDTO result = courseService.update(1L, updatedRequest);
+
+        assertNotNull(result);
+        assertEquals("Java Avançado", result.courseName());
+
+        verify(courseRepository).findById(1L);
+        verify(coordinatorRepository).findById(1L);
+        verify(courseRepository).save(any(Course.class));
+        verify(courseMapper).toResponse(updatedEntity);
+    }
+
+    @Test
+    @DisplayName("Should delete course")
+    void shouldDeleteCourse() {
+        // É necessário mockar a checagem de existência antes do delete
+        when(courseRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(courseRepository).deleteById(1L);
+
+        assertDoesNotThrow(() -> courseService.delete(1L));
+
+        verify(courseRepository).existsById(1L);
+        verify(courseRepository).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when course to delete does not exist")
+    void shouldThrowExceptionWhenDeletingNonExistingCourse() {
+        when(courseRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(CourseNotFoundException.class, () -> courseService.delete(1L));
+
+        verify(courseRepository).existsById(1L);
+        verify(courseRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw NullPointerException when request dto is null")
+    void shouldThrowExceptionWhenRequestDtoIsNull() {
+        // Como você acessa courseRequestDTO.coordinatorId() direto no Service, passar null lança NullPointerException
+        assertThrows(NullPointerException.class, () -> courseService.create(null));
+    }
+}
