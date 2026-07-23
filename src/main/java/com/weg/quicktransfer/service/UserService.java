@@ -2,8 +2,6 @@ package com.weg.quicktransfer.service;
 
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
-import com.weg.quicktransfer.exception.InvalidPasswordException;
-import com.weg.quicktransfer.exception.InvalidUsernameException;
 import com.weg.quicktransfer.security.JwtService;
 import com.weg.quicktransfer.security.UserPrincipal;
 import org.springframework.security.authentication.AuthenticationManager;
