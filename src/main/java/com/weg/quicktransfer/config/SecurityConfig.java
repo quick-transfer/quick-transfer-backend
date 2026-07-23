@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,18 +20,22 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
-// Marks this class as a source of bean definitions for the Spring context
 @Configuration
-// Enables Spring Security's web security support and MVC integration
 @EnableWebSecurity
-// Lombok annotation to automatically generate a constructor for final fields
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Custom filter that intercepts requests to validate JWT tokens
     private final JwtAuthFilter jwtAuthFilter;
+
+    @Value("${app.security.jwt.public-key}")
+    private RSAPublicKey publicKey;
+
+    @Value("${app.security.jwt.private-key}")
+    private RSAPrivateKey privateKey;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -44,47 +49,63 @@ public class SecurityConfig {
     @Value("${app.cors.allow-credentials}")
     private boolean allowCredentials;
 
-    // Creates the Spring Security Filter Chain for dictating which filters are applied
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   DaoAuthenticationProvider authenticationProvider) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())                       // Disables CSRF protection (safe for stateless JWT)
-                .cors(Customizer.withDefaults())                                              // Enables CORS using the corsConfigurationSource bean
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))       // Configures session management to be stateless (no sessions)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/error").permitAll()                // Allows public access to all authentication endpoints
-                        .anyRequest().authenticated()                                         // Requires authentication for all other API endpoints
+                        .requestMatchers("/auth/**", "/error").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)   // Executes the JWT filter before standard login authentication
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // Configures CORS settings to dictate which external domains can access the API
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowedOriginPatterns(allowedOrigins);
         config.setAllowedMethods(allowedMethods);
         config.setAllowedHeaders(allowedHeaders);
         config.setAllowCredentials(allowCredentials);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);                              // Applies this CORS configuration to all API endpoints
-
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
-    // Exposes the AuthenticationManager to be used manually in the login controller
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(
+            org.springframework.security.core.userdetails.UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    // Defines the PasswordEncoder used for hashing and verifying user passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();                                                   // Uses the strong bcrypt algorithm for password hashing
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RSAPublicKey publicKey() {
+        return this.publicKey;
+    }
+
+    @Bean
+    public RSAPrivateKey privateKey() {
+        return this.privateKey;
     }
 }
