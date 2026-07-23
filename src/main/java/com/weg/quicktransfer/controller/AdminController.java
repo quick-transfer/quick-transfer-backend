@@ -58,39 +58,4 @@ public class AdminController {
         adminService.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @PostMapping("/create/coordinator")
-    public ResponseEntity<AdminResponseDTO> createCoordinator(@RequestBody AdminRequestDTO adminRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
-    }
-
-    @GetMapping("/find/coordinator/id/{id}")
-    public ResponseEntity<AdminResponseDTO> findCoordinatorById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
-    }
-
-    @GetMapping("/find/coordinator/name/{name}")
-    public ResponseEntity<List<AdminResponseDTO>> findCoordintatorByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
-    }
-
-    @GetMapping("/find/coordinator/all")
-    public ResponseEntity<List<AdminResponseDTO>> findAllCoordinators() {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
-    }
-
-    @PutMapping("/update/coordinator/{id}")
-    public ResponseEntity<AdminResponseDTO> updateCoordinator(
-            @PathVariable Long id,
-            @RequestParam String name,
-            @RequestParam String email
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, name, email));
-    }
-
-    @DeleteMapping("/delete/coordinator/{id}")
-    public ResponseEntity<Void> deleteCoordinator(@PathVariable Long id) {
-        adminService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
 }
