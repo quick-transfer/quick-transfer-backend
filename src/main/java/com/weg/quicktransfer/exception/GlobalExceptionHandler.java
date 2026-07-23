@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.sql.SQLException;
 
 @RestControllerAdvice
@@ -24,5 +26,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MessagingException.class)
     public ResponseEntity<String> handleMessagingException(MessagingException ex) {
         return new ResponseEntity<>("Internal database error: " + ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(EntityNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

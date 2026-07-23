@@ -16,7 +16,6 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,16 +33,14 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ManagerService {
 
+    private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
 
     private final InterviewRepository interviewRepository;
 
     private final StudentRepository studentRepository;
 
-    private final ManagerRepository managerRepository;
-
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Transactional
     public ManagerResponseDTO create(ManagerRequestDTO managerRequestDTO) {
