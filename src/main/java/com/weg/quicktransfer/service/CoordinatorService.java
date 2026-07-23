@@ -47,6 +47,15 @@ public class CoordinatorService {
         return coordinatorMapper.toResponse(coordinator);
     }
 
+    @Transactional(readOnly = true)
+    public List<CoordinatorResponseDTO> findByName(String name){
+        List<Coordinator> coordinators = coordinatorRepository.findByUsername(name);
+
+        return coordinators.stream()
+                .map(coordinatorMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
     public CoordinatorResponseDTO update(Long id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO) {
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
