@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
 import com.weg.quicktransfer.exception.InvalidEmailException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
@@ -74,26 +75,24 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
-    public ManagerResponseDTO findByName(String name) {
-        Manager manager = managerRepository.findByName(name).orElseThrow(() -> new UserNotFoundException("User nof found with name: " + name));
+    public List<ManagerResponseDTO> findByName(String name) {
+        List<Manager> managers = managerRepository.findByName(name);
 
-        return managerMapper.toResponse(manager);
+        return managers.stream()
+                .map(managerMapper::toResponse)
+                .toList();
     }
 
     @Transactional
-    public ManagerResponseDTO update(Long id, String name, String email, String password) {
+    public ManagerResponseDTO update(Long id, ManagerUpdateRequestDTO updateRequestDTO) {
         Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        if(StringUtils.hasText(name)) {
-            manager.setName(name);
+        if(StringUtils.hasText(updateRequestDTO.name())) {
+            manager.setName(updateRequestDTO.name());
         }
 
-        if(StringUtils.hasText(email)) {
-            manager.setEmail(email);
-        }
-
-        if(StringUtils.hasText(password) && password.matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$")) {
-            manager.setPassword(password);
+        if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$")) {
+            manager.setPassword(updateRequestDTO.password());
         }
 
         Manager managerAtt = managerRepository.save(manager);
@@ -110,7 +109,7 @@ public class ManagerService {
         managerRepository.deleteById(id);
     }
 
-    public void enviarEmailDinamicoAmp(String to, Long interviewId) throws MessagingException {
+    public void sendEmail(String to, Long interviewId) throws MessagingException {
         EmailValidator emailValidator = EmailValidator.getInstance();
         if (!emailValidator.isValid(to)) {
             throw new InvalidEmailException("Invalid e-mail: " + to);
