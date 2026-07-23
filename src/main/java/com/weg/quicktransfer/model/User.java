@@ -50,6 +50,9 @@ public abstract class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean firstLogin = true;
+
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;
         this.username = username;
