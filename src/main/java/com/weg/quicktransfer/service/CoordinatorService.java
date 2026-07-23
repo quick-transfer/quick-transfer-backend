@@ -26,6 +26,8 @@ public class CoordinatorService {
     public CoordinatorResponseDTO create(CoordinatorRequestDTO coordinatorRequestDTO) {
         Coordinator coordinator = coordinatorMapper.toEntity(coordinatorRequestDTO);
 
+        coordinator.setPassword(passwordEncoder.encode(coordinator.getPassword()));
+
         coordinatorRepository.save(coordinator);
 
         return coordinatorMapper.toResponse(coordinator);

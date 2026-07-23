@@ -17,6 +17,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ManagerService {
 
+    private final PasswordEncoder passwordEncoder;
     private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
 
@@ -49,6 +51,8 @@ public class ManagerService {
         }
 
         Manager manager = managerMapper.toEntity(managerRequestDTO);
+
+        manager.setPassword(passwordEncoder.encode(manager.getPassword()));
 
         managerRepository.save(manager);
 
