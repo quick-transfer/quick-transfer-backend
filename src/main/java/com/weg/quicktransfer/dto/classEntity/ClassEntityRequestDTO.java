@@ -20,6 +20,12 @@ public record ClassEntityRequestDTO(
         @Future(message = "Finish date must be in the future")
         LocalDate finishDate,
 
+        @NotBlank(message = "Status must not be empty")
+        String status,
+
+        @NotBlank(message = "Shift must not be empty")
+        String shiftClass,
+
         @NotBlank(message = "Class acronym must not be empty")
         @Pattern(regexp = "^[A-Z0-9-]+$")
         String acronym
