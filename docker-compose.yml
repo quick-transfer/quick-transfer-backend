@@ -24,7 +24,7 @@ services:
     networks:
       - quick-transfer-net
 
-    # ==========================================
+  # ==========================================
   # SPRING BOOT APPLICATION
   # ==========================================
   app:
@@ -51,7 +51,7 @@ services:
     image: alpine/socat
     container_name: quick-transfer-bridge
     restart: unless-stopped
-    command: tcp-listen:8082,fork,reuseaddr tcp-connect:app:8080
+    command: TCP4-LISTEN:8082,fork,reuseaddr TCP4:app:8080
     ports:
       - "0.0.0.0:8082:8082"
     depends_on:

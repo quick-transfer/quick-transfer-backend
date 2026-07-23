@@ -9,9 +9,9 @@ import com.weg.quicktransfer.dto.interview.InterviewRequestDTO;
 import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.interview.InterviewUpdateRequestDTO;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
-import com.weg.quicktransfer.exception.ManagerNotFoundException;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
+import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
 import com.weg.quicktransfer.mapper.InterviewMapper;
 import com.weg.quicktransfer.model.Interview;
@@ -43,7 +43,7 @@ public class InterviewService {
 
         Vacancy vacancy = vacancyRepository.findById(interviewRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewRequestDTO.vacancyId()));
 
-        Manager manager = managerRepository.findById(interviewRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewRequestDTO.managerId()));
+        Manager manager = managerRepository.findById(interviewRequestDTO.managerId()).orElseThrow(() -> new UserNotFoundException(interviewRequestDTO.managerId()));
 
         Student student = studentRepository.findById(interviewRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewRequestDTO.studentId()));
 
@@ -91,7 +91,7 @@ public class InterviewService {
         }
 
         if(interviewUpdateRequestDTO.managerId() != null) {
-            Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewUpdateRequestDTO.managerId()));
+            Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new UserNotFoundException(interviewUpdateRequestDTO.managerId()));
             interview.setManager(manager);
         }
 
