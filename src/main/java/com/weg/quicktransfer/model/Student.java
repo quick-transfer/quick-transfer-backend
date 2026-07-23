@@ -42,6 +42,7 @@ public class Student{
     private Boolean hasSeenEmail;
 
     @OneToOne(mappedBy = "student")
+    @JoinColumn(name = "interview_id")
     private Interview interview;
 
     public Student(String name, String email, Long age, Double averageGrade, ClassEntity classEntity,
