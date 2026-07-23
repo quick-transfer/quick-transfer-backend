@@ -47,7 +47,7 @@ public class SkillService {
     }
 
     public void delete(Long id) {
-        if(skillRepository.existsById(id)) {
+        if(!skillRepository.existsById(id)) {
             throw new SkillNotFoundException(id);
         }
 
