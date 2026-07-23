@@ -2,6 +2,7 @@ package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
+import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
 import com.weg.quicktransfer.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,13 @@ public class CourseController {
     @GetMapping("/find/all")
     public ResponseEntity<List<CourseResponseDTO>> findAllCourses(){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll());
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<CourseResponseDTO> updateCourse(
+            @PathVariable Long id,
+            @RequestBody CourseUpdateRequestDTO courseUpdateRequestDTO
+            ){
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.update(id, courseUpdateRequestDTO));
     }
 }
