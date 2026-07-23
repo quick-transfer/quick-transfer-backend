@@ -1,6 +1,6 @@
 package com.weg.quicktransfer.exception;
 
-public class VacancyNotFoundException extends RuntimeException{
+public class VacancyNotFoundException extends ResourceNotFoundException{
     public VacancyNotFoundException(Long id) {
         super("Vacancy not found with ID: " + id);
     }

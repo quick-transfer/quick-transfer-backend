@@ -1,6 +1,6 @@
 package com.weg.quicktransfer.exception;
 
-public class ClassEntityNotFoundException extends RuntimeException{
+public class ClassEntityNotFoundException extends ResourceNotFoundException{
     public ClassEntityNotFoundException(Long id) {
         super("Class not found with ID:" + id);
     }
