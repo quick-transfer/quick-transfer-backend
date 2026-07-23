@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     boolean existsByUsername(String username);
 
+    Admin findByUsername(String username);
+
     List<Admin> findByNameContaining(String name);
 }

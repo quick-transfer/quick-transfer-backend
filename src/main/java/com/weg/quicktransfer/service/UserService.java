@@ -9,10 +9,17 @@ import com.weg.quicktransfer.dto.user.UserRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
 import com.weg.quicktransfer.exception.FirstLoginException;
+import com.weg.quicktransfer.exception.InvalidPasswordException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
+import com.weg.quicktransfer.mapper.AdminMapper;
+import com.weg.quicktransfer.mapper.CoordinatorMapper;
+import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.mapper.UserMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.model.User;
+import com.weg.quicktransfer.repo.AdminRepository;
+import com.weg.quicktransfer.repo.CoordinatorRepository;
+import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +45,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    private final AdminRepository adminRepository;
+    private final AdminMapper adminMapper;
+
+    private final CoordinatorRepository coordinatorRepository;
+    private final CoordinatorMapper coordinatorMapper;
+
+    private final ManagerRepository managerRepository;
+    private final ManagerMapper managerMapper;
+
+    @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
 
         if (userRepository.existsByUsername(request.username())) {
@@ -63,6 +80,23 @@ public class UserService {
         String token = jwtService.generateToken(userDetails);
 
         return new LoginResponseDTO(token, "Bearer");
+    }
+
+    @Transactional
+    public UserResponseDTO resetPassword(LoginRequestDTO requestDTO) {
+
+        User user = userRepository.findByUsername(requestDTO.username())
+                .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username()));
+
+        String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
+        if (requestDTO.password() == null || !requestDTO.password().matches(passwordRegex)) {
+            throw new InvalidPasswordException("Password does not meet security requirements.");
+        }
+
+        user.setPassword(passwordEncoder.encode(requestDTO.password()));
+        userRepository.save(user);
+
+        return
     }
 
     @Transactional(readOnly = true)

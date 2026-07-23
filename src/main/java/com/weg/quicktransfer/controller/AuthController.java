@@ -2,6 +2,7 @@ package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
+import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,10 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody @Valid LoginRequestDTO request) {
         return userService.login(request);
+    }
+
+    @PostMapping("/password-reset")
+    public UserResponseDTO resetPassword(@RequestBody LoginRequestDTO requestDTO) {
+        return userService.resetPassword(requestDTO);
     }
 }
