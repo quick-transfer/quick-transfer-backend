@@ -12,7 +12,7 @@ public record ClassEntityRequestDTO(
         @NotNull(message = "Course id must not be null")
         Long courseId,
 
-        @NotNull(message = "Sart date must not be null")
+        @NotNull(message = "Start date must not be null")
         @FutureOrPresent(message = "Start date must be today or in the future")
         LocalDate startDate,
 

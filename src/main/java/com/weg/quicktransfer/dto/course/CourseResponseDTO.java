@@ -1,7 +1,5 @@
 package com.weg.quicktransfer.dto.course;
 
-import java.util.List;
-
 public record CourseResponseDTO(
         Long id,
 
@@ -9,6 +7,6 @@ public record CourseResponseDTO(
 
         String coordinatorName,
 
-        List<String> classesAcronym
+        String coordinatorEmail
 ) {
 }
