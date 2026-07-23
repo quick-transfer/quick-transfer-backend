@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ManagerService {
+    private final PasswordEncoder passwordEncoder;
     private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
 
@@ -61,7 +63,7 @@ public class ManagerService {
         }
 
         if(managerUpdateRequestDTO.password() != null && !managerUpdateRequestDTO.password().isBlank()) {
-            manager.setPassword(managerUpdateRequestDTO.password());
+            manager.setPassword(passwordEncoder.encode(managerUpdateRequestDTO.password()));
         }
 
         Manager managerAtt = managerRepository.save(manager);

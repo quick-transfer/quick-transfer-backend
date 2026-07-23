@@ -53,10 +53,9 @@ public class ClassEntityService {
     @Transactional
     public ClassEntityResponseDTO update(Long id, ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO) {
         ClassEntity classEntity = classEntityRepository.findById(id).orElseThrow(() -> new ClassEntityNotFoundException(id));
-
-        Course course = courseRepository.findById(classEntityUpdateRequestDTO.courseId()).orElseThrow(() -> new CourseNotFoundException(classEntityUpdateRequestDTO.courseId()));
-
+        
         if(classEntityUpdateRequestDTO.courseId() != null) {
+            Course course = courseRepository.findById(classEntityUpdateRequestDTO.courseId()).orElseThrow(() -> new CourseNotFoundException(classEntityUpdateRequestDTO.courseId()));
             classEntity.setCourse(course);
         }
 

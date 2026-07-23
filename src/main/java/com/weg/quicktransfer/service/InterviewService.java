@@ -72,14 +72,6 @@ public class InterviewService {
     public InterviewResponseDTO update(Long id, InterviewUpdateRequestDTO interviewUpdateRequestDTO) {
         Interview interview = interviewRepository.findById(id).orElseThrow(() -> new InterviewNotFoundException(id));
 
-        Place place = placeRepository.findById(interviewUpdateRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(interviewUpdateRequestDTO.placeId()));
-
-        Vacancy vacancy = vacancyRepository.findById(interviewUpdateRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewUpdateRequestDTO.vacancyId()));
-
-        Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewUpdateRequestDTO.managerId()));
-
-        Student student = studentRepository.findById(interviewUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewUpdateRequestDTO.studentId()));
-
         if(interviewUpdateRequestDTO.interviewerName() != null && !interviewUpdateRequestDTO.interviewerName().isBlank()) {
             interview.setInterviewerName(interviewUpdateRequestDTO.interviewerName());
         }
@@ -89,18 +81,22 @@ public class InterviewService {
         }
 
         if(interviewUpdateRequestDTO.placeId() != null) {
+            Place place = placeRepository.findById(interviewUpdateRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(interviewUpdateRequestDTO.placeId()));
             interview.setPlace(place);
         }
 
         if(interviewUpdateRequestDTO.vacancyId() != null) {
+            Vacancy vacancy = vacancyRepository.findById(interviewUpdateRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewUpdateRequestDTO.vacancyId()));
             interview.setVacancy(vacancy);
         }
 
         if(interviewUpdateRequestDTO.managerId() != null) {
+            Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewUpdateRequestDTO.managerId()));
             interview.setManager(manager);
         }
 
         if(interviewUpdateRequestDTO.studentId() != null) {
+            Student student = studentRepository.findById(interviewUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewUpdateRequestDTO.studentId()));
             interview.setStudent(student);
         }
 
