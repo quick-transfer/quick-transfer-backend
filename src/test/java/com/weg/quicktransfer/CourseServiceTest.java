@@ -2,6 +2,7 @@ package com.weg.quicktransfer;
 
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
+import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
 import com.weg.quicktransfer.mapper.CourseMapper;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
@@ -40,22 +41,19 @@ class CourseServiceTest {
     private CourseRequestDTO requestDTO;
     private CourseResponseDTO responseDTO;
     private Coordinator coordinator;
-    private List<String> classesAcronym;
 
     @BeforeEach
     void setUp() {
         coordinator = new Coordinator();
         coordinator.setId(1L);
         coordinator.setName("Jorge");
+        coordinator.setName("jorge@gmail.com");
 
         ClassEntity classEntity = new ClassEntity();
         classEntity.setAcronym("MI-79");
 
         List<ClassEntity> classEntities = new ArrayList<>();
         classEntities.add(classEntity);
-
-        classesAcronym = new ArrayList<>();
-        classesAcronym.add(classEntity.getAcronym());
 
         course = new Course();
         course.setId(1L);
@@ -65,7 +63,7 @@ class CourseServiceTest {
 
         // Inicialização usando os construtores canônicos dos Records
         requestDTO = new CourseRequestDTO("Java", 1L);
-        responseDTO = new CourseResponseDTO(1L, "Java", "Jorge", classesAcronym);
+        responseDTO = new CourseResponseDTO(1L, "Java", "Jorge", "jorge@gmail.com");
     }
 
     @Test
@@ -73,7 +71,7 @@ class CourseServiceTest {
     void shouldCreateCourse() {
         when(courseMapper.toEntity(requestDTO, coordinator)).thenReturn(course);
         when(courseRepository.save(course)).thenReturn(course);
-        when(courseMapper.toResponse(course, classesAcronym)).thenReturn(responseDTO);
+        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
 
         CourseResponseDTO result = courseService.create(requestDTO);
 
@@ -83,14 +81,14 @@ class CourseServiceTest {
 
         verify(courseMapper).toEntity(requestDTO, coordinator);
         verify(courseRepository).save(course);
-        verify(courseMapper).toResponse(course, classesAcronym);
+        verify(courseMapper).toResponse(course);
     }
 
     @Test
     @DisplayName("Should find course by id and return response dto")
     void shouldFindCourseById() {
         when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
-        when(courseMapper.toResponse(course, classesAcronym)).thenReturn(responseDTO);
+        when(courseMapper.toResponse(course)).thenReturn(responseDTO);
 
         CourseResponseDTO result = courseService.findById(1L);
 
@@ -99,14 +97,14 @@ class CourseServiceTest {
         assertEquals("Java", result.courseName());
 
         verify(courseRepository).findById(1L);
-        verify(courseMapper).toResponse(course, classesAcronym);
+        verify(courseMapper).toResponse(course);
     }
 
     @Test
     @DisplayName("Should update course and return response dto")
     void shouldUpdateCourse() {
         // Records são imutáveis; criamos novas instâncias para representar dados modificados
-        CourseRequestDTO updatedRequest = new CourseRequestDTO("Java Avançado", 1L);
+        CourseUpdateRequestDTO updatedRequest = new CourseUpdateRequestDTO("Java Avançado", 1L);
 
         Course updatedEntity = new Course();
         updatedEntity.setId(1L);
@@ -114,12 +112,11 @@ class CourseServiceTest {
         updatedEntity.setCoordinator(coordinator);
         updatedEntity.setClasses(new ArrayList<ClassEntity>());
 
-        CourseResponseDTO updatedResponse = new CourseResponseDTO(1L, "Java Avançado", "Jorge", classesAcronym);
+        CourseResponseDTO updatedResponse = new CourseResponseDTO(1L, "Java Avançado", "Jorge", "jorge@gmail.com");
 
         when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
-        when(courseMapper.toEntity(updatedRequest, coordinator)).thenReturn(updatedEntity);
         when(courseRepository.save(any(Course.class))).thenReturn(updatedEntity);
-        when(courseMapper.toResponse(updatedEntity, classesAcronym)).thenReturn(updatedResponse);
+        when(courseMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
         CourseResponseDTO result = courseService.update(1L, updatedRequest);
 
@@ -127,9 +124,8 @@ class CourseServiceTest {
         assertEquals("Java Avançado", result.courseName());
 
         verify(courseRepository).findById(1L);
-        verify(courseMapper).toEntity(updatedRequest, coordinator);
         verify(courseRepository).save(any(Course.class));
-        verify(courseMapper).toResponse(updatedEntity, classesAcronym);
+        verify(courseMapper).toResponse(updatedEntity);
     }
 
     @Test
