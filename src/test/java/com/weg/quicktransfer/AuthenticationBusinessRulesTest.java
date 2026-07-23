@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.UserRepository;
-import com.weg.quicktransfer.exception.UnauthorizedException;
-import com.weg.quicktransfer.service.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +21,6 @@ public class AuthenticationBusinessRulesTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
-    private AuthService authService;
 
     @Test
     @DisplayName("System should ask to reset password on first login")

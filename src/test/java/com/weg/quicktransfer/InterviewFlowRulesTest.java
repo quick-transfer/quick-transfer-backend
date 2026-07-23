@@ -1,7 +1,6 @@
 package com.weg.quicktransfer;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
@@ -9,7 +8,6 @@ import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.InterviewService;
-import com.weg.quicktransfer.service.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +27,6 @@ public class InterviewFlowRulesTest {
     @Mock
     private StudentRepository studentRepository;
 
-    @Mock
-    private EmailService emailService;
 
     @InjectMocks
     private InterviewService interviewService;

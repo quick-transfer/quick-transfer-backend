@@ -18,6 +18,19 @@ import com.weg.quicktransfer.model.Vacancy;
 import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
 
+import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
+import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
+import com.weg.quicktransfer.dto.vacancy.VacancyUpdateRequestDTO;
+import com.weg.quicktransfer.enums.Area;
+import com.weg.quicktransfer.enums.Shift;
+import com.weg.quicktransfer.exception.PlaceNotFoundException;
+import com.weg.quicktransfer.exception.VacancyNotFoundException;
+import com.weg.quicktransfer.mapper.VacancyMapper;
+import com.weg.quicktransfer.model.Place;
+import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.repo.PlaceRepository;
+import com.weg.quicktransfer.repo.VacancyRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service

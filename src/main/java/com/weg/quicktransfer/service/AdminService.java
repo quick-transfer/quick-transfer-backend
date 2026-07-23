@@ -27,6 +27,10 @@ public class AdminService {
 
     @Transactional
     public AdminResponseDTO saveAdmin(AdminRequestDTO adminRequestDTO) {
+        if (adminRequestDTO == null) {
+            throw new IllegalArgumentException("Admin request dto can not be null");
+        }
+
         Admin admin = adminMapper.toEntity(adminRequestDTO);
 
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
@@ -90,10 +94,14 @@ public class AdminService {
 
     @Transactional
     public void deleteById(Long id) {
-        
-        Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
+        if (id <= 0) {
+            throw new IllegalArgumentException("Id can not be less than 1");
+        }
 
-        adminRepository.delete(admin);
+        if (!adminRepository.existsById(id)) {
+            throw new UserNotFoundException("Admin does not exist");
+        }
+
+        adminRepository.deleteById(id);
     }
 }

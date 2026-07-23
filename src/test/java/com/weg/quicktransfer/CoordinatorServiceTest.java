@@ -1,7 +1,5 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.dto.CoordinatorRequestDTO;
-import com.weg.quicktransfer.dto.CoordinatorResponseDTO;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
@@ -33,8 +31,6 @@ class CoordinatorServiceTest {
     private CoordinatorService coordinatorService;
 
     private Coordinator coordinator;
-    private CoordinatorRequestDTO requestDTO;
-    private CoordinatorResponseDTO responseDTO;
 
     @BeforeEach
     void setUp() {

@@ -8,7 +8,6 @@ import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.CourseRepository;
 import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
-import com.weg.quicktransfer.exception.BusinessRuleException;
 import com.weg.quicktransfer.service.CoordinatorService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
