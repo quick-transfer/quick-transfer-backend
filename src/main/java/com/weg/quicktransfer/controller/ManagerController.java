@@ -51,7 +51,7 @@ public class ManagerController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
         managerService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/interview/sendEmail/{interviewId}")

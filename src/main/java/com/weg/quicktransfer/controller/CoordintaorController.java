@@ -49,6 +49,6 @@ public class CoordintaorController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteCoordinator(@PathVariable Long id) {
         coordinatorService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
