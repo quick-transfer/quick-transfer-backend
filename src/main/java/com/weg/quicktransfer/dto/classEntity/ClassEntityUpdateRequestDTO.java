@@ -15,6 +15,10 @@ public record ClassEntityUpdateRequestDTO(
     @Future(message = "Finish date must be in the future")
     LocalDate finishDate,
 
+    String status,
+
+    String shiftClass,
+
     @Pattern(regexp = "^[A-Z0-9-]+$")
     String acronym
 ) {
