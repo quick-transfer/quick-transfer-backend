@@ -44,4 +44,10 @@ public class ClassEntityController {
             @RequestBody ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteClassEntity(Long id){
+        classEntityService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
