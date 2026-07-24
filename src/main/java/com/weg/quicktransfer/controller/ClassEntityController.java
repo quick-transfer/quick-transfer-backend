@@ -24,4 +24,9 @@ public class ClassEntityController {
     public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findById(id));
     }
+
+    @GetMapping("find/name/{name}")
+    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByName(@PathVariable String name){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByName(name));
+    }
 }
