@@ -2,6 +2,7 @@ package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
+import com.weg.quicktransfer.dto.classEntity.ClassEntityUpdateRequestDTO;
 import com.weg.quicktransfer.service.ClassEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,12 @@ public class ClassEntityController {
     @GetMapping("find/all")
     public ResponseEntity<List<ClassEntityResponseDTO>> findAllClassEntities(){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll());
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
+            @PathVariable Long id,
+            @RequestBody ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
 }
