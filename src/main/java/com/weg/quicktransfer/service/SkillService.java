@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
 import com.weg.quicktransfer.dto.skill.SkillResponseDTO;
+import com.weg.quicktransfer.dto.skill.SkillUpdateRequestDTO;
+import com.weg.quicktransfer.enums.SkillType;
 import com.weg.quicktransfer.exception.SkillNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.mapper.SkillMapper;
@@ -42,6 +44,31 @@ public class SkillService {
 
     public SkillResponseDTO findById(Long id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
+
+        return skillMapper.toResponse(skill);
+    }
+
+    public SkillResponseDTO update(Long id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
+        Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
+
+        if(skillUpdateRequestDTO.name() != null && !skillUpdateRequestDTO.name().isBlank()) {
+            skill.setName(skillUpdateRequestDTO.name());
+        }
+
+        if(skillUpdateRequestDTO.skillType() != null) {
+            skill.setSkillType(SkillType.valueOf(skillUpdateRequestDTO.skillType()));
+        }
+
+        if(skillUpdateRequestDTO.grade() != null) {
+            skill.setGrade(skillUpdateRequestDTO.grade());
+        }
+
+        if(skillUpdateRequestDTO.studentId() != null) {
+            Student student = studentRepository.findById(skillUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(skillUpdateRequestDTO.studentId()));
+            skill.setStudent(student);
+        }
+
+        skillRepository.save(skill);
 
         return skillMapper.toResponse(skill);
     }
