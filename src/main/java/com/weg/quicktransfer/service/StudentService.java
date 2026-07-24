@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
+import com.weg.quicktransfer.enums.StatusStudent;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
@@ -50,6 +51,15 @@ public class StudentService {
 
         return studentMapper.toResponse(student);
     }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponseDTO> findByName(String name) {
+        List<Student> students = studentRepository.findByName(name);
+
+        return students.stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
     
     @Transactional
     public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
@@ -73,16 +83,20 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        if(studentUpdateRequestDTO.classId() != null) {
+        if(studentUpdateRequestDTO.classId() > 0) {
             student.setClassEntity(classEntity);
         }
 
-        if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudent()));
+        if(studentUpdateRequestDTO.statusStudentInterview() != null) {
+            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview()));
         }
 
         if(studentUpdateRequestDTO.hasSeenEmail() != null) {
             student.setHasSeenEmail(studentUpdateRequestDTO.hasSeenEmail());
+        }
+
+        if(studentUpdateRequestDTO.statusStudent() != null) {
+            student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent()));
         }
 
         Student studentAtt = studentRepository.save(student);

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -42,6 +43,17 @@ public class CourseService {
         List<Course> courses = courseRepository.findAll();
 
         return courses.stream().map(courseMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CourseResponseDTO findByName(String name){
+        if(!StringUtils.hasText(name)){
+            throw new IllegalArgumentException("Name can not be empty");
+        }
+
+        Course course = courseRepository.findByName(name).orElseThrow(() -> new CourseNotFoundException("No Course Found"));
+
+        return courseMapper.toResponse(course);
     }
 
     @Transactional(readOnly = true)

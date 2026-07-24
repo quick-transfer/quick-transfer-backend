@@ -1,10 +1,10 @@
 package com.weg.quicktransfer.enums;
 
 public enum StudentInterviewStatus {
-    NOT_ASSOCIATED,
-    NOT_SEEN,
-    DISMISSED,
-    SEEN,
-    DISAPPROVED,
-    HIRED
+    NÃO_ASSOCIADO,
+    NÃO_VISTO,
+    DESCARTADO,
+    VISTO,
+    REPROVADO,
+    CONTRATADO
 }

@@ -9,13 +9,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ManagerRepository extends JpaRepository<Manager, Long> {
-    public Optional<Manager> findByName(String name);
+    public Optional<Manager> findByUsername(String username);
 
     @Query("""
-            SELECT m.name
+            SELECT m
             FROM Interview i
             JOIN i.manager m
             WHERE i.id = :interviewId
             """)
-    public Optional<String> findByInterviewId(@Param("interviewId") Long interviewId);
+    public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
 }

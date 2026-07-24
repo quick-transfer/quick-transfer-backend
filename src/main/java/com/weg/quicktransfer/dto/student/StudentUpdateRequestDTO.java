@@ -24,8 +24,10 @@ public record StudentUpdateRequestDTO(
     @Positive(message = "Class id must be a positive number")
     Long classId,
 
-    String statusStudent,
+    String statusStudentInterview,
 
-    Boolean hasSeenEmail
+    Boolean hasSeenEmail,
+
+    String statusStudent
 ) {
 }

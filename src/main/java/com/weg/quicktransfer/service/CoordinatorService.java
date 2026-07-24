@@ -47,20 +47,21 @@ public class CoordinatorService {
         return coordinatorMapper.toResponse(coordinator);
     }
 
+    @Transactional(readOnly = true)
+    public List<CoordinatorResponseDTO> findByName(String name){
+        List<Coordinator> coordinators = coordinatorRepository.findByUsername(name);
+
+        return coordinators.stream()
+                .map(coordinatorMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
     public CoordinatorResponseDTO update(Long id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO) {
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
 
         if(coordinatorUpdateRequestDTO.name() != null && !coordinatorUpdateRequestDTO.name().isBlank()) {
             coordinator.setName(coordinatorUpdateRequestDTO.name());
-        }
-
-        if(coordinatorUpdateRequestDTO.username() != null && !coordinatorUpdateRequestDTO.username().isBlank()) {
-            coordinator.setUsername(coordinatorUpdateRequestDTO.username());
-        }
-
-        if(coordinatorUpdateRequestDTO.email() != null && !coordinatorUpdateRequestDTO.email().isBlank()) {
-            coordinator.setEmail(coordinatorUpdateRequestDTO.email());
         }
 
         if(coordinatorUpdateRequestDTO.password() != null && !coordinatorUpdateRequestDTO.password().isBlank()) {
