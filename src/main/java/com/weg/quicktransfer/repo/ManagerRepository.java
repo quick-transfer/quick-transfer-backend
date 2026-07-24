@@ -13,10 +13,10 @@ public interface ManagerRepository extends JpaRepository<Manager, Long> {
     public List<Manager> findByName(String name);
 
     @Query("""
-            SELECT m.name
+            SELECT m
             FROM Interview i
             JOIN i.manager m
             WHERE i.id = :interviewId
             """)
-    public Optional<String> findByInterviewId(@Param("interviewId") Long interviewId);
+    public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
 }
