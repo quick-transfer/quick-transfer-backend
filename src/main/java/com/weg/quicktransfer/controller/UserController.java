@@ -3,6 +3,7 @@ package com.weg.quicktransfer.controller;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
 import com.weg.quicktransfer.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class UserController {
 
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<UserResponseDTO>> findUserByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findByName(name));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByUsername(name));
     }
 
     @GetMapping("/find/all")
@@ -35,7 +36,7 @@ public class UserController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody UserUpdateRequestDTO userUpdateRequestDTO
+            @RequestBody @Valid UserUpdateRequestDTO userUpdateRequestDTO
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.update(id, userUpdateRequestDTO));
     }

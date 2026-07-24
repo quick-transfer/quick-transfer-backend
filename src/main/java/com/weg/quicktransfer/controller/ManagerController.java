@@ -6,6 +6,7 @@ import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
 import com.weg.quicktransfer.service.ManagerService;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class ManagerController {
     private final ManagerService managerService;
 
     @PostMapping("/create")
-    public ResponseEntity<ManagerResponseDTO> createManager(@RequestBody ManagerRequestDTO managerRequestDTO) {
+    public ResponseEntity<ManagerResponseDTO> createManager(@RequestBody @Valid ManagerRequestDTO managerRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(managerService.create(managerRequestDTO));
     }
 
@@ -43,7 +44,7 @@ public class ManagerController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable Long id,
-            @RequestBody ManagerUpdateRequestDTO updateRequestDTO
+            @RequestBody @Valid ManagerUpdateRequestDTO updateRequestDTO
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO));
     }

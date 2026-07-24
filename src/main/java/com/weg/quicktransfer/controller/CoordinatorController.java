@@ -4,6 +4,7 @@ import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.service.CoordinatorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/coordinator")
 @RequiredArgsConstructor
-public class CoordintaorController {
+public class CoordinatorController {
 
     private final CoordinatorService coordinatorService;
 
     @PostMapping("/create")
-    public ResponseEntity<CoordinatorResponseDTO> createCoordinator(@RequestBody CoordinatorRequestDTO coordinatorRequestDTO) {
+    public ResponseEntity<CoordinatorResponseDTO> createCoordinator(@RequestBody @Valid CoordinatorRequestDTO coordinatorRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(coordinatorService.create(coordinatorRequestDTO));
     }
 
@@ -41,7 +42,7 @@ public class CoordintaorController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
             @PathVariable Long id,
-            @RequestBody CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO
+            @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO));
     }

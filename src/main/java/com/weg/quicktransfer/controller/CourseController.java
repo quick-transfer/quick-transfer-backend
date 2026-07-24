@@ -4,6 +4,7 @@ import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
 import com.weg.quicktransfer.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("/create")
-    public ResponseEntity<CourseResponseDTO> createCourse(@RequestBody CourseRequestDTO courseRequestDTO){
+    public ResponseEntity<CourseResponseDTO> createCourse(@RequestBody @Valid CourseRequestDTO courseRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.create(courseRequestDTO));
     }
 
@@ -41,7 +42,7 @@ public class CourseController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<CourseResponseDTO> updateCourse(
             @PathVariable Long id,
-            @RequestBody CourseUpdateRequestDTO courseUpdateRequestDTO
+            @RequestBody @Valid CourseUpdateRequestDTO courseUpdateRequestDTO
             ){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.update(id, courseUpdateRequestDTO));
     }

@@ -11,6 +11,7 @@ import com.weg.quicktransfer.service.AdminService;
 import com.weg.quicktransfer.service.CoordinatorService;
 import com.weg.quicktransfer.service.ManagerService;
 import com.weg.quicktransfer.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/create/admin")
-    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
+    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody @Valid AdminRequestDTO adminRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
     }
 
@@ -48,7 +49,7 @@ public class AdminController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
             @PathVariable Long id,
-            @RequestBody AdminUpdateRequestDTO updatedRequest
+            @RequestBody @Valid AdminUpdateRequestDTO updatedRequest
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, updatedRequest));
     }
