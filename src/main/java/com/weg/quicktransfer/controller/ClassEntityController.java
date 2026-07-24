@@ -26,7 +26,7 @@ public class ClassEntityController {
     }
 
     @GetMapping("find/name/{name}")
-    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByName(@PathVariable String name){
-        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByName(name));
+    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String name){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(name));
     }
 }
