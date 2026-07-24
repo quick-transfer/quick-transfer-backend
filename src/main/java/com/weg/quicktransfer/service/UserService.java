@@ -16,6 +16,8 @@ import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.mapper.UserMapper;
 import com.weg.quicktransfer.model.Admin;
+import com.weg.quicktransfer.model.Coordinator;
+import com.weg.quicktransfer.model.Manager;
 import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
@@ -96,7 +98,12 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(requestDTO.password()));
         userRepository.save(user);
 
-        return
+        return switch (user.getRole()) {
+            case ADMIN -> adminMapper.toResponse((Admin) user);
+            case MANAGER -> managerMapper.toResponse((Manager) user);
+            case COORDINATOR -> coordinatorMapper.toResponse((Coordinator) user);
+            default -> throw new UserNotFoundException("User with invalid role found");
+        };
     }
 
     @Transactional(readOnly = true)
