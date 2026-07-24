@@ -19,4 +19,9 @@ public class ClassEntityController {
     public ResponseEntity<ClassEntityResponseDTO> createClassEntity(@RequestBody  ClassEntityRequestDTO classEntityRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(classEntityService.create(classEntityRequestDTO));
     }
+
+    @GetMapping("/find/id/{id}")
+    public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findById(id));
+    }
 }
