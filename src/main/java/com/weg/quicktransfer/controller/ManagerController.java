@@ -1,6 +1,5 @@
 package com.weg.quicktransfer.controller;
 
-import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;

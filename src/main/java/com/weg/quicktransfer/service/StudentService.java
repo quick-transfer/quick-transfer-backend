@@ -51,6 +51,15 @@ public class StudentService {
 
         return studentMapper.toResponse(student);
     }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponseDTO> findByName(String name) {
+        List<Student> students = studentRepository.findByName(name);
+
+        return students.stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
     
     @Transactional
     public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
