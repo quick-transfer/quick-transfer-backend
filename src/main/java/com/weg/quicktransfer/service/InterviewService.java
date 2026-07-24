@@ -9,9 +9,9 @@ import com.weg.quicktransfer.dto.interview.InterviewRequestDTO;
 import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.interview.InterviewUpdateRequestDTO;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
-import com.weg.quicktransfer.exception.ManagerNotFoundException;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
+import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
 import com.weg.quicktransfer.mapper.InterviewMapper;
 import com.weg.quicktransfer.model.Interview;
@@ -43,7 +43,7 @@ public class InterviewService {
 
         Vacancy vacancy = vacancyRepository.findById(interviewRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewRequestDTO.vacancyId()));
 
-        Manager manager = managerRepository.findById(interviewRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewRequestDTO.managerId()));
+        Manager manager = managerRepository.findById(interviewRequestDTO.managerId()).orElseThrow(() -> new UserNotFoundException(interviewRequestDTO.managerId()));
 
         Student student = studentRepository.findById(interviewRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewRequestDTO.studentId()));
 
@@ -72,14 +72,6 @@ public class InterviewService {
     public InterviewResponseDTO update(Long id, InterviewUpdateRequestDTO interviewUpdateRequestDTO) {
         Interview interview = interviewRepository.findById(id).orElseThrow(() -> new InterviewNotFoundException(id));
 
-        Place place = placeRepository.findById(interviewUpdateRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(interviewUpdateRequestDTO.placeId()));
-
-        Vacancy vacancy = vacancyRepository.findById(interviewUpdateRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewUpdateRequestDTO.vacancyId()));
-
-        Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new ManagerNotFoundException(interviewUpdateRequestDTO.managerId()));
-
-        Student student = studentRepository.findById(interviewUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewUpdateRequestDTO.studentId()));
-
         if(interviewUpdateRequestDTO.interviewerName() != null && !interviewUpdateRequestDTO.interviewerName().isBlank()) {
             interview.setInterviewerName(interviewUpdateRequestDTO.interviewerName());
         }
@@ -89,18 +81,22 @@ public class InterviewService {
         }
 
         if(interviewUpdateRequestDTO.placeId() != null) {
+            Place place = placeRepository.findById(interviewUpdateRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(interviewUpdateRequestDTO.placeId()));
             interview.setPlace(place);
         }
 
         if(interviewUpdateRequestDTO.vacancyId() != null) {
+            Vacancy vacancy = vacancyRepository.findById(interviewUpdateRequestDTO.vacancyId()).orElseThrow(() -> new VacancyNotFoundException(interviewUpdateRequestDTO.vacancyId()));
             interview.setVacancy(vacancy);
         }
 
         if(interviewUpdateRequestDTO.managerId() != null) {
+            Manager manager = managerRepository.findById(interviewUpdateRequestDTO.managerId()).orElseThrow(() -> new UserNotFoundException(interviewUpdateRequestDTO.managerId()));
             interview.setManager(manager);
         }
 
         if(interviewUpdateRequestDTO.studentId() != null) {
+            Student student = studentRepository.findById(interviewUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewUpdateRequestDTO.studentId()));
             interview.setStudent(student);
         }
 

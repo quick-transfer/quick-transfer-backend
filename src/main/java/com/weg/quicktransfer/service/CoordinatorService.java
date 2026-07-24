@@ -10,6 +10,7 @@ import com.weg.quicktransfer.repo.CoordinatorRepository;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +18,15 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CoordinatorService {
+    private final PasswordEncoder passwordEncoder;
     private final CoordinatorRepository coordinatorRepository;
     private final CoordinatorMapper coordinatorMapper;
 
     @Transactional
     public CoordinatorResponseDTO create(CoordinatorRequestDTO coordinatorRequestDTO) {
         Coordinator coordinator = coordinatorMapper.toEntity(coordinatorRequestDTO);
+
+        coordinator.setPassword(passwordEncoder.encode(coordinator.getPassword()));
 
         coordinatorRepository.save(coordinator);
 
@@ -60,7 +64,7 @@ public class CoordinatorService {
         }
 
         if(coordinatorUpdateRequestDTO.password() != null && !coordinatorUpdateRequestDTO.password().isBlank()) {
-            coordinator.setPassword(coordinatorUpdateRequestDTO.password());
+            coordinator.setPassword(passwordEncoder.encode(coordinatorUpdateRequestDTO.password()));
         }
 
         Coordinator coordinatorAtt = coordinatorRepository.save(coordinator);

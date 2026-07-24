@@ -55,13 +55,12 @@ public class CourseService {
     public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
-        Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(courseUpdateRequestDTO.coordinatorId()));
-
         if(courseUpdateRequestDTO.name() != null && !courseUpdateRequestDTO.name().isBlank()) {
             course.setName(courseUpdateRequestDTO.name());
         }
 
         if(courseUpdateRequestDTO.coordinatorId() != null) {
+            Coordinator coordinator = coordinatorRepository.findById(courseUpdateRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseUpdateRequestDTO.coordinatorId()));
             course.setCoordinator(coordinator);
         }
 
