@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
@@ -7,6 +8,8 @@ import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.repo.AdminRepository;
+import com.weg.quicktransfer.repo.specifications.AdminSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,12 @@ public class AdminService {
         return admins.stream()
                 .map(adminMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional
+    public List<Admin> searchProducts(AdminFilter filter) {
+        Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
+        return adminRepository.findAll(spec);
     }
 
     @Transactional(readOnly = true)

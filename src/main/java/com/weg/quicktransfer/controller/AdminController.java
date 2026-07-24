@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
@@ -7,6 +8,7 @@ import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
+import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.service.AdminService;
 import com.weg.quicktransfer.service.CoordinatorService;
 import com.weg.quicktransfer.service.ManagerService;
@@ -39,6 +41,11 @@ public class AdminController {
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Admin>> getProducts(AdminFilter filter) {
+        return ResponseEntity.ok(adminService.searchProducts(filter));
     }
 
     @GetMapping("/find/all")
