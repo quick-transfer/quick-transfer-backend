@@ -83,7 +83,7 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        if(studentUpdateRequestDTO.classId() != null) {
+        if(studentUpdateRequestDTO.classId() > 0) {
             student.setClassEntity(classEntity);
         }
 
