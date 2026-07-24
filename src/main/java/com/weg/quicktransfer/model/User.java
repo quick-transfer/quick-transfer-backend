@@ -1,21 +1,9 @@
 package com.weg.quicktransfer.model;
 
-import org.hibernate.annotations.AnyDiscriminatorImplicitValues.Strategy;
-
 import com.weg.quicktransfer.enums.Role;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
-import lombok.*;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,6 +37,10 @@ public abstract class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean firstLogin = true;
 
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;
