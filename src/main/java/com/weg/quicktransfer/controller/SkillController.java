@@ -29,23 +29,23 @@ public class SkillController {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findById(id));
     }
 
-    @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<SkillResponseDTO>> findSkillByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
-    }
+    //@GetMapping("/find/name/{name}")
+    //public ResponseEntity<SkillResponseDTO> findSkillByName(@PathVariable String name) {
+    //    return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
+    //}
 
     @GetMapping("/find/all")
     public ResponseEntity<List<SkillResponseDTO>> findAllSkills() {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll());
     }
 
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<SkillResponseDTO> updateSkill(
-            @PathVariable Long id,
-            @RequestBody @Valid SkillUpdateRequestDTO skillUpdateRequestDTO
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
-    }
+    //@PatchMapping("/update/{id}")
+    //public ResponseEntity<SkillResponseDTO> updateSkill(
+    //        @PathVariable Long id,
+    //        @RequestBody @Valid SkillUpdateRequestDTO skillUpdateRequestDTO
+    //) {
+    //    return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
+    //}
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {

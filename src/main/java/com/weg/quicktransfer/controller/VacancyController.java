@@ -30,7 +30,7 @@ public class VacancyController {
     }
 
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<VacancyResponseDTO>> findVacancyByName(@PathVariable String name) {
+    public ResponseEntity<VacancyResponseDTO> findVacancyByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findByName(name));
     }
 

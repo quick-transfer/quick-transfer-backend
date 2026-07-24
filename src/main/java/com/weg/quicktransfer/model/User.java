@@ -48,7 +48,7 @@ public abstract class User {
     private Role role;
 
     @Column(nullable = false)
-    private boolean firstLogin = true;
+    private Boolean firstLogin = true;
 
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;

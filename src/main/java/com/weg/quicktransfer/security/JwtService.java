@@ -21,9 +21,10 @@ public class JwtService {
     private final RSAPrivateKey privateKey;
     private final long expirationMs;
 
-    public JwtService(RSAPublicKey publicKey,
-                      RSAPrivateKey privateKey,
-                      @Value("${app.jwt.expiration}") long expirationMs) {
+    public JwtService(
+            @Value("${app.security.jwt.public-key}") RSAPublicKey publicKey,
+            @Value("${app.security.jwt.private-key}") RSAPrivateKey privateKey,
+            @Value("${app.jwt.expiration}") long expirationMs) {
         this.publicKey = publicKey;
         this.privateKey = privateKey;
         this.expirationMs = expirationMs;

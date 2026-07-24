@@ -9,15 +9,15 @@ services:
     container_name: quick-transfer-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-quick_transfer}
-      POSTGRES_USER: ${POSTGRES_USER:-backend}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgresqlPW}
+      POSTGRES_DB: quick_transfer
+      POSTGRES_USER: backend
+      POSTGRES_PASSWORD: postgresqlPW
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-backend}"]
+      test: ["CMD-SHELL", "pg_isready -U backend -d quick_transfer"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,16 +33,16 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8080"
-    env_file:
-      - .env
     environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quick_transfer}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgresqlPW}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quick_transfer
+      SPRING_DATASOURCE_USERNAME: backend
+      SPRING_DATASOURCE_PASSWORD: postgresqlPW
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - quick-transfer-net
+
 
   # ==========================================
   # NETWORK BRIDGE
