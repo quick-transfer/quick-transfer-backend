@@ -19,6 +19,7 @@ import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,16 @@ public class ClassEntityService {
         List<ClassEntity> classEntities = classEntityRepository.findAll();
 
         return classEntities.stream().map(classEntityMapper::toResponse).toList();
+    }
+
+    @Transactional
+    public ClassEntityResponseDTO findByAcronym(String acronym){
+        if(!StringUtils.hasText(acronym)){
+            throw new IllegalArgumentException("Acronym can not be empty");
+        }
+        ClassEntity classEntity = classEntityRepository.findByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
+
+        return classEntityMapper.toResponse(classEntity);
     }
 
     @Transactional(readOnly = true)
