@@ -87,7 +87,7 @@ public class ManagerService {
 
     @Transactional(readOnly = true)
     public ManagerResponseDTO findByName(String name) {
-        Manager manager = managerRepository.findByName(name)
+        Manager manager = managerRepository.findByUsername(name)
                 .orElseThrow(() -> new UserNotFoundException("User not found with name: " + name));
 
         return managerMapper.toResponse(manager);
