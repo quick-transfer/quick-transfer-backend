@@ -6,15 +6,7 @@ import java.util.List;
 import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.enums.Section;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Manager extends User{
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
