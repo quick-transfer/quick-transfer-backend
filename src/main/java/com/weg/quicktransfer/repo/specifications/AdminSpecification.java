@@ -24,12 +24,12 @@ public class AdminSpecification {
 
             if (StringUtils.hasText(filter.username())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")),
+                        criteriaBuilder.lower(root.get("username")),
                         "%" + filter.username().toLowerCase() + "%"
                 ));
             }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
         };
     }
 }

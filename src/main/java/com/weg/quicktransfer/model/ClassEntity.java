@@ -45,7 +45,7 @@ public class ClassEntity {
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
     private List<Student> students = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String acronym;
 
     public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,

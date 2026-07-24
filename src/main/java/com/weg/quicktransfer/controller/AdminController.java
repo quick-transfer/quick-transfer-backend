@@ -44,8 +44,8 @@ public class AdminController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Admin>> getProducts(AdminFilter filter) {
-        return ResponseEntity.ok(adminService.searchProducts(filter));
+    public ResponseEntity<List<Admin>> searchProducts(AdminFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.searchProducts(filter));
     }
 
     @GetMapping("/find/all")
