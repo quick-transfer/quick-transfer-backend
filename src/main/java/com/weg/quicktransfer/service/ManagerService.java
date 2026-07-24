@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
@@ -40,8 +41,11 @@ public class ManagerService {
     private final PasswordEncoder passwordEncoder;
     private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
+
     private final InterviewRepository interviewRepository;
+
     private final StudentRepository studentRepository;
+
     private final JavaMailSender mailSender;
 
     @Transactional
@@ -51,7 +55,9 @@ public class ManagerService {
         }
 
         Manager manager = managerMapper.toEntity(managerRequestDTO);
+
         manager.setPassword(passwordEncoder.encode(manager.getPassword()));
+
         managerRepository.save(manager);
 
         return managerMapper.toResponse(manager);
@@ -81,20 +87,15 @@ public class ManagerService {
     }
 
     @Transactional
-    public ManagerResponseDTO update(Long id, String name, String email, String password) {
-        Manager manager = managerRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+    public ManagerResponseDTO update(Long id, ManagerUpdateRequestDTO updateRequestDTO) {
+        Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        if (StringUtils.hasText(name)) {
-            manager.setName(name);
+        if(StringUtils.hasText(updateRequestDTO.name())) {
+            manager.setName(updateRequestDTO.name());
         }
 
-        if (StringUtils.hasText(email)) {
-            manager.setEmail(email);
-        }
-
-        if (StringUtils.hasText(password) && password.matches(PASSWORD_REGEX)) {
-            manager.setPassword(passwordEncoder.encode(password));
+        if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$")) {
+            manager.setPassword(updateRequestDTO.password());
         }
 
         Manager managerUpdated = managerRepository.save(manager);
@@ -106,6 +107,7 @@ public class ManagerService {
         if (!managerRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
+
         managerRepository.deleteById(id);
     }
 

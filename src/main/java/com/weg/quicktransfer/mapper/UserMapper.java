@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.mapper;
 
+import com.weg.quicktransfer.dto.user.UserRequestDTO;
 import org.springframework.stereotype.Component;
 
 import com.weg.quicktransfer.dto.user.UserResponseDTO;

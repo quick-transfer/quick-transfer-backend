@@ -6,10 +6,11 @@ import com.weg.quicktransfer.model.Manager;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ManagerRepository extends JpaRepository<Manager, Long> {
-    public Optional<Manager> findByName(String name);
+    public List<Manager> findByName(String name);
 
     @Query("""
             SELECT m

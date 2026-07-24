@@ -32,4 +32,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNotFound(EntityNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(FirstLoginException.class)
+    public ResponseEntity<String> handleFirstLoginException(FirstLoginException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+
+    }
 }
