@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/class")
 @RequiredArgsConstructor
@@ -28,5 +30,10 @@ public class ClassEntityController {
     @GetMapping("find/name/{name}")
     public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String name){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(name));
+    }
+
+    @GetMapping("find/all")
+    public ResponseEntity<List<ClassEntityResponseDTO>> findAllClassEntities(){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll());
     }
 }
