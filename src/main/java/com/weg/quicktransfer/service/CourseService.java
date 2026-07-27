@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.course.CourseFilter;
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
@@ -10,6 +11,8 @@ import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
+import com.weg.quicktransfer.repo.specifications.CourseSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -61,6 +64,17 @@ public class CourseService {
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         return courseMapper.toResponse(course);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseResponseDTO> searchCourses(CourseFilter filter) {
+        Specification<Course> spec = CourseSpecification.getFilteredCourses(filter);
+
+        List<Course> courses = courseRepository.findAll(spec);
+
+        return courses.stream()
+                .map(courseMapper::toResponse)
+                .toList();
     }
 
     @Transactional
