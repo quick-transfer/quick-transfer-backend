@@ -25,10 +25,12 @@ public class PlaceService {
 
     @Transactional
     public PlaceResponseDTO create(PlaceRequestDTO placeRequestDTO) {
+        if (placeRequestDTO == null) {
+            throw new IllegalArgumentException("Place request can not be null");
+        }
+
         Place place = placeMapper.toEntity(placeRequestDTO);
-
         placeRepository.save(place);
-
         return placeMapper.toResponse(place);
     }
 

@@ -2,7 +2,11 @@ package com.weg.quicktransfer;
 
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
 import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
+import com.weg.quicktransfer.dto.place.PlaceUpdateRequestDTO;
+import com.weg.quicktransfer.enums.Park;
+import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.mapper.PlaceMapper;
+import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
 import com.weg.quicktransfer.repo.PlaceRepository;
@@ -16,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,15 +47,15 @@ class PlaceServiceTest {
 
         place = new Place();
         place.setId(1L);
-        place.setName("Fábrica Jaraguá");
+        place.setPlaceName("Fábrica Jaraguá");
+        place.setPark(Park.WEG_II);
+        place.setSection(Section.TI);
         place.setVacancies(new ArrayList<Vacancy>());
+        place.setInterviews(new ArrayList<Interview>());
 
-        requestDTO = new PlaceRequestDTO();
-        requestDTO.setName("Fábrica Jaraguá");
+        requestDTO = new PlaceRequestDTO(place.getPlaceName(), place.getPark().toString(), place.getSection().toString());
 
-        responseDTO = new PlaceResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setName("Fábrica Jaraguá");
+        responseDTO = new PlaceResponseDTO(place.getId(), place.getPlaceName(), place.getPark().toString(), place.getSection().toString());
     }
 
     @Test
@@ -70,8 +75,8 @@ class PlaceServiceTest {
                 placeService.create(requestDTO);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Fábrica Jaraguá", result.getName());
+        assertEquals(1L, result.id());
+        assertEquals("Fábrica Jaraguá", result.placeName());
 
         verify(placeMapper).toEntity(requestDTO);
         verify(placeRepo).save(place);
@@ -83,7 +88,7 @@ class PlaceServiceTest {
     void shouldFindPlaceById() {
 
         when(placeRepo.findById(1L))
-                .thenReturn(place);
+                .thenReturn(Optional.of(place));
 
         when(placeMapper.toResponse(place))
                 .thenReturn(responseDTO);
@@ -92,8 +97,8 @@ class PlaceServiceTest {
                 placeService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Fábrica Jaraguá", result.getName());
+        assertEquals(1L, result.id());
+        assertEquals("Fábrica Jaraguá", result.placeName());
 
         verify(placeRepo).findById(1L);
         verify(placeMapper).toResponse(place);
@@ -103,27 +108,21 @@ class PlaceServiceTest {
     @DisplayName("Should update place and return response dto")
     void shouldUpdatePlace() {
 
-        PlaceRequestDTO updatedRequest =
-                new PlaceRequestDTO();
-
-        updatedRequest.setName("Fábrica Blumenau");
+        PlaceUpdateRequestDTO updatedRequest = new PlaceUpdateRequestDTO("Fábrica Blumenau", null, null);
 
         Place updatedEntity = new Place();
         updatedEntity.setId(1L);
-        updatedEntity.setName("Fábrica Blumenau");
+        updatedEntity.setPlaceName("Fábrica Blumenau");
+        updatedEntity.setPark(Park.WEG_II);
+        updatedEntity.setSection(Section.TI);
         updatedEntity.setVacancies(new ArrayList<>());
+        updatedEntity.setInterviews(new ArrayList<>());
 
-        PlaceResponseDTO updatedResponse =
-                new PlaceResponseDTO();
+        PlaceResponseDTO updatedResponse = new PlaceResponseDTO(1L, "Fábrica Blumenau", Park.WEG_II.toString(), Section.TI.toString());
 
-        updatedResponse.setId(1L);
-        updatedResponse.setName("Fábrica Blumenau");
 
         when(placeRepo.findById(1L))
-                .thenReturn(place);
-
-        when(placeMapper.toEntity(updatedRequest))
-                .thenReturn(updatedEntity);
+                .thenReturn(Optional.of(place));
 
         when(placeRepo.save(any(Place.class)))
                 .thenReturn(updatedEntity);
@@ -135,11 +134,10 @@ class PlaceServiceTest {
                 placeService.update(1L, updatedRequest);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Fábrica Blumenau", result.getName());
+        assertEquals(1L, result.id());
+        assertEquals("Fábrica Blumenau", result.placeName());
 
         verify(placeRepo).findById(1L);
-        verify(placeMapper).toEntity(updatedRequest);
         verify(placeRepo).save(any(Place.class));
         verify(placeMapper).toResponse(updatedEntity);
     }
@@ -147,16 +145,12 @@ class PlaceServiceTest {
     @Test
     @DisplayName("Should delete place")
     void shouldDeletePlace() {
+        when(placeRepo.existsById(1L)).thenReturn(true);
 
-        doNothing()
-                .when(placeRepo)
-                .deleteById(1L);
+        assertDoesNotThrow(() -> placeService.delete(1L));
 
-        assertDoesNotThrow(() ->
-                placeService.delete(1L));
-
-        verify(placeRepo)
-                .deleteById(1L);
+        verify(placeRepo).existsById(1L);
+        verify(placeRepo).deleteById(1L);
     }
 
     @Test
