@@ -7,6 +7,7 @@ import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
+import com.weg.quicktransfer.projection.AdminSearchProjection;
 import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,9 +69,13 @@ public class AdminService {
     }
 
     @Transactional
-    public List<Admin> searchAdmins(AdminFilter filter) {
+    public List<AdminResponseDTO> searchAdmins(AdminFilter filter) {
         Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
-        return adminRepository.findAll(spec);
+        List<Admin> admins = adminRepository.findAll(spec);
+
+        return admins.stream()
+                .map(adminMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

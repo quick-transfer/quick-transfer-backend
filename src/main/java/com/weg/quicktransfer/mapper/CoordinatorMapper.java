@@ -3,7 +3,6 @@ package com.weg.quicktransfer.mapper;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.model.Coordinator;
-import com.weg.quicktransfer.projection.CoordinatorSearchProjection;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,14 +23,6 @@ public class CoordinatorMapper {
                 coordinator.getName(),
                 coordinator.getUsername(),
                 coordinator.getEmail()
-        );
-    }
-
-    // transforming entity coordinator to coordinator search
-    public CoordinatorSearchProjection toSearch(Coordinator coordinator) {
-        return new CoordinatorSearchProjection(
-                coordinator.getName(),
-                coordinator.getUsername()
         );
     }
 }

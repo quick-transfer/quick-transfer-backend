@@ -7,7 +7,6 @@ import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.exception.CoordinatorNotFoundException;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.model.Coordinator;
-import com.weg.quicktransfer.projection.CoordinatorSearchProjection;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 
 import java.util.List;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 public class CoordinatorService {
@@ -61,13 +61,13 @@ public class CoordinatorService {
     }
 
     @Transactional
-    public List<CoordinatorSearchProjection> searchCoordinators(CoordinatorFilter filter) {
+    public List<CoordinatorResponseDTO> searchCoordinators(CoordinatorFilter filter) {
         Specification<Coordinator> spec = CoordinatorSpecification.getFilteredCoordinators(filter);
 
         List<Coordinator> coordinators = coordinatorRepository.findAll(spec);
 
         return coordinators.stream()
-                .map(coordinatorMapper::toSearch)
+                .map(coordinatorMapper::toResponse)
                 .toList();
     }
 

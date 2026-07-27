@@ -2,10 +2,7 @@ package com.weg.quicktransfer.service;
 
 import java.util.List;
 
-import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
-import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import com.weg.quicktransfer.repo.specifications.ClassEntitySpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -70,9 +67,13 @@ public class ClassEntityService {
     }
 
     @Transactional
-    public List<ClassEntity> searchClassEntities(ClassEntityFilter filter) {
+    public List<ClassEntityResponseDTO> searchClassEntities(ClassEntityFilter filter) {
         Specification<ClassEntity> spec = ClassEntitySpecification.getFilteredClassEntities(filter);
-        return classEntityRepository.findAll(spec);
+        List<ClassEntity> classEntities = classEntityRepository.findAll(spec);
+
+        return classEntities.stream()
+                .map(classEntityMapper::toResponse)
+                .toList();
     }
 
     @Transactional

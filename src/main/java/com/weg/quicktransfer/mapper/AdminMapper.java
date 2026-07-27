@@ -3,6 +3,7 @@ package com.weg.quicktransfer.mapper;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.model.Admin;
+import com.weg.quicktransfer.projection.AdminSearchProjection;
 import org.springframework.stereotype.Component;
 
 @Component

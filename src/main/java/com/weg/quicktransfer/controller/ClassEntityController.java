@@ -38,7 +38,7 @@ public class ClassEntityController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ClassEntity>> searchClassEntities(ClassEntityFilter filter) {
+    public ResponseEntity<List<ClassEntityResponseDTO>> searchClassEntities(ClassEntityFilter filter) {
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter));
     }
 
