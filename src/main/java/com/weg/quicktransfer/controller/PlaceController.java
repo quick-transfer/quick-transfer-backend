@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.place.PlaceFilter;
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
 import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
 import com.weg.quicktransfer.dto.place.PlaceUpdateRequestDTO;
@@ -29,6 +30,11 @@ public class PlaceController {
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findById(id));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<PlaceResponseDTO>> searchPlaces(PlaceFilter filter){
+        return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter));
+    }
+
     @GetMapping("/find/all")
     public ResponseEntity<List<PlaceResponseDTO>> findAllPlaces(){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findAll());
@@ -43,7 +49,7 @@ public class PlaceController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deletePlace(Long id){
+    public ResponseEntity<Void> deletePlace(@PathVariable Long id){
         placeService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

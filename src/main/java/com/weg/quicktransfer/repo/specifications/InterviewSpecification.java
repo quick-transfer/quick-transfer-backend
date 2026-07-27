@@ -73,11 +73,11 @@ public class InterviewSpecification {
             }
 
             if (StringUtils.hasText(filter.placeName())) {
-                Join<Interview, Place> placeJoin = root.join("place_id", JoinType.INNER);
+                Join<Interview, Place> placeJoin = root.join("place", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(placeJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
+                        criteriaBuilder.lower(placeJoin.get("placeName")),
+                        "%" + filter.placeName().toLowerCase() + "%"
                 ));
             }
 
