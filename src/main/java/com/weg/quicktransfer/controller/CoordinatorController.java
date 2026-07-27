@@ -1,8 +1,13 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
+import com.weg.quicktransfer.dto.coordinator.CoordinatorFilter;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
+import com.weg.quicktransfer.model.ClassEntity;
+import com.weg.quicktransfer.model.Coordinator;
+import com.weg.quicktransfer.projection.CoordinatorSearchProjection;
 import com.weg.quicktransfer.service.CoordinatorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +37,11 @@ public class CoordinatorController {
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<CoordinatorResponseDTO>> findCoordinatorByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findByName(name));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CoordinatorSearchProjection>> searchCoordinators(CoordinatorFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.searchCoordinators(filter));
     }
 
     @GetMapping("/find/all")
