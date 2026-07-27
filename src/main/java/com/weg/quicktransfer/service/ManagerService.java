@@ -3,8 +3,7 @@ package com.weg.quicktransfer.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
-import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
+import com.weg.quicktransfer.dto.manager.*;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
 import com.weg.quicktransfer.exception.InvalidEmailException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;

@@ -38,8 +38,8 @@ public class ClassEntityController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ClassEntity>> searchProducts(ClassEntityFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.seatchClassEntities(filter));
+    public ResponseEntity<List<ClassEntity>> searchClassEntities(ClassEntityFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter));
     }
 
     @GetMapping("find/all")

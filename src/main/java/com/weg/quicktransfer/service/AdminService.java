@@ -68,7 +68,7 @@ public class AdminService {
     }
 
     @Transactional
-    public List<Admin> searchProducts(AdminFilter filter) {
+    public List<Admin> searchAdmins(AdminFilter filter) {
         Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
         return adminRepository.findAll(spec);
     }

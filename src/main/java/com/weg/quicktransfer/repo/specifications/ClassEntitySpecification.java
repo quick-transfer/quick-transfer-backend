@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.repo.specifications;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
+import com.weg.quicktransfer.exception.DateOutOfRangeException;
 import com.weg.quicktransfer.exception.NullFilterException;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
@@ -26,15 +27,31 @@ public class ClassEntitySpecification {
             if (StringUtils.hasText(filter.course())) {
                 Join<ClassEntity, Course> courseJoin = root.join("course", JoinType.INNER);
 
-                Predicate courseNameLike = criteriaBuilder.like(
+                Predicate classEntityNameLike = criteriaBuilder.like(
                         criteriaBuilder.lower(courseJoin.get("name")),
                         "%" + filter.course().toLowerCase() + "%"
                 );
 
-                predicates.add(courseNameLike);
+                predicates.add(classEntityNameLike);
             }
 
-            if (filter != null && filter.startDate().)
+            if (filter.startDate() != null && filter.finishDate() != null && filter.startDate().isAfter(filter.finishDate())) {
+                throw new DateOutOfRangeException("Finish date can not be before start date");
+            }
+
+            if (filter.startDate() != null) {
+                Predicate startDateAfter = criteriaBuilder.greaterThan(
+                        root.get("start_date"),
+                        filter.startDate()
+                );
+            }
+
+            if (filter.startDate() != null) {
+                Predicate finishDateBefore = criteriaBuilder.lessThan(
+                        root.get("finish_date"),
+                        filter.finishDate()
+                );
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
