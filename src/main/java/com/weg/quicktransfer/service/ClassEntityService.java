@@ -46,7 +46,7 @@ public class ClassEntityService {
         return classEntities.stream().map(classEntityMapper::toResponse).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ClassEntityResponseDTO findByAcronym(String acronym){
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
