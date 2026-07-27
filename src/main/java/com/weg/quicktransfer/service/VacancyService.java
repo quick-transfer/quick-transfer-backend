@@ -53,10 +53,10 @@ public class VacancyService {
     }
 
     @Transactional(readOnly = true)
-    public VacancyResponseDTO findByName(String name) {
-        Vacancy vacancy = vacancyRepository.findByName(name).orElseThrow(() -> new VacancyNotFoundException("Vacancy not found with name: " + name));
+    public List<VacancyResponseDTO> findByName(String name) {
+        List<Vacancy> vacancies = vacancyRepository.findByNameContaining(name);
 
-        return vacancyMapper.toResponse(vacancy);
+        return vacancies.stream().map(vacancyMapper::toResponse).toList();
     }
 
     @Transactional

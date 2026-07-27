@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
 import com.weg.quicktransfer.dto.skill.SkillResponseDTO;
@@ -25,7 +26,7 @@ public class SkillService {
     private final SkillMapper skillMapper;
     private final StudentRepository studentRepository;
 
-
+    @Transactional
     public SkillResponseDTO create(SkillRequestDTO skillRequestDTO) {
         Student student = studentRepository.findById(skillRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(skillRequestDTO.studentId()));
 
@@ -36,18 +37,28 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
+    @Transactional(readOnly = true)
     public List<SkillResponseDTO> findAll() {
         List<Skill> skills = skillRepository.findAll();
 
         return skills.stream().map(skillMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public SkillResponseDTO findById(Long id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
         return skillMapper.toResponse(skill);
     }
 
+    @Transactional(readOnly = true)
+    public List<SkillResponseDTO> findByName(String name) {
+        List<Skill> skills = skillRepository.findByNameContaining(name);
+
+        return skills.stream().map(skillMapper::toResponse).toList();
+    }
+
+    @Transactional
     public SkillResponseDTO update(Long id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
@@ -73,6 +84,7 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
+    @Transactional
     public void delete(Long id) {
         if(!skillRepository.existsById(id)) {
             throw new SkillNotFoundException(id);

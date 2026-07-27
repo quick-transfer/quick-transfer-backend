@@ -6,6 +6,7 @@ import com.weg.quicktransfer.model.Manager;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ManagerRepository extends JpaRepository<Manager, Long> {
@@ -18,4 +19,6 @@ public interface ManagerRepository extends JpaRepository<Manager, Long> {
             WHERE i.id = :interviewId
             """)
     public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
+    
+    List<Manager> findByName(String name);
 }
