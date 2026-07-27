@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.manager.ManagerFilter;
 import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
@@ -36,8 +39,13 @@ public class ManagerController {
     }
 
     @GetMapping("/find/all")
-    public ResponseEntity<List<ManagerResponseDTO>> findAllManagerss() {
+    public ResponseEntity<List<ManagerResponseDTO>> findAllManagers() {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ManagerResponseDTO>> searchManager(ManagerFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(managerService.searchManagers(filter));
     }
 
     @PatchMapping("/update/{id}")

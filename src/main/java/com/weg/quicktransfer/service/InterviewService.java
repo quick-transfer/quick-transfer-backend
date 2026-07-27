@@ -71,9 +71,9 @@ public class InterviewService {
     public List<InterviewResponseDTO> searchInterviews(InterviewFilter filter) {
         Specification<Interview> spec = InterviewSpecification.getFilteredInterviews(filter);
 
-        List<Interview> courses = interviewRepository.findAll(spec);
+        List<Interview> interviews = interviewRepository.findAll(spec);
 
-        return courses.stream()
+        return interviews.stream()
                 .map(interviewMapper::toResponse)
                 .toList();
     }

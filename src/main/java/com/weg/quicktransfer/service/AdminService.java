@@ -7,7 +7,6 @@ import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.projection.AdminSearchProjection;
 import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import org.springframework.data.jpa.domain.Specification;

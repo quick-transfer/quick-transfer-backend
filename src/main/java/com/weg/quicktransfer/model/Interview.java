@@ -46,8 +46,8 @@ public class Interview {
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
 
-    @Column(name = "student_id")
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "student_id")
     private Student student;
 
     @Column(name = "reminder_sent")
