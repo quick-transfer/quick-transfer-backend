@@ -63,21 +63,22 @@ class StudentServiceTest {
         student.setId(1L);
         student.setName("Nome");
         student.setEmail("email@dominio.com");
+        student.setAge(17L);
         student.setAverageGrade(5.0);
         student.setClassEntity(classEntity);
-        student.setDesiredClass(classEntity);
-        student.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        student.setClassEntity(classEntity);
+        student.setStatus(StudentInterviewStatus.NOT_ASSOCIATED);
         student.setHasSeenEmail(false);
 
         // Inicialização utilizando os construtores canônicos dos Records
-        requestDTO = new StudentRequestDTO("Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
-        responseDTO = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
+        requestDTO = new StudentRequestDTO("Nome", "email@dominio.com", 17L, 5.0, 1L, StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
+        responseDTO = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 17L, 5.0, classEntity.getAcronym(), course.getName(), StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
     }
 
     @Test
     @DisplayName("Should create student and return response dto")
     void shouldCreateStudent() {
-        when(studentMapper.toEntity(requestDTO)).thenReturn(student);
+        when(studentMapper.toEntity(requestDTO, classEntity)).thenReturn(student);
         when(studentRepository.save(student)).thenReturn(student);
         when(studentMapper.toResponse(student)).thenReturn(responseDTO);
 
@@ -90,7 +91,7 @@ class StudentServiceTest {
         assertEquals(5.0, result.averageGrade());
         assertFalse(result.hasSeenEmail());
 
-        verify(studentMapper).toEntity(requestDTO);
+        verify(studentMapper).toEntity(requestDTO, classEntity);
         verify(studentRepository).save(student);
         verify(studentMapper).toResponse(student);
     }
@@ -114,7 +115,7 @@ class StudentServiceTest {
     @Test
     @DisplayName("Should update student and return response dto")
     void shouldUpdateStudent() {
-        StudentRequestDTO updatedRequest = new StudentRequestDTO("Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
+        StudentRequestDTO updatedRequest = new StudentRequestDTO("Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NOT_ASSOCIATED, false);
 
         Student updatedEntity = new Student();
         updatedEntity.setId(1L);
