@@ -2,6 +2,10 @@ package com.weg.quicktransfer.service;
 
 import java.util.List;
 
+import com.weg.quicktransfer.dto.skill.SkillFilter;
+import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
+import com.weg.quicktransfer.repo.specifications.SkillSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
@@ -17,6 +21,7 @@ import com.weg.quicktransfer.repo.SkillRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +51,17 @@ public class SkillService {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
         return skillMapper.toResponse(skill);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SkillResponseDTO> searchSkills(SkillFilter filter) {
+        Specification<Skill> spec = SkillSpecification.getFilteredInterviews(filter);
+
+        List<Skill> interviews = skillRepository.findAll(spec);
+
+        return interviews.stream()
+                .map(skillMapper::toResponse)
+                .toList();
     }
 
     public SkillResponseDTO update(Long id, SkillUpdateRequestDTO skillUpdateRequestDTO) {

@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.skill.SkillFilter;
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
 import com.weg.quicktransfer.dto.skill.SkillResponseDTO;
 import com.weg.quicktransfer.dto.skill.SkillUpdateRequestDTO;
@@ -29,23 +32,28 @@ public class SkillController {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findById(id));
     }
 
-    //@GetMapping("/find/name/{name}")
-    //public ResponseEntity<SkillResponseDTO> findSkillByName(@PathVariable String name) {
-    //    return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
-    //}
+    @GetMapping("/find/name/{name}")
+    public ResponseEntity<SkillResponseDTO> findSkillByName(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
+    }
 
     @GetMapping("/find/all")
     public ResponseEntity<List<SkillResponseDTO>> findAllSkills() {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll());
     }
 
-    //@PatchMapping("/update/{id}")
-    //public ResponseEntity<SkillResponseDTO> updateSkill(
-    //        @PathVariable Long id,
-    //        @RequestBody @Valid SkillUpdateRequestDTO skillUpdateRequestDTO
-    //) {
-    //    return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
-    //}
+    @GetMapping("/search")
+    public ResponseEntity<List<SkillResponseDTO>> searchCourses(SkillFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.searchSkills(filter));
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<SkillResponseDTO> updateSkill(
+            @PathVariable Long id,
+            @RequestBody @Valid SkillUpdateRequestDTO skillUpdateRequestDTO
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
