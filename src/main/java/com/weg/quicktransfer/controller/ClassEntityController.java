@@ -4,6 +4,8 @@ import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityUpdateRequestDTO;
 import com.weg.quicktransfer.service.ClassEntityService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ public class ClassEntityController {
     private final ClassEntityService classEntityService;
 
     @PostMapping("/create")
-    public ResponseEntity<ClassEntityResponseDTO> createClassEntity(@RequestBody  ClassEntityRequestDTO classEntityRequestDTO){
+    public ResponseEntity<ClassEntityResponseDTO> createClassEntity(@RequestBody @Valid ClassEntityRequestDTO classEntityRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(classEntityService.create(classEntityRequestDTO));
     }
 
@@ -41,7 +43,7 @@ public class ClassEntityController {
     @PutMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
             @PathVariable Long id,
-            @RequestBody ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){
+            @RequestBody @Valid ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
 

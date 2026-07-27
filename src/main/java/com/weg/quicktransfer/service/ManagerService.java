@@ -110,6 +110,7 @@ public class ManagerService {
         managerRepository.deleteById(id);
     }
 
+    @Transactional
     public void sendDynamicEmailAmp(String to, Long interviewId) throws MessagingException {
         validateEmail(to);
         MimeMessage message = criarMensagemEmail(to, interviewId);
@@ -150,6 +151,7 @@ public class ManagerService {
         return message;
     }
 
+    @Transactional
     private String buildHtmlBody(Interview interview, Student student, Manager manager, String date, String time) {
         return """
             <!DOCTYPE html>
@@ -238,6 +240,7 @@ public class ManagerService {
         );
     }
 
+    @Transactional
     private void validateEmail(String email) {
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new InvalidEmailException("Invalid e-mail: " + email);
