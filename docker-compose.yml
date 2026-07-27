@@ -37,6 +37,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quick_transfer
       SPRING_DATASOURCE_USERNAME: backend
       SPRING_DATASOURCE_PASSWORD: postgresqlPW
+      ALLOWED_ORIGINS: '*'
+      JWT_SECRET: feww4g7h3q79gn0n9qun3m8f43ngviv0v43gj5hn
     depends_on:
       postgres:
         condition: service_healthy
