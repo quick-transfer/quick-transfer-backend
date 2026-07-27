@@ -61,7 +61,7 @@ public class ManagerController {
             @RequestHeader(value = "AMP-Same-Origin", required = false) String sameOrigin,
             @RequestHeader(value = "AMP-Email-Sender", required = false) String sender)  throws MessagingException {
 
-        managerService.sendEmail(to, interviewId);
+        managerService.sendDynamicEmailAmp(to, interviewId);
 
         return ResponseEntity.ok()
                 .header("AMP-Email-Allow-Sender", "quick.transfer.gmail@gmail.com")

@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.weg.quicktransfer.model.Vacancy;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface VacancyRepository extends JpaRepository<Vacancy, Long> {
-    Optional<Vacancy> findByName(String name);
+    List<Vacancy> findByNameContaining(String name);
 }
