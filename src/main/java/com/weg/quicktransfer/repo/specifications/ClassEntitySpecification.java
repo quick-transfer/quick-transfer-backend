@@ -25,7 +25,7 @@ public class ClassEntitySpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(filter.course())) {
-                Join<ClassEntity, Course> courseJoin = root.join("course", JoinType.INNER);
+                Join<ClassEntity, Course> courseJoin = root.join("course_id", JoinType.INNER);
 
                 Predicate classEntityNameLike = criteriaBuilder.like(
                         criteriaBuilder.lower(courseJoin.get("name")),

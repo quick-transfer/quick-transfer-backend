@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
 import com.weg.quicktransfer.dto.interview.InterviewRequestDTO;
 import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.interview.InterviewUpdateRequestDTO;
@@ -32,6 +33,11 @@ public class InterviewController {
     @GetMapping("/find/all")
     public ResponseEntity<List<InterviewResponseDTO>> findAllInterviews(){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<InterviewResponseDTO>> searchCourses(InterviewFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(interviewService.searchInterviews(filter));
     }
 
     @PatchMapping("/update/{id}")
