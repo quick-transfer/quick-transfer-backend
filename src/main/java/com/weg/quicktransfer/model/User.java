@@ -1,18 +1,9 @@
 package com.weg.quicktransfer.model;
 
 import com.weg.quicktransfer.enums.Role;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,6 +38,7 @@ public abstract class User {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean firstLogin = true;
 
