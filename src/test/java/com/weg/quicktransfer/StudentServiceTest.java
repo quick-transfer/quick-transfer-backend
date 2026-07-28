@@ -2,6 +2,7 @@ package com.weg.quicktransfer;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
+import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.mapper.StudentMapper;
 import com.weg.quicktransfer.model.ClassEntity;
@@ -115,22 +116,21 @@ class StudentServiceTest {
     @Test
     @DisplayName("Should update student and return response dto")
     void shouldUpdateStudent() {
-        StudentRequestDTO updatedRequest = new StudentRequestDTO("Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NOT_ASSOCIATED, false);
+        StudentUpdateRequestDTO updatedRequest = new StudentUpdateRequestDTO("Novo Nome", "novoemail@dominio.com", 18L, 8.5, 1L, StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
 
         Student updatedEntity = new Student();
         updatedEntity.setId(1L);
         updatedEntity.setName("Novo Nome");
         updatedEntity.setEmail("novoemail@dominio.com");
+        updatedEntity.setAge(18L);
         updatedEntity.setAverageGrade(8.5);
         updatedEntity.setClassEntity(classEntity);
-        updatedEntity.setDesiredClass(classEntity);
-        updatedEntity.setStatus(StudentInterviewStatus.NAO_ASSOCIADO);
+        updatedEntity.setStatus(StudentInterviewStatus.NOT_ASSOCIATED);
         updatedEntity.setHasSeenEmail(false);
 
-        StudentResponseDTO updatedResponse = new StudentResponseDTO(1L, "Novo Nome", "novoemail@dominio.com", 8.5, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, false);
+        StudentResponseDTO updatedResponse = new StudentResponseDTO(1L, "Novo Nome", "novoemail@dominio.com", 18L, 8.5, "JAVA01", classEntity.getCourse().getName(),StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(studentMapper.toEntity(updatedRequest)).thenReturn(updatedEntity);
         when(studentRepository.save(any(Student.class))).thenReturn(updatedEntity);
         when(studentMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
@@ -142,7 +142,6 @@ class StudentServiceTest {
         assertEquals(8.5, result.averageGrade());
 
         verify(studentRepository).findById(1L);
-        verify(studentMapper).toEntity(updatedRequest);
         verify(studentRepository).save(any(Student.class));
         verify(studentMapper).toResponse(updatedEntity);
     }
@@ -160,7 +159,7 @@ class StudentServiceTest {
     @Test
     @DisplayName("Should mark email as read")
     void shouldMarkEmailAsRead() {
-        StudentResponseDTO readResponse = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 5.0, 1L, 1L, StudentInterviewStatus.NAO_ASSOCIADO, true);
+        StudentResponseDTO readResponse = new StudentResponseDTO(1L, "Nome", "email@dominio.com",17L,5.0, "JAVA01", classEntity.getCourse().getName(), StudentInterviewStatus.NOT_ASSOCIATED.toString(), true);
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(studentRepository.save(any(Student.class))).thenReturn(student);
