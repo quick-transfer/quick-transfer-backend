@@ -37,6 +37,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -109,10 +110,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDTO findById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public UserResponseDTO findById(UUID id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User do not exists"));
@@ -219,10 +217,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserUpdateRequestDTO updateRequestDTO) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public UserResponseDTO update(UUID id, UserUpdateRequestDTO updateRequestDTO) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
@@ -241,10 +236,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public void deleteById(UUID id) {
 
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Admin does not exist");

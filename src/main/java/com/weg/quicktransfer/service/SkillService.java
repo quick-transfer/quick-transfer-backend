@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
@@ -53,7 +54,7 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public SkillResponseDTO findById(Long id) {
+    public SkillResponseDTO findById(UUID id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
         return skillMapper.toResponse(skill);
@@ -78,7 +79,7 @@ public class SkillService {
     }
 
     @Transactional
-    public SkillResponseDTO update(Long id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
+    public SkillResponseDTO update(UUID id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
         if(skillUpdateRequestDTO.name() != null && !skillUpdateRequestDTO.name().isBlank()) {
@@ -104,7 +105,7 @@ public class SkillService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!skillRepository.existsById(id)) {
             throw new SkillNotFoundException(id);
         }

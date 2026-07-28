@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.dto.manager.*;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
@@ -72,7 +73,7 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
-    public ManagerResponseDTO findById(Long id) {
+    public ManagerResponseDTO findById(UUID id) {
         Manager manager = managerRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
@@ -98,7 +99,7 @@ public class ManagerService {
     }
 
     @Transactional
-    public ManagerResponseDTO update(Long id, ManagerUpdateRequestDTO updateRequestDTO) {
+    public ManagerResponseDTO update(UUID id, ManagerUpdateRequestDTO updateRequestDTO) {
         Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
         if(StringUtils.hasText(updateRequestDTO.name())) {
@@ -114,7 +115,7 @@ public class ManagerService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if (!managerRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
@@ -123,13 +124,13 @@ public class ManagerService {
     }
 
     @Transactional
-    public void sendDynamicEmailAmp(String to, Long interviewId) throws MessagingException {
+    public void sendDynamicEmailAmp(String to, UUID interviewId) throws MessagingException {
         validateEmail(to);
         MimeMessage message = criarMensagemEmail(to, interviewId);
         mailSender.send(message);
     }
 
-    private MimeMessage criarMensagemEmail(String to, Long interviewId) throws MessagingException {
+    private MimeMessage criarMensagemEmail(String to, UUID interviewId) throws MessagingException {
         Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new InterviewNotFoundException("Interview not found with ID: " + interviewId));
 

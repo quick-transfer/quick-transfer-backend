@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.exception;
 
+import java.util.UUID;
+
 public class VacancyNotFoundException extends ResourceNotFoundException{
-    public VacancyNotFoundException(Long id) {
+    public VacancyNotFoundException(UUID id) {
         super("Vacancy not found with ID: " + id);
     }
 

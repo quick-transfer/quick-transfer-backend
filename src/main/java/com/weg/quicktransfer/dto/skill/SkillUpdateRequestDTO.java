@@ -3,6 +3,8 @@ package com.weg.quicktransfer.dto.skill;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.util.UUID;
+
 public record SkillUpdateRequestDTO(
     String name,
 
@@ -12,6 +14,6 @@ public record SkillUpdateRequestDTO(
     Double grade,
 
     @Positive(message = "Student id must be a positive number")
-    Long studentId
+    UUID studentId
 ) {
 }
