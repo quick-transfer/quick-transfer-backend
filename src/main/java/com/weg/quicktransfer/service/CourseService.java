@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,14 +58,14 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public CourseResponseDTO findById(Long id){
+    public CourseResponseDTO findById(UUID id){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         return courseMapper.toResponse(course);
     }
 
     @Transactional
-    public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
+    public CourseResponseDTO update(UUID id, CourseUpdateRequestDTO courseUpdateRequestDTO){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         if(courseUpdateRequestDTO.name() != null && !courseUpdateRequestDTO.name().isBlank()) {
@@ -82,7 +83,7 @@ public class CourseService {
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(UUID id){
         if(!courseRepository.existsById(id)) {
             throw new CourseNotFoundException(id);
         }

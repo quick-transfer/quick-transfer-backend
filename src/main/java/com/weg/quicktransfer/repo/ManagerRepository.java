@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ManagerRepository extends JpaRepository<Manager, Long> {
+public interface ManagerRepository extends JpaRepository<Manager, UUID> {
     public Optional<Manager> findByUsername(String username);
 
     @Query("""
@@ -18,7 +19,7 @@ public interface ManagerRepository extends JpaRepository<Manager, Long> {
             JOIN i.manager m
             WHERE i.id = :interviewId
             """)
-    public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
+    public Optional<Manager> findByInterviewId(@Param("interviewId") UUID interviewId);
     
     List<Manager> findByName(String name);
 }

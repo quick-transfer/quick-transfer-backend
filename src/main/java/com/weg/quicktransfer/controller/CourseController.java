@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class CourseController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<CourseResponseDTO> findCourseById(@PathVariable Long id){
+    public ResponseEntity<CourseResponseDTO> findCourseById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findById(id));
     }
 
@@ -41,14 +42,14 @@ public class CourseController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<CourseResponseDTO> updateCourse(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid CourseUpdateRequestDTO courseUpdateRequestDTO
             ){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.update(id, courseUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteCourse(Long id){
+    public ResponseEntity<Void> deleteCourse(UUID id){
         courseService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

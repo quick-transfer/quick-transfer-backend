@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class VacancyService {
     }
 
     @Transactional(readOnly = true)
-    public VacancyResponseDTO findById(Long id) {
+    public VacancyResponseDTO findById(UUID id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
         return vacancyMapper.toResponse(vacancy);
@@ -60,7 +61,7 @@ public class VacancyService {
     }
 
     @Transactional
-    public VacancyResponseDTO update(Long id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
+    public VacancyResponseDTO update(UUID id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
         if(vacancyUpdateRequestDTO.name() != null && !vacancyUpdateRequestDTO.name().isBlank()) {
@@ -94,7 +95,7 @@ public class VacancyService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!vacancyRepository.existsById(id)) {
             throw new VacancyNotFoundException(id);
         }

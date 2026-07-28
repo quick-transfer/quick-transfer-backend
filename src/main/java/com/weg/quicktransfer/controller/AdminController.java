@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin")
@@ -32,7 +33,7 @@ public class AdminController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable Long id) {
+    public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
     }
 
@@ -48,14 +49,14 @@ public class AdminController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid AdminUpdateRequestDTO updatedRequest
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, updatedRequest));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAdmin(@PathVariable UUID id) {
         adminService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

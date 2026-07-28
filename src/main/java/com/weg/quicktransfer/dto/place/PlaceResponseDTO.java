@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.dto.place;
 
+import java.util.UUID;
+
 public record PlaceResponseDTO(
-    Long id,
+    UUID id,
 
     String placeName,
 

@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,14 +63,14 @@ public class InterviewService {
     }
 
     @Transactional(readOnly = true)
-    public InterviewResponseDTO findById(Long id) {
+    public InterviewResponseDTO findById(UUID id) {
         Interview interview = interviewRepository.findById(id).orElseThrow(() -> new InterviewNotFoundException(id));
 
         return interviewMapper.toResponse(interview);
     }
 
     @Transactional
-    public InterviewResponseDTO update(Long id, InterviewUpdateRequestDTO interviewUpdateRequestDTO) {
+    public InterviewResponseDTO update(UUID id, InterviewUpdateRequestDTO interviewUpdateRequestDTO) {
         Interview interview = interviewRepository.findById(id).orElseThrow(() -> new InterviewNotFoundException(id));
 
         if(interviewUpdateRequestDTO.interviewerName() != null && !interviewUpdateRequestDTO.interviewerName().isBlank()) {
@@ -106,7 +107,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!interviewRepository.existsById(id)) {
             throw new InterviewNotFoundException(id);
         }
