@@ -19,4 +19,6 @@ public interface ManagerRepository extends JpaRepository<Manager, Long>, JpaSpec
             WHERE i.id = :interviewId
             """)
     public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
+    
+    List<Manager> findByName(String name);
 }

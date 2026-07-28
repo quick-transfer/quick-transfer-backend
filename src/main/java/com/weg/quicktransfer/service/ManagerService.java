@@ -29,9 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
-import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
-
 import org.springframework.util.StringUtils;
 
 @Service
@@ -88,9 +85,7 @@ public class ManagerService {
 
         List<Manager> managers = managerRepository.findAll(spec);
 
-        return managers.stream()
-                .map(managerMapper::toResponse)
-                .toList();
+        return managers.stream().map(managerMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -126,6 +121,7 @@ public class ManagerService {
         managerRepository.deleteById(id);
     }
 
+    @Transactional
     public void sendDynamicEmailAmp(String to, Long interviewId) throws MessagingException {
         validateEmail(to);
         MimeMessage message = criarMensagemEmail(to, interviewId);
@@ -166,6 +162,7 @@ public class ManagerService {
         return message;
     }
 
+    @Transactional
     private String buildHtmlBody(Interview interview, Student student, Manager manager, String date, String time) {
         return """
             <!DOCTYPE html>
@@ -173,7 +170,6 @@ public class ManagerService {
             <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
               <title>Convite para Entrevista de Emprego</title>
               <style>
                 body { margin: 0; padding: 0; background-color: #f9fafb; font-family: Arial, sans-serif; color: #1f2937; }
@@ -193,7 +189,6 @@ public class ManagerService {
                           </h1>
                         </td>
                       </tr>
-            
                       <tr>
                         <td style="padding: 28px 32px 16px 32px;">
                           <p style="margin: 0; font-size: 15px; color: #374151;">Após a análise do seu currículo, gostaríamos de agendar uma entrevista.</p>
@@ -217,14 +212,12 @@ public class ManagerService {
                           </table>
                         </td>
                       </tr>
-            
                       <tr>
                         <td style="padding: 8px 32px 20px 32px;">
                           <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700;">Descrição da Vaga</p>
                           <p style="margin: 0; font-size: 14px; background-color: #ffffff; border: 1px solid #e5e7eb; padding: 14px;">%s</p>
                         </td>
                       </tr>
-            
                       <tr>
                         <td style="padding: 0 32px 24px 32px;">
                           <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 14px;">
@@ -234,30 +227,15 @@ public class ManagerService {
                         </td>
                       </tr>
             
-                      <!-- Botão redirecionando para localhost:3000 -->
                       <tr>
                         <td style="padding: 0 32px 32px 32px;">
                           <a href="http://localhost:3000" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Confirmar Presença</a>
                         </td>
                       </tr>
-            
-                      <tr>
-                        <td style="background-color: #f9fafb; padding: 20px 36px; border-top: 1px solid #e5e7eb; font-size: 13px; color: #6b7280; line-height: 1.4;" class="mobile-padding">
-                          <p style="margin: 0 0 2px 0; font-weight: 600; color: #4b5563;">
-                            Departamento de Recursos Humanos
-                          </p>
-                          <p style="margin: 0;">
-                            [local]
-                          </p>
-                        </td>
-                      </tr>
-            
                     </table>
-            
                   </td>
                 </tr>
               </table>
-            
             </body>
             </html>
             """.formatted(
