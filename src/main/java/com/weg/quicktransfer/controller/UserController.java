@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -19,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<UserResponseDTO> findUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> findUserById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
     }
 
@@ -35,14 +36,14 @@ public class UserController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid UserUpdateRequestDTO userUpdateRequestDTO
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.update(id, userUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

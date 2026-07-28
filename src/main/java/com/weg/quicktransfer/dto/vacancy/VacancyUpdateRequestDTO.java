@@ -2,6 +2,8 @@ package com.weg.quicktransfer.dto.vacancy;
 
 import jakarta.validation.constraints.Positive;
 
+import java.util.UUID;
+
 public record VacancyUpdateRequestDTO(
     String name,
 
@@ -15,6 +17,6 @@ public record VacancyUpdateRequestDTO(
     String shift,
     
     @Positive(message = "Place id must be a positive number")
-    Long placeId
+    UUID placeId
 ) {
 }

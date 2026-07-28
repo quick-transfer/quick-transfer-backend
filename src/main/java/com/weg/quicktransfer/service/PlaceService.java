@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,14 +41,14 @@ public class PlaceService {
     }
 
     @Transactional(readOnly = true)
-    public PlaceResponseDTO findById(Long id) {
+    public PlaceResponseDTO findById(UUID id) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
         return placeMapper.toResponse(place);
     }
 
     @Transactional
-    public PlaceResponseDTO update(Long id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
+    public PlaceResponseDTO update(UUID id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
         if(placeUpdateRequestDTO.placeName() != null && !placeUpdateRequestDTO.placeName().isBlank()) {
@@ -68,7 +69,7 @@ public class PlaceService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!placeRepository.existsById(id)) {
             throw new PlaceNotFoundException(id);
         }

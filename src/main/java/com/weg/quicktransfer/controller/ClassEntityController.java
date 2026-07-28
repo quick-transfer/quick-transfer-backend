@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/class")
@@ -26,7 +27,7 @@ public class ClassEntityController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable Long id){
+    public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findById(id));
     }
 
@@ -42,13 +43,13 @@ public class ClassEntityController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteClassEntity(Long id){
+    public ResponseEntity<Void> deleteClassEntity(UUID id){
         classEntityService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -2,8 +2,10 @@ package com.weg.quicktransfer.dto.manager;
 
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 
+import java.util.UUID;
+
 public record ManagerResponseDTO(
-    Long id,
+    UUID id,
 
     String name,
 
@@ -14,7 +16,7 @@ public record ManagerResponseDTO(
     String section
 )  implements UserResponseDTO {
     @Override
-    public Long getId() {
+    public UUID getId() {
         return this.id();
     }
 

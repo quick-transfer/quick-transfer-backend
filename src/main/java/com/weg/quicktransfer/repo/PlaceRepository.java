@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.weg.quicktransfer.model.Place;
 
-public interface PlaceRepository extends JpaRepository<Place, Long> {
+import java.util.UUID;
+
+public interface PlaceRepository extends JpaRepository<Place, UUID> {
     
 }

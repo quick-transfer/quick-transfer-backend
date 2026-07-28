@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.dto.skill;
 
+import java.util.UUID;
+
 public record SkillResponseDTO(
-    Long id,
+    UUID id,
 
     String name,
 

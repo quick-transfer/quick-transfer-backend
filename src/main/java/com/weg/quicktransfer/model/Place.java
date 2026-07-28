@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
@@ -29,7 +30,7 @@ import lombok.Setter;
 public class Place {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false, name = "place_name")
     private String placeName;

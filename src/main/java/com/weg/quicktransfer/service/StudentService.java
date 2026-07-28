@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public StudentResponseDTO findById(Long id) {
+    public StudentResponseDTO findById(UUID id) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
         return studentMapper.toResponse(student);
@@ -62,7 +63,7 @@ public class StudentService {
     }
     
     @Transactional
-    public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
+    public StudentResponseDTO update(UUID id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
         ClassEntity classEntity = classEntityRepository.findById(studentUpdateRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentUpdateRequestDTO.classId()));
@@ -83,9 +84,7 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        if(studentUpdateRequestDTO.classId() > 0) {
-            student.setClassEntity(classEntity);
-        }
+        student.setClassEntity(classEntity);
 
         if(studentUpdateRequestDTO.statusStudentInterview() != null) {
             student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview()));
@@ -105,7 +104,7 @@ public class StudentService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);
         }
