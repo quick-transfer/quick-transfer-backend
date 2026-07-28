@@ -32,7 +32,7 @@ public class CourseSpecification {
             }
 
             if (StringUtils.hasText(filter.coordinatorName())) {
-                Join<Course, Coordinator> coordinatorJoin = root.join("coordinator_id", JoinType.INNER);
+                Join<Course, Coordinator> coordinatorJoin = root.join("coordinator", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(coordinatorJoin.get("name")),

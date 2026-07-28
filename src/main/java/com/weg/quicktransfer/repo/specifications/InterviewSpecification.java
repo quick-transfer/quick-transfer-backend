@@ -24,59 +24,32 @@ public class InterviewSpecification {
 
             if (StringUtils.hasText(filter.interviewerName())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("interviewer_name")),
+                        criteriaBuilder.lower(root.get("interviewerName")),
                         "%" + filter.interviewerName().toLowerCase() + "%"
                 ));
             }
 
             if (filter.dateTime() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                        root.get("date_time"),
+                        root.get("dateTime"),
                         filter.dateTime()
                 ));
             }
 
             if (StringUtils.hasText(filter.vacancyName())) {
-                Join<Interview, Vacancy> vacancyJoin = root.join("vacancy_id", JoinType.INNER);
+                Join<Interview, Vacancy> vacancyJoin = root.join("vacancy", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(vacancyJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
-                ));
-            }
-
-            if (StringUtils.hasText(filter.vacancyName())) {
-                Join<Interview, Vacancy> vacancyJoin = root.join("vacancy_id", JoinType.INNER);
-
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(vacancyJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
-                ));
-            }
-
-            if (StringUtils.hasText(filter.vacancyName())) {
-                Join<Interview, Vacancy> vacancyJoin = root.join("vacancy_id", JoinType.INNER);
-
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(vacancyJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
-                ));
-            }
-
-            if (StringUtils.hasText(filter.vacancyName())) {
-                Join<Interview, Vacancy> vacancyJoin = root.join("vacancy_id", JoinType.INNER);
-
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(vacancyJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
+                        "%" + filter.vacancyName().toLowerCase() + "%"
                 ));
             }
 
             if (StringUtils.hasText(filter.placeName())) {
-                Join<Interview, Place> placeJoin = root.join("place", JoinType.INNER);
+                Join<Interview, Place> vacancyJoin = root.join("place", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(placeJoin.get("placeName")),
+                        criteriaBuilder.lower(vacancyJoin.get("name")),
                         "%" + filter.placeName().toLowerCase() + "%"
                 ));
             }
@@ -90,18 +63,18 @@ public class InterviewSpecification {
                 ));
             }
 
-            if (StringUtils.hasText(filter.vacancyName())) {
-                Join<Interview, Student> studentJoin = root.join("student_id", JoinType.INNER);
+            if (StringUtils.hasText(filter.studentName())) {
+                Join<Interview, Student> placeJoin = root.join("student", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(studentJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
+                        criteriaBuilder.lower(placeJoin.get("placeName")),
+                        "%" + filter.studentName().toLowerCase() + "%"
                 ));
             }
 
             if (filter.reminderSent() != null) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("reminder_sent")),
+                        criteriaBuilder.lower(root.get("reminderSent")),
                         filter.reminderSent().toString().toLowerCase()
                 ));
             }

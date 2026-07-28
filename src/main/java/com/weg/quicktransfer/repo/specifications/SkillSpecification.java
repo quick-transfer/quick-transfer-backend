@@ -25,14 +25,14 @@ public class SkillSpecification {
 
             if (StringUtils.hasText(filter.name())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("interviewer_name")),
+                        criteriaBuilder.lower(root.get("interviewerName")),
                         "%" + filter.name().toLowerCase() + "%"
                 ));
             }
 
             if (filter.skillType() != null) {
                 predicates.add(criteriaBuilder.equal(
-                        root.get("skill_type"),
+                        root.get("skillType"),
                         filter.skillType()
                 ));
             }
@@ -45,7 +45,7 @@ public class SkillSpecification {
             }
 
             if (StringUtils.hasText(filter.studentName())) {
-                Join<Skill, Student> studentJoin = root.join("student_id", JoinType.INNER);
+                Join<Skill, Student> studentJoin = root.join("student", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(studentJoin.get("name")),
