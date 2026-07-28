@@ -10,8 +10,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: quick_transfer
-      POSTGRES_USER: backend
-      POSTGRES_PASSWORD: postgresqlPW
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -34,11 +34,11 @@ services:
     ports:
       - "8081:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/quick_transfer
-      SPRING_DATASOURCE_USERNAME: backend
-      SPRING_DATASOURCE_PASSWORD: postgresqlPW
-      ALLOWED_ORIGINS: '*'
-      JWT_SECRET: feww4g7h3q79gn0n9qun3m8f43ngviv0v43gj5hn
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       postgres:
         condition: service_healthy
