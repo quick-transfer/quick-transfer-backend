@@ -17,5 +17,5 @@ public interface StudentRepository extends JpaRepository<Student, Long>, JpaSpec
             WHERE s.interview = :interviewId""")
     public Optional<Student> findByInterviewId(@Param("interviewId") Long interviewId);
 
-    public List<Student> findByName(String name);
+    public List<Student> findFirstByName(String name);
 }

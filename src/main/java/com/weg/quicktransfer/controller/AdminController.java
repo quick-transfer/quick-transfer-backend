@@ -33,7 +33,7 @@ public class AdminController {
     }
 
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
+    public ResponseEntity<AdminResponseDTO> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
     }
 

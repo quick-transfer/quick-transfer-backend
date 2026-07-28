@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface ClassEntityRepository extends JpaRepository<ClassEntity, Long>, JpaSpecificationExecutor<ClassEntity> {
     boolean existsByAcronym(String acronym);
 
-    Optional<ClassEntity> findByAcronym(String acronym);
+    Optional<ClassEntity> findFirstByAcronym(String acronym);
 }

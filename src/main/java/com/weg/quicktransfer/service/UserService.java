@@ -64,8 +64,9 @@ public class UserService {
             throw new UserNotFoundException("User not found with username: " + request.username());
         }
 
-        User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + request.username()));
+        User user = userRepository.findFirstByUsername(request.username())
+                .orElse(userRepository.findFirstByName(request.username())
+                    .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + request.username())));
 
         if (user.getFirstLogin()) {
             throw new FirstLoginException("It is user's first login");
@@ -88,8 +89,9 @@ public class UserService {
     @Transactional
     public UserResponseDTO resetPassword(LoginRequestDTO requestDTO) {
 
-        User user = userRepository.findByUsername(requestDTO.username())
-                .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username()));
+        User user = userRepository.findFirstByUsername(requestDTO.username())
+                .orElse(userRepository.findFirstByName(requestDTO.username())
+                    .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username())));
 
         String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
         if (requestDTO.password() == null || !requestDTO.password().matches(passwordRegex)) {

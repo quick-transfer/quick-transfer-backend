@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,16 +56,16 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdminResponseDTO> findAdminByName(String name) {
+    public AdminResponseDTO findAdminByName(String name) {
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        List<Admin> admins = adminRepository.findByNameContaining(name);
+        Admin admin = adminRepository.findFirstByUsername(name)
+                .orElse(adminRepository.findFirstByName(name)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name)));
 
-        return admins.stream()
-                .map(adminMapper::toResponse)
-                .toList();
+        return adminMapper.toResponse(admin);
     }
 
     @Transactional

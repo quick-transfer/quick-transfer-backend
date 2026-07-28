@@ -54,7 +54,7 @@ public class CourseService {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        Course course = courseRepository.findByName(name).orElseThrow(() -> new CourseNotFoundException("No Course Found"));
+        Course course = courseRepository.findFirstByName(name).orElseThrow(() -> new CourseNotFoundException("No Course Found"));
 
         return courseMapper.toResponse(course);
     }

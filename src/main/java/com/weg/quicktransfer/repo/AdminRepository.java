@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AdminRepository extends JpaRepository<Admin, Long>, JpaSpecificationExecutor<Admin> {
-    boolean existsByUsername(String username);
 
-    Admin findByUsername(String username);
+    Optional<Admin> findFirstByUsername(String username);
 
-    List<Admin> findByNameContaining(String name);
+    Optional<Admin> findFirstByName(String name);
 }

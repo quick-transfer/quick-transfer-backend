@@ -9,5 +9,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VacancyRepository extends JpaRepository<Vacancy, Long>, JpaSpecificationExecutor<Vacancy> {
-    Optional<Vacancy> findByName(String name);
+    Optional<Vacancy> findFirstByName(String name);
 }

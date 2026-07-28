@@ -61,7 +61,7 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public SkillResponseDTO findByName(String name) {
-        Skill skill = skillRepository.findByName(name)
+        Skill skill = skillRepository.findFirstByName(name)
                 .orElseThrow(() -> new SkillNotFoundException("Skill not found with the name: " + name));
 
         return skillMapper.toResponse(skill);

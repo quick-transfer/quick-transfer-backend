@@ -61,9 +61,9 @@ public class VacancySpecification {
             if (StringUtils.hasText(filter.placeName())) {
                 Join<Vacancy, Place> placeJoin = root.join("place", JoinType.INNER);
 
-                predicates.add(criteriaBuilder.equal(
-                        criteriaBuilder.lower(placeJoin.get("name")),
-                        filter.placeName().toLowerCase()
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(placeJoin.get("placeName")),
+                        "%" + filter.placeName().toLowerCase() + "%"
                 ));
             }
 

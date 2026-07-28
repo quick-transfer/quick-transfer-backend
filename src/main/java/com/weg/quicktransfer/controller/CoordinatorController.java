@@ -31,7 +31,7 @@ public class CoordinatorController {
     }
 
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<CoordinatorResponseDTO>> findCoordinatorByName(@PathVariable String name) {
+    public ResponseEntity<CoordinatorResponseDTO> findCoordinatorByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findByName(name));
     }
 

@@ -25,14 +25,14 @@ public class StudentSpecification {
             if (StringUtils.hasText(filter.name())) {
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
-                        filter.name()
+                        "%" + filter.name().toLowerCase() + "%"
                 ));
             }
 
             if (StringUtils.hasText(filter.email())) {
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("email")),
-                        filter.email()
+                        "%" + filter.email().toLowerCase() + "%"
                 ));
             }
 
@@ -50,7 +50,7 @@ public class StudentSpecification {
                 ));
             }
 
-            if (StringUtils.hasText(filter.name())) {
+            if (StringUtils.hasText(filter.courseName())) {
                 Join<Student, ClassEntity> classEntityJoin = root.join("classEntity", JoinType.INNER);
                 Join<ClassEntity, Course> courseJoin = classEntityJoin.join("course", JoinType.INNER);
 
@@ -63,7 +63,7 @@ public class StudentSpecification {
             if (filter.studentInterviewStatus() != null) {
                 predicates.add(criteriaBuilder.equal(
                         root.get("status"),
-                        filter.name()
+                        filter.studentInterviewStatus()
                 ));
             }
 
@@ -77,7 +77,7 @@ public class StudentSpecification {
             if (filter.statusStudent() != null) {
                 predicates.add(criteriaBuilder.equal(
                         root.get("statusStudent"),
-                        filter.name()
+                        filter.statusStudent()
                 ));
             }
 

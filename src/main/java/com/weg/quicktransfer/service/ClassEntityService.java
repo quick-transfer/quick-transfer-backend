@@ -54,7 +54,8 @@ public class ClassEntityService {
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
         }
-        ClassEntity classEntity = classEntityRepository.findByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
+
+        ClassEntity classEntity = classEntityRepository.findFirstByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
 
         return classEntityMapper.toResponse(classEntity);
     }

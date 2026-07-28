@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ManagerRepository extends JpaRepository<Manager, Long>, JpaSpecificationExecutor<Manager> {
-    public Optional<Manager> findByUsername(String username);
+    public Optional<Manager> findFirstByUsername(String username);
 
     @Query("""
             SELECT m
@@ -21,5 +21,5 @@ public interface ManagerRepository extends JpaRepository<Manager, Long>, JpaSpec
             """)
     public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
     
-    List<Manager> findByName(String name);
+    Optional<Manager> findFirstByName(String name);
 }

@@ -29,12 +29,13 @@ public class AuthController {
 
         LoginResponseDTO response = userService.login(requestDTO);
 
-        ResponseCookie cookie = ResponseCookie.from("JWT", response.token())
+        ResponseCookie cookie = ResponseCookie
+                .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(false) // true when on production
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("Strict")
                 .path("/")
-                .maxAge(Duration.ofDays(1))
+                .maxAge(Duration.ofMillis(expirationMs))
                 .build();
 
         return ResponseEntity.ok()

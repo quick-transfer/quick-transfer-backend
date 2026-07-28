@@ -49,7 +49,7 @@ public class InterviewSpecification {
                 Join<Interview, Place> placeJoin = root.join("place", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(placeJoin.get("name")),
+                        criteriaBuilder.lower(placeJoin.get("placeName")),
                         "%" + filter.placeName().toLowerCase() + "%"
                 ));
             }
@@ -59,15 +59,15 @@ public class InterviewSpecification {
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(managerJoin.get("name")),
-                        "%" + filter.interviewerName().toLowerCase() + "%"
+                        "%" + filter.managerName().toLowerCase() + "%"
                 ));
             }
 
             if (StringUtils.hasText(filter.studentName())) {
-                Join<Interview, Student> placeJoin = root.join("student", JoinType.INNER);
+                Join<Interview, Student> studentJoin = root.join("student", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(placeJoin.get("placeName")),
+                        criteriaBuilder.lower(studentJoin.get("name")),
                         "%" + filter.studentName().toLowerCase() + "%"
                 ));
             }
