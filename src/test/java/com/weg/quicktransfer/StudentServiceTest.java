@@ -9,6 +9,7 @@ import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
+import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class StudentServiceTest {
 
     @Mock
     private StudentMapper studentMapper;
+
+    @Mock
+    private ClassEntityRepository classEntityRepository; // 1. Added missing mock
 
     @InjectMocks
     private StudentService studentService;
@@ -67,11 +71,9 @@ class StudentServiceTest {
         student.setAge(17L);
         student.setAverageGrade(5.0);
         student.setClassEntity(classEntity);
-        student.setClassEntity(classEntity);
         student.setStatus(StudentInterviewStatus.NOT_ASSOCIATED);
         student.setHasSeenEmail(false);
 
-        // Inicialização utilizando os construtores canônicos dos Records
         requestDTO = new StudentRequestDTO("Nome", "email@dominio.com", 17L, 5.0, 1L, StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
         responseDTO = new StudentResponseDTO(1L, "Nome", "email@dominio.com", 17L, 5.0, classEntity.getAcronym(), course.getName(), StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
     }
@@ -79,6 +81,8 @@ class StudentServiceTest {
     @Test
     @DisplayName("Should create student and return response dto")
     void shouldCreateStudent() {
+        // 2. Mock ClassEntityRepository response
+        when(classEntityRepository.findById(1L)).thenReturn(Optional.of(classEntity));
         when(studentMapper.toEntity(requestDTO, classEntity)).thenReturn(student);
         when(studentRepository.save(student)).thenReturn(student);
         when(studentMapper.toResponse(student)).thenReturn(responseDTO);
@@ -92,6 +96,7 @@ class StudentServiceTest {
         assertEquals(5.0, result.averageGrade());
         assertFalse(result.hasSeenEmail());
 
+        verify(classEntityRepository).findById(1L);
         verify(studentMapper).toEntity(requestDTO, classEntity);
         verify(studentRepository).save(student);
         verify(studentMapper).toResponse(student);
@@ -128,9 +133,11 @@ class StudentServiceTest {
         updatedEntity.setStatus(StudentInterviewStatus.NOT_ASSOCIATED);
         updatedEntity.setHasSeenEmail(false);
 
-        StudentResponseDTO updatedResponse = new StudentResponseDTO(1L, "Novo Nome", "novoemail@dominio.com", 18L, 8.5, "JAVA01", classEntity.getCourse().getName(),StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
+        StudentResponseDTO updatedResponse = new StudentResponseDTO(1L, "Novo Nome", "novoemail@dominio.com", 18L, 8.5, "JAVA01", classEntity.getCourse().getName(), StudentInterviewStatus.NOT_ASSOCIATED.toString(), false);
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        // 3. Mock ClassEntityRepository response for update
+        when(classEntityRepository.findById(1L)).thenReturn(Optional.of(classEntity));
         when(studentRepository.save(any(Student.class))).thenReturn(updatedEntity);
         when(studentMapper.toResponse(updatedEntity)).thenReturn(updatedResponse);
 
@@ -142,6 +149,7 @@ class StudentServiceTest {
         assertEquals(8.5, result.averageGrade());
 
         verify(studentRepository).findById(1L);
+        verify(classEntityRepository).findById(1L);
         verify(studentRepository).save(any(Student.class));
         verify(studentMapper).toResponse(updatedEntity);
     }
@@ -149,22 +157,30 @@ class StudentServiceTest {
     @Test
     @DisplayName("Should delete student")
     void shouldDeleteStudent() {
+        // 4. Mock existsById because delete now checks this condition
+        when(studentRepository.existsById(1L)).thenReturn(true);
         doNothing().when(studentRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> studentService.delete(1L));
 
+        verify(studentRepository).existsById(1L);
         verify(studentRepository).deleteById(1L);
     }
 
     @Test
     @DisplayName("Should mark email as read")
     void shouldMarkEmailAsRead() {
-        StudentResponseDTO readResponse = new StudentResponseDTO(1L, "Nome", "email@dominio.com",17L,5.0, "JAVA01", classEntity.getCourse().getName(), StudentInterviewStatus.NOT_ASSOCIATED.toString(), true);
+        StudentResponseDTO readResponse = new StudentResponseDTO(
+                1L, "Nome", "email@dominio.com", 17L, 5.0,
+                "JAVA01", classEntity.getCourse().getName(),
+                StudentInterviewStatus.NOT_ASSOCIATED.toString(), true
+        );
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(studentRepository.save(any(Student.class))).thenReturn(student);
         when(studentMapper.toResponse(any(Student.class))).thenReturn(readResponse);
 
+        // Call the actual service method
         StudentResponseDTO result = studentService.markEmailAsRead(1L);
 
         assertNotNull(result);
@@ -172,5 +188,6 @@ class StudentServiceTest {
 
         verify(studentRepository).findById(1L);
         verify(studentRepository).save(any(Student.class));
+        verify(studentMapper).toResponse(any(Student.class));
     }
 }
