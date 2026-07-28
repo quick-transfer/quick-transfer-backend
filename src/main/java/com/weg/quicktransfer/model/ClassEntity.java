@@ -23,30 +23,30 @@ public class ClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
     
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-
+    
     @Column(name = "finish_date", nullable = false)
     private LocalDate finishDate;
-
+    
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusClass status;
-
+    
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ShiftClass shiftClass;
+    
+    @Column(nullable = false)
+    private String acronym;
 
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
     private List<Student> students = new ArrayList<>();
-
-    @Column(nullable = false)
-    private String acronym;
+    
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
     public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
             ShiftClass shiftClass, String acronym) {
