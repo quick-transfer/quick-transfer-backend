@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyUpdateRequestDTO;
@@ -35,8 +38,13 @@ public class VacancyController {
     }
 
     @GetMapping("/find/all")
-    public ResponseEntity<List<VacancyResponseDTO>> findAllVacancys() {
+    public ResponseEntity<List<VacancyResponseDTO>> findAllVacancies() {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<VacancyResponseDTO>> searchVacancies(VacancyFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.searchVacancies(filter));
     }
 
     @PatchMapping("/update/{id}")
