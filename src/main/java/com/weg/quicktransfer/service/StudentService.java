@@ -111,4 +111,16 @@ public class StudentService {
 
         studentRepository.deleteById(id);
     }
+
+    @Transactional
+    public StudentResponseDTO markEmailAsRead(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException(id));
+
+        student.setHasSeenEmail(true);
+
+        Student savedStudent = studentRepository.save(student);
+
+        return studentMapper.toResponse(savedStudent);
+    }
 }
