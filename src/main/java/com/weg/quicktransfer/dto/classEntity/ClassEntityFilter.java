@@ -10,6 +10,7 @@ public record ClassEntityFilter(
         LocalDate startDate,
         LocalDate finishDate,
         StatusClass statusClass,
-        ShiftClass shiftClass
+        ShiftClass shiftClass,
+        String acronym
 ) {
 }

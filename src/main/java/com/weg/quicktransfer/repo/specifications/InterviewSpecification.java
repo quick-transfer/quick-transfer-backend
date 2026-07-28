@@ -46,10 +46,10 @@ public class InterviewSpecification {
             }
 
             if (StringUtils.hasText(filter.placeName())) {
-                Join<Interview, Place> vacancyJoin = root.join("place", JoinType.INNER);
+                Join<Interview, Place> placeJoin = root.join("place", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(vacancyJoin.get("name")),
+                        criteriaBuilder.lower(placeJoin.get("name")),
                         "%" + filter.placeName().toLowerCase() + "%"
                 ));
             }
@@ -73,9 +73,9 @@ public class InterviewSpecification {
             }
 
             if (filter.reminderSent() != null) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("reminderSent")),
-                        filter.reminderSent().toString().toLowerCase()
+                predicates.add(criteriaBuilder.equal(
+                        root.get("reminderSent"),
+                        filter.reminderSent()
                 ));
             }
 

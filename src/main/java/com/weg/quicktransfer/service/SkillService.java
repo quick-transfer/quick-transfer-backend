@@ -2,7 +2,11 @@ package com.weg.quicktransfer.service;
 
 import java.util.List;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
+import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.skill.SkillFilter;
+import com.weg.quicktransfer.model.Admin;
+import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
 import org.springframework.data.jpa.domain.Specification;
@@ -56,10 +60,21 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public List<SkillResponseDTO> findByName(String name) {
-        List<Skill> skills = skillRepository.findByNameContaining(name);
+    public SkillResponseDTO findByName(String name) {
+        Skill skill = skillRepository.findByName(name)
+                .orElseThrow(() -> new SkillNotFoundException("Skill not found with the name: " + name));
 
-        return skills.stream().map(skillMapper::toResponse).toList();
+        return skillMapper.toResponse(skill);
+    }
+
+    @Transactional
+    public List<SkillResponseDTO> searchSkills(SkillFilter filter) {
+        Specification<Skill> spec = SkillSpecification.getFilteredSkills(filter);
+        List<Skill> admins = skillRepository.findAll(spec);
+
+        return admins.stream()
+                .map(skillMapper::toResponse)
+                .toList();
     }
 
     @Transactional

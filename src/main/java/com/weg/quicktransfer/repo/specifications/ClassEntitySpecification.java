@@ -38,16 +38,37 @@ public class ClassEntitySpecification {
             }
 
             if (filter.startDate() != null) {
-                predicates.add(criteriaBuilder.greaterThan(
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                         root.get("startDate"),
                         filter.startDate()
                 ));
             }
 
             if (filter.finishDate() != null) {
-                predicates.add(criteriaBuilder.lessThan(
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get("finishDate"),
                         filter.finishDate()
+                ));
+            }
+
+            if (filter.statusClass() != null) {
+                predicates.add(criteriaBuilder.equal(
+                        root.get("status"),
+                        filter.statusClass()
+                ));
+            }
+
+            if (filter.shiftClass() != null) {
+                predicates.add(criteriaBuilder.equal(
+                        root.get("shift"),
+                        filter.shiftClass()
+                ));
+            }
+
+            if (StringUtils.hasText(filter.acronym())) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("acronym")),
+                        "%" + filter.acronym().toLowerCase() + "%"
                 ));
             }
 

@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MessagingException.class)
     public ResponseEntity<String> handleMessagingException(MessagingException ex) {
-        return new ResponseEntity<>("Internal database error: " + ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
+        return new ResponseEntity<>("Internal mail error: " + ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -36,6 +36,5 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FirstLoginException.class)
     public ResponseEntity<String> handleFirstLoginException(FirstLoginException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-
     }
 }
