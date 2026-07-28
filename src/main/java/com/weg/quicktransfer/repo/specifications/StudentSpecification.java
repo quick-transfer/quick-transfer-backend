@@ -45,7 +45,7 @@ public class StudentSpecification {
 
             if (filter.averageGrade() != null) {
                 predicates.add(criteriaBuilder.equal(
-                        root.get("average_grade"),
+                        root.get("averageGrade"),
                         filter.averageGrade()
                 ));
             }
@@ -68,9 +68,9 @@ public class StudentSpecification {
             }
 
             if (filter.hasSeenEmail() != null) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("hasSeenEmail")),
-                        filter.hasSeenEmail().toString().toLowerCase()
+                predicates.add(criteriaBuilder.equal(
+                        root.get("hasSeenEmail"),
+                        filter.hasSeenEmail()
                 ));
             }
 
@@ -81,8 +81,8 @@ public class StudentSpecification {
                 ));
             }
 
-            if (StringUtils.hasText(filter.name())) {
-                Join<Student, Interview> interviewJoin = root.join("classEntity", JoinType.INNER);
+            if (filter.interviewDateTime() != null) {
+                Join<Student, Interview> interviewJoin = root.join("interview", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                         interviewJoin.get("dateTime"),

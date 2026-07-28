@@ -27,12 +27,10 @@ public class ClassEntitySpecification {
             if (StringUtils.hasText(filter.course())) {
                 Join<ClassEntity, Course> courseJoin = root.join("course", JoinType.INNER);
 
-                Predicate classEntityNameLike = criteriaBuilder.like(
+                predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(courseJoin.get("name")),
                         "%" + filter.course().toLowerCase() + "%"
-                );
-
-                predicates.add(classEntityNameLike);
+                ));
             }
 
             if (filter.startDate() != null && filter.finishDate() != null && filter.startDate().isAfter(filter.finishDate())) {
@@ -40,17 +38,17 @@ public class ClassEntitySpecification {
             }
 
             if (filter.startDate() != null) {
-                Predicate startDateAfter = criteriaBuilder.greaterThan(
+                predicates.add(criteriaBuilder.greaterThan(
                         root.get("startDate"),
                         filter.startDate()
-                );
+                ));
             }
 
-            if (filter.startDate() != null) {
-                Predicate finishDateBefore = criteriaBuilder.lessThan(
+            if (filter.finishDate() != null) {
+                predicates.add(criteriaBuilder.lessThan(
                         root.get("finishDate"),
                         filter.finishDate()
-                );
+                ));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

@@ -21,7 +21,7 @@ public class ManagerSpecification {
             if (filter.section() != null) {
                 predicates.add(criteriaBuilder.equal(
                         root.get("section"),
-                        filter.section().toString()
+                        filter.section()
                 ));
             }
 

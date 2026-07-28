@@ -55,7 +55,7 @@ public class SkillService {
 
     @Transactional(readOnly = true)
     public List<SkillResponseDTO> searchSkills(SkillFilter filter) {
-        Specification<Skill> spec = SkillSpecification.getFilteredInterviews(filter);
+        Specification<Skill> spec = SkillSpecification.getFilteredSkills(filter);
 
         List<Skill> interviews = skillRepository.findAll(spec);
 

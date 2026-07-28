@@ -22,20 +22,20 @@ public class CoordinatorSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(filter.name())) {
-                Predicate adminNameLike = criteriaBuilder.like(
+                predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
-                        filter.name().toLowerCase()
-                );
+                        "%" + filter.name().toLowerCase() + "%"
+                ));
             }
 
             if (StringUtils.hasText(filter.username())) {
-                Predicate adminUsernameLike = criteriaBuilder.like(
+                predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("username")),
-                        filter.username().toLowerCase()
-                );
+                        "%" + filter.username().toLowerCase() + "%"
+                ));
             }
 
-            return criteriaBuilder.and(predicates);
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 }

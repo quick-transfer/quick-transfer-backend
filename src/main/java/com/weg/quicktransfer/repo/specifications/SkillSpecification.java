@@ -15,7 +15,7 @@ import java.util.List;
 
 public class SkillSpecification {
 
-    public static Specification<Skill> getFilteredInterviews(SkillFilter filter) {
+    public static Specification<Skill> getFilteredSkills(SkillFilter filter) {
         if (filter == null) {
             throw new NullFilterException("Filter can not be null");
         }
@@ -25,7 +25,7 @@ public class SkillSpecification {
 
             if (StringUtils.hasText(filter.name())) {
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("interviewerName")),
+                        criteriaBuilder.lower(root.get("name")),
                         "%" + filter.name().toLowerCase() + "%"
                 ));
             }
@@ -39,7 +39,7 @@ public class SkillSpecification {
 
             if (filter.grade() != null) {
                 predicates.add(criteriaBuilder.equal(
-                        (root.get("grade")),
+                        root.get("grade"),
                         filter.grade()
                 ));
             }

@@ -55,7 +55,7 @@ public class InterviewSpecification {
             }
 
             if (StringUtils.hasText(filter.managerName())) {
-                Join<Interview, Manager> managerJoin = root.join("vacancy_id", JoinType.INNER);
+                Join<Interview, Manager> managerJoin = root.join("manager", JoinType.INNER);
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(managerJoin.get("name")),

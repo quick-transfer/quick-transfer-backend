@@ -24,7 +24,6 @@ public class CourseSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(filter.name())) {
-
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
                         "%" + filter.name().toLowerCase() + "%"
@@ -36,7 +35,7 @@ public class CourseSpecification {
 
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(coordinatorJoin.get("name")),
-                        "%" + filter.coordinatorName() + "%"
+                        "%" + filter.coordinatorName().toLowerCase() + "%"
                 ));
             }
 
