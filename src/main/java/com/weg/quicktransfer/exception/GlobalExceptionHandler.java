@@ -1,91 +1,128 @@
 package com.weg.quicktransfer.exception;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.weg.quicktransfer.dto.error.ErrorResponseDTO;
+
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception ex) {
-        return new ResponseEntity<>("Internal error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(SQLException.class)
-    public ResponseEntity<String> handleSQLException(SQLException ex) {
-        return new ResponseEntity<>("Internal database error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponseDTO> handleSQLException(
+            SQLException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Internal database error.", request));
     }
 
     @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<String> handleMessagingException(MessagingException ex) {
-        return new ResponseEntity<>("Internal database error: " + ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
+    public ResponseEntity<ErrorResponseDTO> handleMessagingException(
+            MessagingException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(buildError(
+                        HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Email sending error.",
+                        request));
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
     }
 
     @ExceptionHandler(FirstLoginException.class)
-    public ResponseEntity<String> handleFirstLoginException(FirstLoginException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponseDTO> handleFirstLoginException(
+            FirstLoginException ex,
+            HttpServletRequest request) {
 
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidUsernameException.class)
-    public ResponseEntity<String> handleInvalidPassword(
-            InvalidUsernameException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleInvalidUsername(
+            InvalidUsernameException ex,
+            HttpServletRequest request) {
 
         return ResponseEntity
                 .badRequest()
-                .body(ex.getMessage());
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<String> handleInvalidPassword(
-            InvalidPasswordException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPassword(
+            InvalidPasswordException ex,
+            HttpServletRequest request) {
 
         return ResponseEntity
                 .badRequest()
-                .body(ex.getMessage());
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidEmailException.class)
-    public ResponseEntity<String> handleInvalidEmail(
-            InvalidEmailException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleInvalidEmail(
+            InvalidEmailException ex,
+            HttpServletRequest request) {
 
         return ResponseEntity
                 .badRequest()
-                .body(ex.getMessage());
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(
-            IllegalArgumentException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
 
         return ResponseEntity
                 .badRequest()
-                .body(ex.getMessage());
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
-    @ExceptionHandler({
-            UserNotFoundException.class,
-            StudentNotFoundException.class,
-            CourseNotFoundException.class,
-            VacancyNotFoundException.class,
-            SkillNotFoundException.class,
-            InterviewNotFoundException.class,
-            CoordinatorNotFoundException.class,
-            PlaceNotFoundException.class,
-            ClassEntityNotFoundException.class
-    })
-    public ResponseEntity<String> handleNotFound(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleAllExceptions(
+            Exception ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildError(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "An unexpected internal error occurred.",
+                        request));
+    }
+
+    private ErrorResponseDTO buildError(
+            HttpStatus status,
+            String message,
+            HttpServletRequest request) {
+
+        return new ErrorResponseDTO(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                request.getRequestURI());
     }
 }
