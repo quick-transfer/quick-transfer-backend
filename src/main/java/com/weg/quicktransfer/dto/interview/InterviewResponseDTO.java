@@ -1,9 +1,10 @@
 package com.weg.quicktransfer.dto.interview;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record InterviewResponseDTO(
-    Long id,
+    UUID id,
 
     String interviewerName,
 

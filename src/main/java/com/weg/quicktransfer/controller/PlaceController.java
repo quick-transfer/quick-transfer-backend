@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class PlaceController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<PlaceResponseDTO> findPlaceById(@PathVariable Long id){
+    public ResponseEntity<PlaceResponseDTO> findPlaceById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findById(id));
     }
 
@@ -36,14 +37,14 @@ public class PlaceController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<PlaceResponseDTO> updatePlace(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid PlaceUpdateRequestDTO placeUpdateRequestDTO
     ){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.update(id, placeUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deletePlace(Long id){
+    public ResponseEntity<Void> deletePlace(UUID id){
         placeService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.ShiftClass;
 import com.weg.quicktransfer.enums.StatusClass;
@@ -22,7 +23,11 @@ import com.weg.quicktransfer.enums.StatusClass;
 public class ClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
     
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;

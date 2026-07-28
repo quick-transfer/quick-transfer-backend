@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.util.UUID;
+
 public record StudentRequestDTO(
     @NotBlank(message = "Name must not be blank")
     String name,
@@ -26,7 +28,7 @@ public record StudentRequestDTO(
 
     @NotNull(message = "Class ID must not be null")
     @Positive(message = "Class id must be a positive number")
-    Long classId,
+    UUID classId,
 
     @NotBlank(message = "Student status must not be blank")
     String statusStudentInterview,

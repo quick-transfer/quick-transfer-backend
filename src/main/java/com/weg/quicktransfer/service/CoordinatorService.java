@@ -9,6 +9,7 @@ import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class CoordinatorService {
     }
 
     @Transactional(readOnly = true)
-    public CoordinatorResponseDTO findById(Long id){
+    public CoordinatorResponseDTO findById(UUID id){
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
 
         return coordinatorMapper.toResponse(coordinator);
@@ -57,7 +58,7 @@ public class CoordinatorService {
     }
 
     @Transactional
-    public CoordinatorResponseDTO update(Long id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO) {
+    public CoordinatorResponseDTO update(UUID id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO) {
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
 
         if(coordinatorUpdateRequestDTO.name() != null && !coordinatorUpdateRequestDTO.name().isBlank()) {
@@ -74,7 +75,7 @@ public class CoordinatorService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!coordinatorRepository.existsById(id)) {
             throw new CoordinatorNotFoundException(id);
         }

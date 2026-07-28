@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +43,7 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public AdminResponseDTO findAdminById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public AdminResponseDTO findAdminById(UUID id) {
 
         return adminMapper.toResponse(adminRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User do not exists")));
@@ -74,10 +72,7 @@ public class AdminService {
     }
 
     @Transactional
-    public AdminResponseDTO updateAdminById(Long id, AdminUpdateRequestDTO updateRequestDTO) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public AdminResponseDTO updateAdminById(UUID id, AdminUpdateRequestDTO updateRequestDTO) {
 
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
@@ -90,10 +85,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public void deleteById(UUID id) {
 
         if (!adminRepository.existsById(id)) {
             throw new UserNotFoundException("Admin does not exist");

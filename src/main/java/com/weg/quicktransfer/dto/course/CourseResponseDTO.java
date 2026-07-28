@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.dto.course;
 
+import java.util.UUID;
+
 public record CourseResponseDTO(
-        Long id,
+        UUID id,
 
         String courseName,
 

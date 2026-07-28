@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.exception;
 
+import java.util.UUID;
+
 public class CourseNotFoundException extends ResourceNotFoundException {
-    public CourseNotFoundException(Long id) {
+    public CourseNotFoundException(UUID id) {
         super("Course not found with ID:" + id);
     }
 

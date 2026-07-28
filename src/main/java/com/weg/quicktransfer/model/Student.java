@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.StatusStudent;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
@@ -19,8 +20,8 @@ import lombok.Setter;
 @Setter
 public class Student{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;

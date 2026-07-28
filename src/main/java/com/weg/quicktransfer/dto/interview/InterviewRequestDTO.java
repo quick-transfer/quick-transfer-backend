@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.dto.interview;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -18,18 +19,18 @@ public record InterviewRequestDTO(
 
     @NotNull(message = "Place ID must not be null")
     @Positive(message = "Place ID must be a positive number")
-    Long placeId,
+    UUID placeId,
 
     @NotNull(message = "Student ID must not be null")
     @Positive(message = "Student ID must be a positive number")
-    Long studentId,
+    UUID studentId,
 
     @NotNull(message = "Manager ID must not be null")
     @Positive(message = "Manager ID must be a positive number")
-    Long managerId,
+    UUID managerId,
 
     @NotNull(message = "Vacancy ID must not be null")
     @Positive(message = "Vacancy ID must be a positive number")
-    Long vacancyId
+    UUID vacancyId
 ) {
 }
