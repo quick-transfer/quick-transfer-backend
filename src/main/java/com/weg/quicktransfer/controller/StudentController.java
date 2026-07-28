@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.student.StudentFilter;
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
@@ -38,6 +41,12 @@ public class StudentController {
     public ResponseEntity<List<StudentResponseDTO>> findAllStudents() {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.findAll());
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<StudentResponseDTO>> searchCourses(StudentFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.searchInterviews(filter));
+    }
+
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<StudentResponseDTO> updateStudent(
