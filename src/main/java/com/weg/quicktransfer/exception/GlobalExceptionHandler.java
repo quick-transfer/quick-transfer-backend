@@ -16,6 +16,19 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(UserNotAllowdException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserNotAllowedException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(buildError(
+                        HttpStatus.FORBIDDEN,
+                        "The user is not authorized",
+                        request));
+    }
+
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<ErrorResponseDTO> handleSQLException(
             SQLException ex,
