@@ -34,8 +34,8 @@ build/
 
 ### env ###
 .env
-/private.pem
-/public.pem
+**/private.pem
+**/public.pem
 
 ### Docker ###
 docker-compose.yml
