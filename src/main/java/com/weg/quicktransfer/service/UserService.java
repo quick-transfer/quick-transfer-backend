@@ -4,8 +4,6 @@ import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
-import com.weg.quicktransfer.dto.interview.InterviewFilter;
-import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.user.UserFilter;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
@@ -21,7 +19,6 @@ import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.UserRepository;
-import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import com.weg.quicktransfer.repo.specifications.UserSpecification;
 import com.weg.quicktransfer.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -117,13 +114,16 @@ public class UserService {
 
         switch (user.getRole()) {
             case ADMIN -> {
-                return adminMapper.toResponse(adminRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException("User do not exists")));
+                return adminMapper.toResponse(adminRepository.findById(user.getId())
+                        .orElseThrow(() -> new UserNotFoundException("User do not exists")));
             }
             case COORDINATOR -> {
-                return coordinatorMapper.toResponse(coordinatorRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException("User do not exists")));
+                return coordinatorMapper.toResponse(coordinatorRepository.findById(user.getId())
+                        .orElseThrow(() -> new UserNotFoundException("User do not exists")));
             }
             case MANAGER -> {
-                return managerMapper.toResponse(managerRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException("User do not exists")));
+                return managerMapper.toResponse(managerRepository.findById(user.getId())
+                        .orElseThrow(() -> new UserNotFoundException("User do not exists")));
             }
             default -> throw new UserNotFoundException("User do not exists");
         }

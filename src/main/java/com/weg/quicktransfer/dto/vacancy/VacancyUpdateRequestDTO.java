@@ -9,9 +9,6 @@ public record VacancyUpdateRequestDTO(
 
     String description,
 
-    @Positive(message = "Number of vacancy must be a positive")
-    Long numbersVacancies,
-
     String area,
 
     String shift,
