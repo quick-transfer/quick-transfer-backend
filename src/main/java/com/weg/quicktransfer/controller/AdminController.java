@@ -1,14 +1,19 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin")
@@ -17,38 +22,36 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @PostMapping("/create/admin")
-    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
-    }
-
-    @GetMapping("/find/admin/id/{id}")
-    public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/find/id/{id}")
+    public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
     }
 
-    @GetMapping("/find/admin/name/{name}")
-    public ResponseEntity<List<AdminResponseDTO>> findAdminByName(@PathVariable String name) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/find/name/{name}")
+    public ResponseEntity<AdminResponseDTO> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
     }
 
-    @GetMapping("/find/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/search")
+    public ResponseEntity<List<AdminResponseDTO>> searchAdmins(AdminFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.searchAdmins(filter));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/find/all")
     public ResponseEntity<List<AdminResponseDTO>> findAllAdmins() {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
-    @PutMapping("/update/admin/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
-            @PathVariable Long id,
-            @RequestParam String name,
-            @RequestParam String email
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, name, email));
-    }
-
-    @DeleteMapping("/delete/admin/{id}")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
-        adminService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+            @PathVariable UUID id,
+            @RequestBody @Valid AdminUpdateRequestDTO updatedRequest
+            ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, updatedRequest));
     }
 }

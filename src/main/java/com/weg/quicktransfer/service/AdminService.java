@@ -1,11 +1,15 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
+import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.repo.AdminRepository;
+import com.weg.quicktransfer.repo.specifications.AdminSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,22 +47,29 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public AdminResponseDTO findAdminById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public AdminResponseDTO findAdminById(UUID id) {
 
         return adminMapper.toResponse(adminRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User do not exists")));
     }
 
     @Transactional(readOnly = true)
-    public List<AdminResponseDTO> findAdminByName(String name) {
+    public AdminResponseDTO findAdminByName(String name) {
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        List<Admin> admins = adminRepository.findByNameContaining(name);
+        Admin admin = adminRepository.findFirstByUsername(name)
+                .orElse(adminRepository.findFirstByName(name)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name)));
+
+        return adminMapper.toResponse(admin);
+    }
+
+    @Transactional
+    public List<AdminResponseDTO> searchAdmins(AdminFilter filter) {
+        Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
+        List<Admin> admins = adminRepository.findAll(spec);
 
         return admins.stream()
                 .map(adminMapper::toResponse)
@@ -73,30 +86,20 @@ public class AdminService {
     }
 
     @Transactional
-    public AdminResponseDTO updateAdminById(Long id, String name, String email) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public AdminResponseDTO updateAdminById(UUID id, AdminUpdateRequestDTO updateRequestDTO) {
 
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Admin does not exist"));
 
-        if (StringUtils.hasText(name)) {
-            admin.setName(name);
-        }
-
-        if (StringUtils.hasText(email)) {
-            admin.setEmail(email);
+        if (StringUtils.hasText(updateRequestDTO.name())) {
+            admin.setName(updateRequestDTO.name());
         }
 
         return adminMapper.toResponse(admin);
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id can not be less than 1");
-        }
+    public void deleteById(UUID id) {
 
         if (!adminRepository.existsById(id)) {
             throw new UserNotFoundException("Admin does not exist");

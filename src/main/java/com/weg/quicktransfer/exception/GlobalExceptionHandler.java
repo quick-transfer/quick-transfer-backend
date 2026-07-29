@@ -1,12 +1,14 @@
 package com.weg.quicktransfer.exception;
 
 import jakarta.mail.MessagingException;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.weg.quicktransfer.dto.error.ErrorResponseDTO;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -14,82 +16,113 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<StandardError> handleResourceNotFound(ResourceNotFoundException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Resource Not Found",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSQLException(
+            SQLException ex,
+            HttpServletRequest request) {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<StandardError> handleEntityNotFound(EntityNotFoundException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Entity Not Found",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<StandardError> handleUsernameNotFound(UsernameNotFoundException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "User Not Found",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<StandardError> handleIllegalArgument(IllegalArgumentException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Invalid Argument",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Internal database error.", request));
     }
 
     @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<StandardError> handleMessagingException(MessagingException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.UNPROCESSABLE_ENTITY.value(),
-                "Email Service Error",
-                "Failed to send email message: " + ex.getMessage()
-        );
-        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+    public ResponseEntity<ErrorResponseDTO> handleMessagingException(
+            MessagingException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(buildError(
+                        HttpStatus.UNPROCESSABLE_ENTITY,
+                        "Email sending error.",
+                        request));
     }
 
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<StandardError> handleSQLException(SQLException ex) {
-        StandardError error = new StandardError(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Database Error",
-                "A database error occurred on the server"
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
+    }
+
+    @ExceptionHandler(FirstLoginException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFirstLoginException(
+            FirstLoginException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request));
+    }
+
+    @ExceptionHandler(InvalidUsernameException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidUsername(
+            InvalidUsernameException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPassword(
+            InvalidPasswordException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+    }
+
+    @ExceptionHandler(InvalidEmailException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidEmail(
+            InvalidEmailException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<StandardError> handleAllExceptions(Exception ex) {
-        StandardError error = new StandardError(
+    public ResponseEntity<ErrorResponseDTO> handleAllExceptions(
+            Exception ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildError(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "An unexpected internal error occurred.",
+                        request));
+    }
+
+    private ErrorResponseDTO buildError(
+            HttpStatus status,
+            String message,
+            HttpServletRequest request) {
+
+        return new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "An unexpected error occurred on the server"
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                request.getRequestURI());
     }
 }
-
-record StandardError(LocalDateTime timestamp, int status, String error, String message) {}

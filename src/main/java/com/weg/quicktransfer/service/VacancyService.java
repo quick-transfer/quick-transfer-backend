@@ -1,7 +1,12 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
+import com.weg.quicktransfer.repo.specifications.VacancySpecification;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,14 +51,35 @@ public class VacancyService {
     }
 
     @Transactional(readOnly = true)
-    public VacancyResponseDTO findById(Long id) {
+    public VacancyResponseDTO findById(UUID id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
         return vacancyMapper.toResponse(vacancy);
     }
 
+    @Transactional(readOnly = true)
+    public VacancyResponseDTO findByName(String name) {
+        Vacancy vacancy = vacancyRepository.findFirstByName(name)
+                .orElseThrow(() -> new VacancyNotFoundException("Vacancy not found with the name: " + name));
+
+        return vacancyMapper.toResponse(vacancy);
+    }
+
+    @Transactional(readOnly = true)
+    public List<VacancyResponseDTO> searchVacancies(VacancyFilter filter) {
+        Specification<Vacancy> spec = VacancySpecification.getFilteredVacancies(filter);
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+
+        List<Vacancy> vacancies = vacancyRepository.findAll(spec, sort);
+
+        return vacancies.stream()
+                .map(vacancyMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
-    public VacancyResponseDTO update(Long id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
+    public VacancyResponseDTO update(UUID id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
 
         if(vacancyUpdateRequestDTO.name() != null && !vacancyUpdateRequestDTO.name().isBlank()) {
@@ -62,10 +88,6 @@ public class VacancyService {
 
         if(vacancyUpdateRequestDTO.description() != null && !vacancyUpdateRequestDTO.description().isBlank()) {
             vacancy.setDescription(vacancyUpdateRequestDTO.description());
-        }
-
-        if(vacancyUpdateRequestDTO.numbersVacancies() != null) {
-            vacancy.setNumbersVacancies(vacancyUpdateRequestDTO.numbersVacancies());
         }
 
         if(vacancyUpdateRequestDTO.area() != null && !vacancyUpdateRequestDTO.area().isBlank()) {
@@ -87,7 +109,7 @@ public class VacancyService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!vacancyRepository.existsById(id)) {
             throw new VacancyNotFoundException(id);
         }

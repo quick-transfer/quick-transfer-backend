@@ -1,12 +1,13 @@
 package com.weg.quicktransfer.dto.user;
 
-public record UserResponseDTO(
-    Long id,
+import java.util.UUID;
 
-    String name,
+public interface UserResponseDTO {
+    UUID getId();
 
-    String username,
+    String getName();
+
+    String getUsername();
     
-    String email
-) {
+    String getEmail();
 }

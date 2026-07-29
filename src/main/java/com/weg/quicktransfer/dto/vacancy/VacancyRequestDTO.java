@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.util.UUID;
+
 public record VacancyRequestDTO(
     @NotBlank(message = "Name must not be blank")
     String name,
@@ -23,6 +25,6 @@ public record VacancyRequestDTO(
     
     @NotNull(message = "Place id must not be null")
     @Positive(message = "Place id must be a positive number")
-    Long placeId
+    UUID placeId
 ) {
 }

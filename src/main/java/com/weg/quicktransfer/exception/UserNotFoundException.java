@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.exception;
 
+import java.util.UUID;
+
 public class UserNotFoundException extends ResourceNotFoundException {
-    public UserNotFoundException(Long id) {
+    public UserNotFoundException(UUID id) {
         super("User not found with ID: " + id);
     }
 

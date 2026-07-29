@@ -1,7 +1,9 @@
 package com.weg.quicktransfer.dto.vacancy;
 
+import java.util.UUID;
+
 public record VacancyResponseDTO(
-    Long id,
+    UUID id,
 
     String name,
 

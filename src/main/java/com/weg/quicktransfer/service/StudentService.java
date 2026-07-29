@@ -1,13 +1,22 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.student.StudentFilter;
+import com.weg.quicktransfer.model.Interview;
+import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
+import com.weg.quicktransfer.repo.specifications.StudentSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
+import com.weg.quicktransfer.enums.StatusStudent;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
@@ -45,14 +54,34 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public StudentResponseDTO findById(Long id) {
+    public StudentResponseDTO findById(UUID id) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
         return studentMapper.toResponse(student);
     }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponseDTO> findByName(String name) {
+        List<Student> students = studentRepository.findFirstByName(name);
+
+        return students.stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponseDTO> searchInterviews(StudentFilter filter) {
+        Specification<Student> spec = StudentSpecification.getFilteredStudents(filter);
+
+        List<Student> interviews = studentRepository.findAll(spec);
+
+        return interviews.stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
     
     @Transactional
-    public StudentResponseDTO update(Long id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
+    public StudentResponseDTO update(UUID id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
         ClassEntity classEntity = classEntityRepository.findById(studentUpdateRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentUpdateRequestDTO.classId()));
@@ -73,16 +102,18 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        if(studentUpdateRequestDTO.classId() != null) {
-            student.setClassEntity(classEntity);
-        }
+        student.setClassEntity(classEntity);
 
-        if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudent()));
+        if(studentUpdateRequestDTO.statusStudentInterview() != null) {
+            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview()));
         }
 
         if(studentUpdateRequestDTO.hasSeenEmail() != null) {
             student.setHasSeenEmail(studentUpdateRequestDTO.hasSeenEmail());
+        }
+
+        if(studentUpdateRequestDTO.statusStudent() != null) {
+            student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent()));
         }
 
         Student studentAtt = studentRepository.save(student);
@@ -91,11 +122,23 @@ public class StudentService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);
         }
 
         studentRepository.deleteById(id);
+    }
+
+    @Transactional
+    public StudentResponseDTO markEmailAsRead(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException(id));
+
+        student.setHasSeenEmail(true);
+
+        Student savedStudent = studentRepository.save(student);
+
+        return studentMapper.toResponse(savedStudent);
     }
 }

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public record StudentUpdateRequestDTO(
     @Size(max = 100, message = "The name can have a maximum of 100 characters")
     String name,
@@ -22,10 +24,12 @@ public record StudentUpdateRequestDTO(
     Double averageGrade,
 
     @Positive(message = "Class id must be a positive number")
-    Long classId,
+    UUID classId,
 
-    String statusStudent,
+    String statusStudentInterview,
 
-    Boolean hasSeenEmail
+    Boolean hasSeenEmail,
+
+    String statusStudent
 ) {
 }

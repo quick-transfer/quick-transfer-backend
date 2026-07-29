@@ -17,7 +17,7 @@ public class StudentMapper {
             studentRequestDTO.age(),
             studentRequestDTO.averageGrade(),
             classEntity,
-            StudentInterviewStatus.valueOf(studentRequestDTO.statusStudent()),
+            StudentInterviewStatus.valueOf(studentRequestDTO.statusStudentInterview()),
             studentRequestDTO.hasSeenEmail(),
             null
         );
@@ -33,7 +33,8 @@ public class StudentMapper {
             student.getClassEntity().getAcronym(),
             student.getClassEntity().getCourse().getName(),
             student.getStatus().name(),
-            student.getHasSeenEmail()
+            student.getHasSeenEmail(),
+            student.getStatusStudent().name()
         );
     }
 }

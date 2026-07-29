@@ -9,6 +9,10 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import com.weg.quicktransfer.enums.ShiftClass;
+import com.weg.quicktransfer.enums.StatusClass;
 
 @Entity
 @Table(name = "class_entities")
@@ -17,39 +21,45 @@ import java.util.List;
 @Getter
 @Setter
 public class ClassEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
-
-    @Column(name = "finish_date", nullable = false)
-    private LocalDate finishDate;
-
+    
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-
-    @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
-    List<Student> students = new ArrayList<>();
-
+    
+    @Column(name = "finish_date", nullable = false)
+    private LocalDate finishDate;
+    
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StatusClass status;
+    
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ShiftClass shiftClass;
+    
+    @Column(nullable = false, unique = true)
     private String acronym;
 
-    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, List<Student> students, String acronym) {
-        this.course = course;
-        this.startDate = startDate;
-        this.finishDate = finishDate;
-        this.students = students;
-        this.acronym = acronym;
-    }
+    @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
+    private List<Student> students = new ArrayList<>();
+    
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
-    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, String acronym) {
+    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
+            ShiftClass shiftClass, String acronym) {
         this.course = course;
         this.startDate = startDate;
         this.finishDate = finishDate;
+        this.status = status;
+        this.shiftClass = shiftClass;
         this.acronym = acronym;
     }
 }

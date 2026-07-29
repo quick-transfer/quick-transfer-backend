@@ -1,7 +1,10 @@
 package com.weg.quicktransfer.dto.student;
 
+import java.util.UUID;
+
 public record StudentResponseDTO(
-    Long id,
+
+    UUID id,
 
     String name,
 
@@ -15,8 +18,10 @@ public record StudentResponseDTO(
 
     String course,
 
-    String statusStudent,
+    String statusStudentInterview,
     
-    Boolean hasSeenEmail
+    Boolean hasSeenEmail,
+
+    String statusStudent
 ) {
 }

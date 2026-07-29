@@ -2,7 +2,7 @@ package com.weg.quicktransfer.enums;
 
 public enum Shift {
     FIRST,
-    SECOND,
+    SECOND ,
     THIRD,
-    FLEXIBLE_SCHEDULE
+    FLEXIBLE_SHIFT
 }

@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.course.CourseFilter;
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
@@ -10,12 +11,16 @@ import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
+import com.weg.quicktransfer.repo.specifications.CourseSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -45,14 +50,36 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public CourseResponseDTO findById(Long id){
+    public CourseResponseDTO findByName(String name){
+        if(!StringUtils.hasText(name)){
+            throw new IllegalArgumentException("Name can not be empty");
+        }
+
+        Course course = courseRepository.findFirstByName(name).orElseThrow(() -> new CourseNotFoundException("No Course Found"));
+
+        return courseMapper.toResponse(course);
+    }
+
+    @Transactional(readOnly = true)
+    public CourseResponseDTO findById(UUID id){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         return courseMapper.toResponse(course);
     }
 
+    @Transactional(readOnly = true)
+    public List<CourseResponseDTO> searchCourses(CourseFilter filter) {
+        Specification<Course> spec = CourseSpecification.getFilteredCourses(filter);
+
+        List<Course> courses = courseRepository.findAll(spec);
+
+        return courses.stream()
+                .map(courseMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
-    public CourseResponseDTO update(Long id, CourseUpdateRequestDTO courseUpdateRequestDTO){
+    public CourseResponseDTO update(UUID id, CourseUpdateRequestDTO courseUpdateRequestDTO){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         if(courseUpdateRequestDTO.name() != null && !courseUpdateRequestDTO.name().isBlank()) {
@@ -70,7 +97,7 @@ public class CourseService {
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(UUID id){
         if(!courseRepository.existsById(id)) {
             throw new CourseNotFoundException(id);
         }
