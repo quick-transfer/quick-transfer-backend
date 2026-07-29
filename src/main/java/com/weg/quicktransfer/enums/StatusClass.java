@@ -1,7 +1,7 @@
 package com.weg.quicktransfer.enums;
 
 public enum StatusClass {
-    EM_ANDAMENTO,
-    FINALIZADO,
-    NAO_INICIALIZADO
+    ON_GOING,
+    FINISHED,
+    NOT_STARTED
 }
