@@ -1,7 +1,5 @@
 package com.weg.quicktransfer.controller;
 
-import com.weg.quicktransfer.dto.interview.InterviewFilter;
-import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;

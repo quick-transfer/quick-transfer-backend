@@ -49,10 +49,6 @@ public class ClassEntity {
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
     private List<Student> students = new ArrayList<>();
     
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
-
     public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
             ShiftClass shiftClass, String acronym) {
         this.course = course;

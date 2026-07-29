@@ -35,7 +35,6 @@ public class Student{
     @Column(name = "average_grade")
     private Double averageGrade;
 
-    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StudentInterviewStatus status;
@@ -66,7 +65,7 @@ public class Student{
         this.classEntity = classEntity;
         this.status = status;
         this.hasSeenEmail = hasSeenEmail;
-        this.statusStudent = StatusStudent.CURSANDO;
+        this.statusStudent = StatusStudent.ENROLLED;
         this.interview = interview;
     }
 }

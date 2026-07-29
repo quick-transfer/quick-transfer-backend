@@ -3,11 +3,7 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 import java.util.UUID;
 
-import com.weg.quicktransfer.dto.interview.InterviewFilter;
-import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentFilter;
-import com.weg.quicktransfer.model.Interview;
-import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import com.weg.quicktransfer.repo.specifications.StudentSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -131,7 +127,7 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentResponseDTO markEmailAsRead(Long id) {
+    public StudentResponseDTO markEmailAsRead(UUID id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new StudentNotFoundException(id));
 

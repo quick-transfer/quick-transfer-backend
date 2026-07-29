@@ -1,6 +1,5 @@
 package com.weg.quicktransfer.dto.admin;
 
-import com.weg.quicktransfer.dto.user.UserRequestDTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

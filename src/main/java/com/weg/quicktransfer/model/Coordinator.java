@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.weg.quicktransfer.enums.Role;
@@ -23,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 public class Coordinator extends User{
 
     @OneToMany(mappedBy = "coordinator", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Course> courses = new ArrayList<>();
+    private List<Course> courses;
 
     public Coordinator(String name, String username, String email, String password) {
         super(name, username, email, password, Role.COORDINATOR);
