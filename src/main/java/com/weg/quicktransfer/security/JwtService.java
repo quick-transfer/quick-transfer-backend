@@ -2,7 +2,6 @@ package com.weg.quicktransfer.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Value;

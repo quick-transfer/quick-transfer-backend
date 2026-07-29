@@ -1,6 +1,5 @@
 package com.weg.quicktransfer.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.weg.quicktransfer.enums.Role;
@@ -27,7 +26,7 @@ public class Manager extends User{
     private Section section;
 
     @OneToMany(mappedBy = "manager")
-    List<Interview> interviews = new ArrayList<>();
+    List<Interview> interviews;
 
     public Manager(String name, String username, String email, String password, Section section) {
         super(name, username, email, password, Role.MANAGER);

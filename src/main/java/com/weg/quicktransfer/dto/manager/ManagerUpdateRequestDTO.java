@@ -2,7 +2,6 @@ package com.weg.quicktransfer.dto.manager;
 
 import org.hibernate.validator.constraints.Length;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 

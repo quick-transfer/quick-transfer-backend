@@ -35,9 +35,6 @@ public class Interview {
     @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
     
-    @Column(name = "reminder_sent")
-    private boolean reminderSent = false;
-    
     @ManyToOne
     @JoinColumn(name = "vacancy_id", nullable = false) 
     private Vacancy vacancy;

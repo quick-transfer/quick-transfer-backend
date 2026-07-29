@@ -3,15 +3,9 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 import java.util.UUID;
 
-import com.weg.quicktransfer.dto.admin.AdminFilter;
-import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.skill.SkillFilter;
-import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.repo.specifications.AdminSpecification;
-import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;

@@ -1,12 +1,9 @@
 package com.weg.quicktransfer.controller;
 
-import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityResponseDTO;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityUpdateRequestDTO;
-import com.weg.quicktransfer.model.Admin;
-import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.service.ClassEntityService;
 
 import jakarta.validation.Valid;
