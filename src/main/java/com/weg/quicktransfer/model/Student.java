@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.StatusStudent;
 import com.weg.quicktransfer.enums.StudentInterviewStatus;
@@ -19,8 +20,8 @@ import lombok.Setter;
 @Setter
 public class Student{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -34,19 +35,20 @@ public class Student{
     @Column(name = "average_grade")
     private Double averageGrade;
 
-    @ManyToOne
-    @JoinColumn(name = "classentity_id", nullable = false)
-    private ClassEntity classEntity;
-
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StudentInterviewStatus status;
-
+    
     @Column(nullable = false, name = "has_seen_email")
     private Boolean hasSeenEmail;
-
+    
     @Column(nullable = false)
     private StatusStudent statusStudent;
+    
+    @ManyToOne
+    @JoinColumn(name = "classentity_id", nullable = false)
+    private ClassEntity classEntity;
 
     @OneToOne(mappedBy = "student")
     @JoinColumn(name = "interview_id")

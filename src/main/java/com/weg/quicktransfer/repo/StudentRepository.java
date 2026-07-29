@@ -9,13 +9,14 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface StudentRepository extends JpaRepository<Student, Long>, JpaSpecificationExecutor<Student> {
+public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpecificationExecutor<Student> {
     @Query("""
             SELECT s
             FROM Student s
             WHERE s.interview = :interviewId""")
-    public Optional<Student> findByInterviewId(@Param("interviewId") Long interviewId);
+    public Optional<Student> findByInterviewId(@Param("interviewId") UUID interviewId);
 
     public List<Student> findFirstByName(String name);
 }

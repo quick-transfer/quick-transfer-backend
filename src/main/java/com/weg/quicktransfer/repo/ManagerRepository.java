@@ -9,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ManagerRepository extends JpaRepository<Manager, Long>, JpaSpecificationExecutor<Manager> {
+public interface ManagerRepository extends JpaRepository<Manager, UUID>, JpaSpecificationExecutor<Manager> {
     public Optional<Manager> findFirstByUsername(String username);
 
     @Query("""
@@ -19,7 +20,7 @@ public interface ManagerRepository extends JpaRepository<Manager, Long>, JpaSpec
             JOIN i.manager m
             WHERE i.id = :interviewId
             """)
-    public Optional<Manager> findByInterviewId(@Param("interviewId") Long interviewId);
+    public Optional<Manager> findByInterviewId(@Param("interviewId") UUID interviewId);
     
     Optional<Manager> findFirstByName(String name);
 }

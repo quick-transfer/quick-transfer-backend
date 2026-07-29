@@ -7,10 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record ClassEntityRequestDTO(
         @NotNull(message = "Course id must not be null")
-        Long courseId,
+        UUID courseId,
 
         @NotNull(message = "Start date must not be null")
         @FutureOrPresent(message = "Start date must be today or in the future")

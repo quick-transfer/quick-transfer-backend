@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
 import com.weg.quicktransfer.repo.specifications.ClassEntitySpecification;
@@ -61,7 +62,7 @@ public class ClassEntityService {
     }
 
     @Transactional(readOnly = true)
-    public ClassEntityResponseDTO findById(Long id) {
+    public ClassEntityResponseDTO findById(UUID id) {
         ClassEntity classEntity = classEntityRepository.findById(id).orElseThrow(() -> new ClassEntityNotFoundException(id));
 
         return classEntityMapper.toResponse(classEntity);
@@ -78,7 +79,7 @@ public class ClassEntityService {
     }
 
     @Transactional
-    public ClassEntityResponseDTO update(Long id, ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO) {
+    public ClassEntityResponseDTO update(UUID id, ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO) {
         ClassEntity classEntity = classEntityRepository.findById(id).orElseThrow(() -> new ClassEntityNotFoundException(id));
         
         if(classEntityUpdateRequestDTO.courseId() != null) {
@@ -112,7 +113,7 @@ public class ClassEntityService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if(!classEntityRepository.existsById(id)) {
             throw new ClassEntityNotFoundException(id);
         }

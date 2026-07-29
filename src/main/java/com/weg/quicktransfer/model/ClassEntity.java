@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.ShiftClass;
 import com.weg.quicktransfer.enums.StatusClass;
@@ -22,7 +23,7 @@ import com.weg.quicktransfer.enums.StatusClass;
 public class ClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
@@ -30,23 +31,27 @@ public class ClassEntity {
     
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-
+    
     @Column(name = "finish_date", nullable = false)
     private LocalDate finishDate;
-
+    
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusClass status;
-
+    
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ShiftClass shiftClass;
+    
+    @Column(nullable = false, unique = true)
+    private String acronym;
 
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
     private List<Student> students = new ArrayList<>();
-
-    @Column(nullable = false, unique = true)
-    private String acronym;
+    
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
     public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
             ShiftClass shiftClass, String acronym) {

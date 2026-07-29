@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class InterviewController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<InterviewResponseDTO> findInterviewById(@PathVariable Long id){
+    public ResponseEntity<InterviewResponseDTO> findInterviewById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.findById(id));
     }
 
@@ -42,14 +43,14 @@ public class InterviewController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<InterviewResponseDTO> updateInterview(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid InterviewUpdateRequestDTO interviewUpdateRequestDTO
     ){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.update(id, interviewUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteInterview(Long id){
+    public ResponseEntity<Void> deleteInterview(UUID id){
         interviewService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

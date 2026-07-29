@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/manager")
@@ -29,7 +30,7 @@ public class ManagerController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<ManagerResponseDTO> findManagerById(@PathVariable Long id) {
+    public ResponseEntity<ManagerResponseDTO> findManagerById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findById(id));
     }
 
@@ -50,21 +51,21 @@ public class ManagerController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid ManagerUpdateRequestDTO updateRequestDTO
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteManager(@PathVariable UUID id) {
         managerService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/interview/sendEmail/{interviewId}")
     public ResponseEntity<String> postSendInterviewEmail(
-            @PathVariable Long interviewId,
+            @PathVariable UUID interviewId,
             @RequestParam("email") String to,
             @RequestHeader(value = "AMP-Same-Origin", required = false) String sameOrigin,
             @RequestHeader(value = "AMP-Email-Sender", required = false) String sender)  throws MessagingException {

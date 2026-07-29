@@ -2,6 +2,7 @@ package com.weg.quicktransfer.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
@@ -21,7 +22,7 @@ import lombok.Setter;
 public class Vacancy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
     
     @Column(nullable = false)
     private String name;

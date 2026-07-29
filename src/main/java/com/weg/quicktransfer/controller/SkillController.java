@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/skill")
@@ -28,7 +29,7 @@ public class SkillController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<SkillResponseDTO> findSkillById(@PathVariable Long id) {
+    public ResponseEntity<SkillResponseDTO> findSkillById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findById(id));
     }
 
@@ -49,14 +50,14 @@ public class SkillController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<SkillResponseDTO> updateSkill(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid SkillUpdateRequestDTO skillUpdateRequestDTO
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSkill(@PathVariable UUID id) {
         skillService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

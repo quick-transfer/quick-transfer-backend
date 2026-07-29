@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,14 +27,17 @@ import lombok.Setter;
 public class Interview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false, name = "interviewer_name")
     private String interviewerName;
-
+    
     @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
-
+    
+    @Column(name = "reminder_sent")
+    private boolean reminderSent = false;
+    
     @ManyToOne
     @JoinColumn(name = "vacancy_id", nullable = false) 
     private Vacancy vacancy;

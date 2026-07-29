@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/coordinator")
@@ -26,7 +27,7 @@ public class CoordinatorController {
     }
 
     @GetMapping("/find/id/{id}")
-    public ResponseEntity<CoordinatorResponseDTO> findCoordinatorById(@PathVariable Long id) {
+    public ResponseEntity<CoordinatorResponseDTO> findCoordinatorById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findById(id));
     }
 
@@ -47,14 +48,14 @@ public class CoordinatorController {
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteCoordinator(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCoordinator(@PathVariable UUID id) {
         coordinatorService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
