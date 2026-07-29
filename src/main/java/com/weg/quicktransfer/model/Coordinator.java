@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "coordinators")
+@DiscriminatorValue("COORDINATOR")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

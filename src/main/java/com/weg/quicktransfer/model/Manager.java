@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "managers")
+@DiscriminatorValue("MANAGER")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
