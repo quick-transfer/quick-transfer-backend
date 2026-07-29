@@ -25,7 +25,7 @@ import java.util.UUID;
 @Setter
 public class Skill {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
