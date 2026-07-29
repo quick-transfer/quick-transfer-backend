@@ -3,6 +3,9 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
+import com.weg.quicktransfer.repo.specifications.ClassEntitySpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +55,8 @@ public class ClassEntityService {
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
         }
-        ClassEntity classEntity = classEntityRepository.findByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
+
+        ClassEntity classEntity = classEntityRepository.findFirstByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
 
         return classEntityMapper.toResponse(classEntity);
     }
@@ -62,6 +66,16 @@ public class ClassEntityService {
         ClassEntity classEntity = classEntityRepository.findById(id).orElseThrow(() -> new ClassEntityNotFoundException(id));
 
         return classEntityMapper.toResponse(classEntity);
+    }
+
+    @Transactional
+    public List<ClassEntityResponseDTO> searchClassEntities(ClassEntityFilter filter) {
+        Specification<ClassEntity> spec = ClassEntitySpecification.getFilteredClassEntities(filter);
+        List<ClassEntity> classEntities = classEntityRepository.findAll(spec);
+
+        return classEntities.stream()
+                .map(classEntityMapper::toResponse)
+                .toList();
     }
 
     @Transactional

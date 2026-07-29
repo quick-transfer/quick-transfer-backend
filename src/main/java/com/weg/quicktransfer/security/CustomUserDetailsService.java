@@ -16,11 +16,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElse(userRepository.findByName(username)
+        User user = userRepository.findFirstByUsername(username)
+                .orElse(userRepository.findFirstByName(username)
                         .orElseThrow(() -> new UsernameNotFoundException(
-                            "User not found with the name/username: " + username)
-                ));
+                                "User not found with the name/username: " + username
+                        )));
 
         return new UserPrincipal(user);
     }

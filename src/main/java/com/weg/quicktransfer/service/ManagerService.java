@@ -4,9 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
-import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
-import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
-import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
+import com.weg.quicktransfer.dto.manager.*;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
 import com.weg.quicktransfer.exception.InvalidEmailException;
 import com.weg.quicktransfer.exception.StudentNotFoundException;
@@ -19,16 +17,19 @@ import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
+import com.weg.quicktransfer.repo.specifications.ManagerSpecification;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.util.StringUtils;
 
 @Service
@@ -80,10 +81,21 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
-    public List<ManagerResponseDTO> findByName(String name) {
-        List<Manager> managers = managerRepository.findByName(name);
+    public List<ManagerResponseDTO> searchManagers(ManagerFilter filter) {
+        Specification<Manager> spec = ManagerSpecification.getFilteredManagers(filter);
+
+        List<Manager> managers = managerRepository.findAll(spec);
 
         return managers.stream().map(managerMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ManagerResponseDTO findByName(String name) {
+        Manager manager = managerRepository.findFirstByName(name)
+                .orElse(managerRepository.findFirstByName(name)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with name: " + name)));
+
+        return managerMapper.toResponse(manager);
     }
 
     @Transactional
@@ -94,7 +106,7 @@ public class ManagerService {
             manager.setName(updateRequestDTO.name());
         }
 
-        if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$")) {
+        if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
             manager.setPassword(updateRequestDTO.password());
         }
 
@@ -216,6 +228,7 @@ public class ManagerService {
                           </div>
                         </td>
                       </tr>
+            
                       <tr>
                         <td style="padding: 0 32px 32px 32px;">
                           <a href="http://localhost:3000" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Confirmar Presença</a>
@@ -241,7 +254,6 @@ public class ManagerService {
         );
     }
 
-    @Transactional
     private void validateEmail(String email) {
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new InvalidEmailException("Invalid e-mail: " + email);

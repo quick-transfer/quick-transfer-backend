@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.user.UserFilter;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
 import com.weg.quicktransfer.service.UserService;
@@ -33,6 +36,12 @@ public class UserController {
     public ResponseEntity<List<UserResponseDTO>> findAllUsers() {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponseDTO>> searchCourses(UserFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.searchUsers(filter));
+    }
+
 
     @PatchMapping("/update/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(

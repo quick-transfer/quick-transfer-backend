@@ -1,9 +1,11 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.coordinator.CoordinatorFilter;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.exception.CoordinatorNotFoundException;
+import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
@@ -11,11 +13,14 @@ import com.weg.quicktransfer.repo.CoordinatorRepository;
 import java.util.List;
 import java.util.UUID;
 
+import com.weg.quicktransfer.repo.specifications.CoordinatorSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 public class CoordinatorService {
@@ -49,8 +54,20 @@ public class CoordinatorService {
     }
 
     @Transactional(readOnly = true)
-    public List<CoordinatorResponseDTO> findByName(String name){
-        List<Coordinator> coordinators = coordinatorRepository.findByUsername(name);
+    public CoordinatorResponseDTO findByName(String name){
+        Coordinator coordinator = coordinatorRepository.findFirstByUsername(name)
+                .orElse(coordinatorRepository.findFirstByName(name)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name))
+                    );
+
+        return coordinatorMapper.toResponse(coordinator);
+    }
+
+    @Transactional
+    public List<CoordinatorResponseDTO> searchCoordinators(CoordinatorFilter filter) {
+        Specification<Coordinator> spec = CoordinatorSpecification.getFilteredCoordinators(filter);
+
+        List<Coordinator> coordinators = coordinatorRepository.findAll(spec);
 
         return coordinators.stream()
                 .map(coordinatorMapper::toResponse)

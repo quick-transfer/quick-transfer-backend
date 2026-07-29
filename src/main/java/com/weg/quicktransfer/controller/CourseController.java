@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.course.CourseFilter;
 import com.weg.quicktransfer.dto.course.CourseRequestDTO;
 import com.weg.quicktransfer.dto.course.CourseResponseDTO;
 import com.weg.quicktransfer.dto.course.CourseUpdateRequestDTO;
@@ -38,6 +39,11 @@ public class CourseController {
     @GetMapping("/find/all")
     public ResponseEntity<List<CourseResponseDTO>> findAllCourses(){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CourseResponseDTO>> searchCourses(CourseFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.searchCourses(filter));
     }
 
     @PatchMapping("/update/{id}")

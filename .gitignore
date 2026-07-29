@@ -34,3 +34,8 @@ build/
 
 ### env ###
 .env
+*.pem
+
+### Docker ###
+docker-compose.yml
+Dockerfile

@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.coordinator.CoordinatorFilter;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
@@ -31,8 +32,13 @@ public class CoordinatorController {
     }
 
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<CoordinatorResponseDTO>> findCoordinatorByName(@PathVariable String name) {
+    public ResponseEntity<CoordinatorResponseDTO> findCoordinatorByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findByName(name));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CoordinatorResponseDTO>> searchCoordinators(CoordinatorFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.searchCoordinators(filter));
     }
 
     @GetMapping("/find/all")

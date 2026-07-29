@@ -3,6 +3,13 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.student.StudentFilter;
+import com.weg.quicktransfer.model.Interview;
+import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
+import com.weg.quicktransfer.repo.specifications.StudentSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,9 +62,20 @@ public class StudentService {
 
     @Transactional(readOnly = true)
     public List<StudentResponseDTO> findByName(String name) {
-        List<Student> students = studentRepository.findByName(name);
+        List<Student> students = studentRepository.findFirstByName(name);
 
         return students.stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudentResponseDTO> searchInterviews(StudentFilter filter) {
+        Specification<Student> spec = StudentSpecification.getFilteredStudents(filter);
+
+        List<Student> interviews = studentRepository.findAll(spec);
+
+        return interviews.stream()
                 .map(studentMapper::toResponse)
                 .toList();
     }

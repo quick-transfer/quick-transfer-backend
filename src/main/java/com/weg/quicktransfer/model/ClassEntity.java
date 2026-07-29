@@ -43,7 +43,7 @@ public class ClassEntity {
     @Enumerated(EnumType.STRING)
     private ShiftClass shiftClass;
     
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String acronym;
 
     @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)

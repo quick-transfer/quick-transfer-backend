@@ -1,5 +1,8 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.dto.interview.InterviewResponseDTO;
+import com.weg.quicktransfer.dto.skill.SkillFilter;
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
 import com.weg.quicktransfer.dto.skill.SkillResponseDTO;
 import com.weg.quicktransfer.dto.skill.SkillUpdateRequestDTO;
@@ -31,13 +34,18 @@ public class SkillController {
     }
 
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<List<SkillResponseDTO>> findSkillByName(@PathVariable String name) {
+    public ResponseEntity<SkillResponseDTO> findSkillByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
     }
 
     @GetMapping("/find/all")
     public ResponseEntity<List<SkillResponseDTO>> findAllSkills() {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SkillResponseDTO>> searchCourses(SkillFilter filter) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.searchSkills(filter));
     }
 
     @PatchMapping("/update/{id}")

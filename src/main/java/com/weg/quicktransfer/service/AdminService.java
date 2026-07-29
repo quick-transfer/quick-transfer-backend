@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.admin.AdminFilter;
 import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
@@ -7,6 +8,8 @@ import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.repo.AdminRepository;
+import com.weg.quicktransfer.repo.specifications.AdminSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -50,12 +54,22 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdminResponseDTO> findAdminByName(String name) {
+    public AdminResponseDTO findAdminByName(String name) {
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        List<Admin> admins = adminRepository.findByNameContaining(name);
+        Admin admin = adminRepository.findFirstByUsername(name)
+                .orElse(adminRepository.findFirstByName(name)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name)));
+
+        return adminMapper.toResponse(admin);
+    }
+
+    @Transactional
+    public List<AdminResponseDTO> searchAdmins(AdminFilter filter) {
+        Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
+        List<Admin> admins = adminRepository.findAll(spec);
 
         return admins.stream()
                 .map(adminMapper::toResponse)

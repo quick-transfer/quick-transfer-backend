@@ -3,6 +3,10 @@ package com.weg.quicktransfer.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.weg.quicktransfer.dto.interview.InterviewFilter;
+import com.weg.quicktransfer.model.*;
+import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +19,6 @@ import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
 import com.weg.quicktransfer.mapper.InterviewMapper;
-import com.weg.quicktransfer.model.Interview;
-import com.weg.quicktransfer.model.Manager;
-import com.weg.quicktransfer.model.Place;
-import com.weg.quicktransfer.model.Student;
-import com.weg.quicktransfer.model.Vacancy;
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.PlaceRepository;
@@ -67,6 +66,17 @@ public class InterviewService {
         Interview interview = interviewRepository.findById(id).orElseThrow(() -> new InterviewNotFoundException(id));
 
         return interviewMapper.toResponse(interview);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InterviewResponseDTO> searchInterviews(InterviewFilter filter) {
+        Specification<Interview> spec = InterviewSpecification.getFilteredInterviews(filter);
+
+        List<Interview> interviews = interviewRepository.findAll(spec);
+
+        return interviews.stream()
+                .map(interviewMapper::toResponse)
+                .toList();
     }
 
     @Transactional

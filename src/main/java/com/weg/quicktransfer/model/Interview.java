@@ -51,8 +51,11 @@ public class Interview {
     private Manager manager;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "student_id")
     private Student student;
 
+    @Column(name = "reminder_sent")
+    private Boolean reminderSent = false;
 
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
             Student student) {
