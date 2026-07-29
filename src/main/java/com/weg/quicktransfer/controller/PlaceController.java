@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,26 +22,31 @@ public class PlaceController {
 
     private final PlaceService placeService;
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<PlaceResponseDTO> createPlace(@RequestBody @Valid PlaceRequestDTO placeRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(placeService.create(placeRequestDTO));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<PlaceResponseDTO> findPlaceById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findById(id));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<List<PlaceResponseDTO>> searchPlaces(PlaceFilter filter){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/find/all")
     public ResponseEntity<List<PlaceResponseDTO>> findAllPlaces(){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findAll());
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<PlaceResponseDTO> updatePlace(
             @PathVariable UUID id,
@@ -49,6 +55,7 @@ public class PlaceController {
         return ResponseEntity.status(HttpStatus.OK).body(placeService.update(id, placeUpdateRequestDTO));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePlace(@PathVariable UUID id){
         placeService.delete(id);

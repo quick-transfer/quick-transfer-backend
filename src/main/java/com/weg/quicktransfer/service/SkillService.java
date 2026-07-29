@@ -11,6 +11,7 @@ import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;

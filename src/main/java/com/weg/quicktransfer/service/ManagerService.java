@@ -5,18 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.manager.*;
-import com.weg.quicktransfer.exception.InterviewNotFoundException;
-import com.weg.quicktransfer.exception.InvalidEmailException;
-import com.weg.quicktransfer.exception.StudentNotFoundException;
-import com.weg.quicktransfer.exception.UserNotFoundException;
+import com.weg.quicktransfer.exception.*;
 import com.weg.quicktransfer.mapper.ManagerMapper;
-import com.weg.quicktransfer.model.Interview;
-import com.weg.quicktransfer.model.Manager;
-import com.weg.quicktransfer.model.Student;
+import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
+import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.repo.specifications.ManagerSpecification;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
@@ -29,7 +25,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.util.StringUtils;
 
 @Service
@@ -47,6 +42,8 @@ public class ManagerService {
     private final InterviewRepository interviewRepository;
 
     private final StudentRepository studentRepository;
+
+    private final UserRepository userRepository;
 
     private final JavaMailSender mailSender;
 
@@ -99,19 +96,30 @@ public class ManagerService {
     }
 
     @Transactional
-    public ManagerResponseDTO update(UUID id, ManagerUpdateRequestDTO updateRequestDTO) {
-        Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    public ManagerResponseDTO update(UUID id, ManagerUpdateRequestDTO updateRequestDTO, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User is not logged"));
 
-        if(StringUtils.hasText(updateRequestDTO.name())) {
-            manager.setName(updateRequestDTO.name());
+        if (!(user instanceof Manager || user instanceof Admin)) {
+            throw new UserNotAllowdException("User is neither a Admin nor a Manager");
         }
 
-        if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
-            manager.setPassword(updateRequestDTO.password());
-        }
+        if (userId == user.getId() || user instanceof Admin) {
+            Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        Manager managerUpdated = managerRepository.save(manager);
-        return managerMapper.toResponse(managerUpdated);
+            if(StringUtils.hasText(updateRequestDTO.name())) {
+                manager.setName(updateRequestDTO.name());
+            }
+
+            if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
+                manager.setPassword(updateRequestDTO.password());
+            }
+
+            Manager managerUpdated = managerRepository.save(manager);
+            return managerMapper.toResponse(managerUpdated);
+        } else {
+            throw new UserNotAllowdException("User is not allowed to update this user");
+        }
     }
 
     @Transactional

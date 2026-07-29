@@ -90,10 +90,6 @@ public class VacancyService {
             vacancy.setDescription(vacancyUpdateRequestDTO.description());
         }
 
-        if(vacancyUpdateRequestDTO.numbersVacancies() != null) {
-            vacancy.setNumbersVacancies(vacancyUpdateRequestDTO.numbersVacancies());
-        }
-
         if(vacancyUpdateRequestDTO.area() != null && !vacancyUpdateRequestDTO.area().isBlank()) {
             vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area()));
         }

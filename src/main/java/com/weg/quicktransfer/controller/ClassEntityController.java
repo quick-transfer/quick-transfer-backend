@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,31 +26,37 @@ public class ClassEntityController {
 
     private final ClassEntityService classEntityService;
 
+    @PreAuthorize("hasRole('COORDINATOR')")
     @PostMapping("/create")
     public ResponseEntity<ClassEntityResponseDTO> createClassEntity(@RequestBody @Valid ClassEntityRequestDTO classEntityRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(classEntityService.create(classEntityRequestDTO));
     }
 
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findById(id));
     }
 
-    @GetMapping("find/name/{name}")
-    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String name){
-        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(name));
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @GetMapping("find/acronym/{acronym}")
+    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String acronym){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(acronym));
     }
 
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<List<ClassEntityResponseDTO>> searchClassEntities(ClassEntityFilter filter) {
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter));
     }
 
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("find/all")
     public ResponseEntity<List<ClassEntityResponseDTO>> findAllClassEntities(){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll());
     }
 
+    @PreAuthorize("hasRole('COORDINATOR')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
             @PathVariable UUID id,
@@ -57,6 +64,7 @@ public class ClassEntityController {
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
 
+    @PreAuthorize("hasRole('COORDINATOR')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteClassEntity(UUID id){
         classEntityService.delete(id);

@@ -23,42 +23,35 @@ public class AdminController {
     private final AdminService adminService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create/admin")
-    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody @Valid AdminRequestDTO adminRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.saveAdmin(adminRequestDTO));
-    }
-
     @GetMapping("/find/id/{id}")
     public ResponseEntity<AdminResponseDTO> findAdminById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<AdminResponseDTO> findAdminByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAdminByName(name));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<AdminResponseDTO>> searchAdmins(AdminFilter filter) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.searchAdmins(filter));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/find/all")
     public ResponseEntity<List<AdminResponseDTO>> findAllAdmins() {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<AdminResponseDTO> updateAdmin(
             @PathVariable UUID id,
             @RequestBody @Valid AdminUpdateRequestDTO updatedRequest
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminById(id, updatedRequest));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAdmin(@PathVariable UUID id) {
-        adminService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
