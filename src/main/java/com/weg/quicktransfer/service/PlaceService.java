@@ -65,6 +65,13 @@ public class PlaceService {
         return placeMapper.toResponse(place);
     }
 
+    @Transactional(readOnly = true)
+    public List<PlaceResponseDTO> findByName(String placeName) {
+        List<Place> places = placeRepository.findByPlaceName(placeName);
+
+        return places.stream().map(placeMapper::toResponse).toList();
+    }
+
     @Transactional
     public PlaceResponseDTO update(UUID id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));

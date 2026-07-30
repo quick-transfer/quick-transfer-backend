@@ -35,6 +35,12 @@ public class PlaceController {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("find/name/{name}")
+    public ResponseEntity<List<PlaceResponseDTO>> findByName(@PathVariable String placeName) {
+        return ResponseEntity.status(HttpStatus.OK).body(placeService.findByName(placeName));
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<List<PlaceResponseDTO>> searchPlaces(PlaceFilter filter){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter));
