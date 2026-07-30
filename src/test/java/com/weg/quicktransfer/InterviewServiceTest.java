@@ -114,6 +114,8 @@ class InterviewServiceTest {
         responseDTO = new InterviewResponseDTO(INTERVIEW_ID, "interview", LocalDateTime.of(2026, 7, 16, 15, 30), Park.WEG_II.toString(), Section.IT.toString(), "Bruno", "Guilherme", Shift.FIRST.toString());
     }
 
+    // --- CREATE TESTS ---
+
     @Test
     @DisplayName("Should create interview and return response dto")
     void shouldCreateInterview() {
@@ -196,6 +198,8 @@ class InterviewServiceTest {
         verifyNoInteractions(interviewMapper, interviewRepository);
     }
 
+    // --- FIND TESTS ---
+
     @Test
     @DisplayName("Should find interview by id and return response dto")
     void shouldFindInterviewById() {
@@ -257,13 +261,14 @@ class InterviewServiceTest {
         verify(interviewMapper).toResponse(interview);
     }
 
+    // --- UPDATE TESTS ---
+
     @Test
     @DisplayName("Should update interview and return response dto")
     void shouldUpdateInterview() {
         LocalDateTime newDateTime = LocalDateTime.of(2026, 7, 17, 10, 0);
 
         InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO("New Interviewer", newDateTime, PLACE_ID, STUDENT_ID, MANAGER_ID, VACANCY_ID);
-
         InterviewResponseDTO updatedResponse = new InterviewResponseDTO(INTERVIEW_ID, "New Interviewer", newDateTime, Park.WEG_II.toString(), Section.IT.toString(), "Bruno", "Guilherme", Shift.FIRST.toString());
 
         when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
@@ -301,6 +306,88 @@ class InterviewServiceTest {
         verify(interviewRepository).findById(NON_EXISTENT_ID);
         verify(interviewRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Should throw PlaceNotFoundException when place does not exist on update")
+    void shouldThrowPlaceNotFoundExceptionOnUpdate() {
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO(null, null, PLACE_ID, null, null, null);
+
+        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(placeRepository.findById(PLACE_ID)).thenReturn(Optional.empty());
+
+        assertThrows(PlaceNotFoundException.class, () -> interviewService.update(INTERVIEW_ID, updateRequest));
+
+        verify(interviewRepository).findById(INTERVIEW_ID);
+        verify(placeRepository).findById(PLACE_ID);
+        verify(interviewRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw VacancyNotFoundException when vacancy does not exist on update")
+    void shouldThrowVacancyNotFoundExceptionOnUpdate() {
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO(null, null, null, null, null, VACANCY_ID);
+
+        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.empty());
+
+        assertThrows(VacancyNotFoundException.class, () -> interviewService.update(INTERVIEW_ID, updateRequest));
+
+        verify(interviewRepository).findById(INTERVIEW_ID);
+        verify(vacancyRepository).findById(VACANCY_ID);
+        verify(interviewRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw UserNotFoundException when manager does not exist on update")
+    void shouldThrowUserNotFoundExceptionOnUpdate() {
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO(null, null, null, null, MANAGER_ID, null);
+
+        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> interviewService.update(INTERVIEW_ID, updateRequest));
+
+        verify(interviewRepository).findById(INTERVIEW_ID);
+        verify(managerRepository).findById(MANAGER_ID);
+        verify(interviewRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw StudentNotFoundException when student does not exist on update")
+    void shouldThrowStudentNotFoundExceptionOnUpdate() {
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO(null, null, null, STUDENT_ID, null, null);
+
+        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(studentRepository.findById(STUDENT_ID)).thenReturn(Optional.empty());
+
+        assertThrows(StudentNotFoundException.class, () -> interviewService.update(INTERVIEW_ID, updateRequest));
+
+        verify(interviewRepository).findById(INTERVIEW_ID);
+        verify(studentRepository).findById(STUDENT_ID);
+        verify(interviewRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should update interview keeping existing values when request fields are null or blank")
+    void shouldUpdateInterviewWithoutChangingBlankOrNullFields() {
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO("   ", null, null, null, null, null);
+
+        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(interviewRepository.save(interview)).thenReturn(interview);
+        when(interviewMapper.toResponse(interview)).thenReturn(responseDTO);
+
+        InterviewResponseDTO result = interviewService.update(INTERVIEW_ID, updateRequest);
+
+        assertNotNull(result);
+        assertEquals("interview", interview.getInterviewerName());
+        assertEquals(LocalDateTime.of(2026, 7, 16, 15, 30), interview.getDateTime());
+
+        verify(interviewRepository).findById(INTERVIEW_ID);
+        verifyNoInteractions(placeRepository, vacancyRepository, managerRepository, studentRepository);
+        verify(interviewRepository).save(interview);
+    }
+
+    // --- DELETE TESTS ---
 
     @Test
     @DisplayName("Should delete interview successfully")
