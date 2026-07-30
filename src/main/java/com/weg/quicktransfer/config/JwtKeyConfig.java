@@ -3,9 +3,7 @@ package com.weg.quicktransfer.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -17,18 +15,15 @@ import java.util.Base64;
 public class JwtKeyConfig {
 
     @Value("${app.security.jwt.public-key}")
-    private Resource publicKeyResource;
+    private String publicKey;
 
     @Value("${app.security.jwt.private-key}")
-    private Resource privateKeyResource;
+    private String privateKey;
 
     @Bean
     public RSAPublicKey rsaPublicKey() throws Exception {
-        String key = new String(publicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        key = key.replace("-----BEGIN PUBLIC KEY-----", "")
-                 .replace("-----END PUBLIC KEY-----", "")
-                 .replaceAll("\\s+", "");
-        byte[] decode = Base64.getDecoder().decode(key);
+        String cleanedKey = cleanKey(publicKey, "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----");
+        byte[] decode = Base64.getDecoder().decode(cleanedKey);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decode);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -36,13 +31,22 @@ public class JwtKeyConfig {
 
     @Bean
     public RSAPrivateKey rsaPrivateKey() throws Exception {
-        String key = new String(privateKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
-                 .replace("-----END PRIVATE KEY-----", "")
-                 .replaceAll("\\s+", "");
-        byte[] decode = Base64.getDecoder().decode(key);
+        String cleanedKey = cleanKey(privateKey, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
+        byte[] decode = Base64.getDecoder().decode(cleanedKey);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decode);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+    }
+
+    private String cleanKey(String rawKey, String beginHeader, String endHeader) {
+        if (rawKey == null) {
+            throw new IllegalArgumentException("JWT key must not be null");
+        }
+        return rawKey
+                .replace("\\n", "")
+                .replace("\n", "")
+                .replace(beginHeader, "")
+                .replace(endHeader, "")
+                .replaceAll("\\s+", "");
     }
 }
