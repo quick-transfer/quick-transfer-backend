@@ -31,12 +31,10 @@ public class CourseService {
     private final CoordinatorRepository coordinatorRepository;
 
     @Transactional
-    //returns a new Course
     public CourseResponseDTO create(CourseRequestDTO courseRequestDTO){
         Coordinator coordinator = coordinatorRepository.findById(courseRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseRequestDTO.coordinatorId()));
 
         Course course = courseMapper.toEntity(courseRequestDTO, coordinator);
-        course.setId(UUID.randomUUID());
 
         course = courseRepository.save(course);
 
@@ -51,21 +49,19 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
-    public CourseResponseDTO findByName(String name){
-        if(!StringUtils.hasText(name)){
-            throw new IllegalArgumentException("Name can not be empty");
-        }
-
-        Course course = courseRepository.findFirstByName(name).orElseThrow(() -> new CourseNotFoundException("No Course Found"));
+    public CourseResponseDTO findById(UUID id){
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
         return courseMapper.toResponse(course);
     }
 
     @Transactional(readOnly = true)
-    public CourseResponseDTO findById(UUID id){
-        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
+    public List<CourseResponseDTO> findByName(String name){
+        List<Course> courses = courseRepository.findByNameContaining(name);
 
-        return courseMapper.toResponse(course);
+        return courses.stream()
+                .map(courseMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

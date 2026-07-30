@@ -38,8 +38,6 @@ public class VacancyService {
 
         Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place);
 
-        vacancy.setId(UUID.randomUUID());
-
         vacancy = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancy);
@@ -60,11 +58,12 @@ public class VacancyService {
     }
 
     @Transactional(readOnly = true)
-    public VacancyResponseDTO findByName(String name) {
-        Vacancy vacancy = vacancyRepository.findFirstByName(name)
-                .orElseThrow(() -> new VacancyNotFoundException("Vacancy not found with the name: " + name));
+    public List<VacancyResponseDTO> findByName(String name) {
+        List<Vacancy> vacancies = vacancyRepository.findByName(name);
 
-        return vacancyMapper.toResponse(vacancy);
+        return vacancies.stream()
+                .map(vacancyMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

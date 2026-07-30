@@ -37,8 +37,6 @@ public class StudentService {
 
         Student student = studentMapper.toEntity(studentRequestDTO, classEntity);
 
-        student.setId(UUID.randomUUID());
-
         student = studentRepository.save(student);
 
         return studentMapper.toResponse(student);
@@ -60,7 +58,7 @@ public class StudentService {
 
     @Transactional(readOnly = true)
     public List<StudentResponseDTO> findByName(String name) {
-        List<Student> students = studentRepository.findFirstByName(name);
+        List<Student> students = studentRepository.findByName(name);
 
         return students.stream()
                 .map(studentMapper::toResponse)

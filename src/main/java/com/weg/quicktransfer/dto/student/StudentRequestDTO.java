@@ -27,7 +27,6 @@ public record StudentRequestDTO(
     Double averageGrade,
 
     @NotNull(message = "Class ID must not be null")
-    @Positive(message = "Class id must be a positive number")
     UUID classId,
 
     @NotBlank(message = "Student status must not be blank")

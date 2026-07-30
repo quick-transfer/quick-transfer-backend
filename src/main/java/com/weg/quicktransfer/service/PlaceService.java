@@ -35,8 +35,6 @@ public class PlaceService {
 
         Place place = placeMapper.toEntity(placeRequestDTO);
 
-        place.setId(UUID.randomUUID());
-
         place = placeRepository.save(place);
 
         return placeMapper.toResponse(place);
@@ -65,6 +63,13 @@ public class PlaceService {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
 
         return placeMapper.toResponse(place);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaceResponseDTO> findByName(String placeName) {
+        List<Place> places = placeRepository.findByPlaceName(placeName);
+
+        return places.stream().map(placeMapper::toResponse).toList();
     }
 
     @Transactional

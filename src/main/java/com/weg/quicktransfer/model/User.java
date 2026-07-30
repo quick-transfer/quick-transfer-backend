@@ -41,8 +41,8 @@ public abstract class User {
     private Role role;
 
     @Builder.Default
-    @Column(nullable = false)
-    private Boolean firstLogin = true;
+    @Column(nullable = false, name = "first_login")
+    private Boolean firstLogin = Boolean.TRUE;
 
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;
@@ -50,5 +50,6 @@ public abstract class User {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.firstLogin = Boolean.TRUE;
     }
 }

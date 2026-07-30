@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.weg.quicktransfer.dto.error.ErrorResponseDTO;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
@@ -27,6 +29,7 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.UNAUTHORIZED,
                         "Invalid credentials.",
+                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -40,6 +43,7 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.FORBIDDEN,
                         "The user is not authorized",
+                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -51,7 +55,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Internal database error.", request));
+                        "Internal database error.",
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(MessagingException.class)
@@ -64,6 +69,7 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.UNPROCESSABLE_ENTITY,
                         "Email sending error.",
+                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -74,7 +80,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(FirstLoginException.class)
@@ -84,7 +91,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request));
+                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(InvalidUsernameException.class)
@@ -94,7 +102,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(InvalidPasswordException.class)
@@ -104,7 +113,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(InvalidEmailException.class)
@@ -114,7 +124,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -124,7 +135,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
+                        getStackTraceAsString(ex), request));
     }
 
     @ExceptionHandler(Exception.class)
@@ -137,19 +149,29 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         "An unexpected internal error occurred.",
+                        getStackTraceAsString(ex),
                         request));
     }
 
     private ErrorResponseDTO buildError(
             HttpStatus status,
             String message,
+            String stackTrace,
             HttpServletRequest request) {
 
         return new ErrorResponseDTO(
                 LocalDateTime.now(),
                 status.value(),
                 status.getReasonPhrase(),
+                stackTrace,
                 message,
                 request.getRequestURI());
+    }
+
+    public static String getStackTraceAsString(Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        return stringWriter.toString();
     }
 }
