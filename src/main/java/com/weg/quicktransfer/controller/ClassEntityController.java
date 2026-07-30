@@ -37,7 +37,7 @@ public class ClassEntityController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("find/acronym/{acronym}")
-    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String acronym){
+    public ResponseEntity<List<ClassEntityResponseDTO>> findClassEntityByAcronym(@PathVariable String acronym){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(acronym));
     }
 

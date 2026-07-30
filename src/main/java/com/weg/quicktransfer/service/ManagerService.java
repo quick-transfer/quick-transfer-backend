@@ -8,12 +8,13 @@ import com.weg.quicktransfer.dto.manager.*;
 import com.weg.quicktransfer.exception.*;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.*;
+import com.weg.quicktransfer.repo.CoordinatorRepository; // Import adicionado
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
-
 import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.repo.specifications.ManagerSpecification;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
@@ -38,13 +39,9 @@ public class ManagerService {
     private final PasswordEncoder passwordEncoder;
     private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
-
     private final InterviewRepository interviewRepository;
-
     private final StudentRepository studentRepository;
-
     private final UserRepository userRepository;
-
     private final JavaMailSender mailSender;
 
     @Transactional
@@ -54,11 +51,7 @@ public class ManagerService {
         }
 
         Manager manager = managerMapper.toEntity(managerRequestDTO);
-
         manager.setPassword(passwordEncoder.encode(manager.getPassword()));
-
-        manager.setId(UUID.randomUUID());
-
         manager = managerRepository.save(manager);
 
         return managerMapper.toResponse(manager);
@@ -82,16 +75,13 @@ public class ManagerService {
     @Transactional(readOnly = true)
     public List<ManagerResponseDTO> searchManagers(ManagerFilter filter) {
         Specification<Manager> spec = ManagerSpecification.getFilteredManagers(filter);
-
         List<Manager> managers = managerRepository.findAll(spec);
-
         return managers.stream().map(managerMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<ManagerResponseDTO> findByName(String name) {
         List<Manager> managers = managerRepository.searchUsersByName(name);
-
         return managers.stream()
                 .map(managerMapper::toResponse)
                 .toList();
@@ -103,18 +93,19 @@ public class ManagerService {
                 .orElseThrow(() -> new UserNotFoundException("User is not logged"));
 
         if (!(user instanceof Manager || user instanceof Admin)) {
-            throw new UserNotAllowdException("User is neither a Admin nor a Manager");
+            throw new UserNotAllowdException("User is neither an Admin nor a Manager");
         }
 
-        if (userId == user.getId() || user instanceof Admin) {
-            Manager manager = managerRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        if (userId.equals(user.getId()) || user instanceof Admin) {
+            Manager manager = managerRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException(id));
 
-            if(StringUtils.hasText(updateRequestDTO.name())) {
+            if (StringUtils.hasText(updateRequestDTO.name())) {
                 manager.setName(updateRequestDTO.name());
             }
 
-            if(StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
-                manager.setPassword(updateRequestDTO.password());
+            if (StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
+                manager.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
             }
 
             Manager managerUpdated = managerRepository.save(manager);
@@ -129,18 +120,29 @@ public class ManagerService {
         if (!managerRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
-
         managerRepository.deleteById(id);
     }
 
     @Transactional
     public void sendDynamicEmailAmp(String to, UUID interviewId) throws MessagingException {
         validateEmail(to);
-        MimeMessage message = criarMensagemEmail(to, interviewId);
+
+        MimeMessage message = createEmailMessage(to, interviewId);
         mailSender.send(message);
+
+        Student student = studentRepository.findByInterviewId(interviewId)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with the interview ID: " + interviewId));
+
+        if (student.getClassEntity().getCourse().getCoordinator() != null && StringUtils.hasText(student.getClassEntity().getCourse().getCoordinator() .getEmail())) {
+            String coordinatorEmail = student.getClassEntity().getCourse().getCoordinator().getEmail();
+            validateEmail(coordinatorEmail);
+
+            MimeMessage coordinatorMessage = createEmailMessageToCoordinator(coordinatorEmail, interviewId);
+            mailSender.send(coordinatorMessage);
+        }
     }
 
-    private MimeMessage criarMensagemEmail(String to, UUID interviewId) throws MessagingException {
+    private MimeMessage createEmailMessage(String to, UUID interviewId) throws MessagingException {
         Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new InterviewNotFoundException("Interview not found with ID: " + interviewId));
 
@@ -150,7 +152,7 @@ public class ManagerService {
         Manager manager = managerRepository.findByInterviewId(interviewId)
                 .orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId));
 
-        String formatedDate = DATE_FORMATTER.format(interview.getDateTime());
+        String formattedDate = DATE_FORMATTER.format(interview.getDateTime());
         String formattedTime = TIME_FORMATTER.format(interview.getDateTime());
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -164,7 +166,7 @@ public class ManagerService {
         htmlPart.setContent("<p>Seu leitor não suporta e-mails interativos.</p>", "text/html; charset=utf-8");
         multipart.addBodyPart(htmlPart);
 
-        String htmlContent = buildHtmlBody(interview, student, manager, formatedDate, formattedTime);
+        String htmlContent = buildHtmlBody(interview, student, manager, formattedDate, formattedTime);
 
         MimeBodyPart ampPart = new MimeBodyPart();
         ampPart.setContent(htmlContent, "text/html; charset=utf-8");
@@ -174,7 +176,6 @@ public class ManagerService {
         return message;
     }
 
-    @Transactional
     private String buildHtmlBody(Interview interview, Student student, Manager manager, String date, String time) {
         return """
             <!DOCTYPE html>
@@ -189,10 +190,10 @@ public class ManagerService {
               </style>
             </head>
             <body>
-              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 30px 12px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="padding: 30px 12px;">
                 <tr>
                   <td align="center">
-                    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="email-container">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%%" class="email-container">
                       <tr>
                         <td style="padding: 32px; border-bottom: 1px solid #f3f4f6;">
                           <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Recursos Humanos</p>
@@ -253,6 +254,137 @@ public class ManagerService {
             """.formatted(
                 student.getName(),
                 interview.getPlace().getPlaceName(),
+                date,
+                time,
+                interview.getPlace().getPlaceName(),
+                interview.getPlace().getSection(),
+                interview.getPlace().getPark(),
+                interview.getInterviewerName(),
+                manager.getName(),
+                interview.getVacancy().getDescription()
+        );
+    }
+
+    private MimeMessage createEmailMessageToCoordinator(String to, UUID interviewId) throws MessagingException {
+        Interview interview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new InterviewNotFoundException("Interview not found with ID: " + interviewId));
+
+        Student student = studentRepository.findByInterviewId(interviewId)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with the interview ID: " + interviewId));
+
+        Manager manager = managerRepository.findByInterviewId(interviewId)
+                .orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId));
+
+        Coordinator coordinator = student.getClassEntity().getCourse().getCoordinator();
+        if (coordinator == null) {
+            throw new UserNotFoundException("Coordinator not found for student ID: " + student.getId());
+        }
+
+        String formattedDate = DATE_FORMATTER.format(interview.getDateTime());
+        String formattedTime = TIME_FORMATTER.format(interview.getDateTime());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        message.setFrom("quick.transfer.gmail@gmail.com");
+        message.setRecipients(MimeMessage.RecipientType.TO, to);
+        message.setSubject("Alerta de Entrevista do Aluno");
+
+        MimeMultipart multipart = new MimeMultipart("alternative");
+
+        MimeBodyPart htmlPart = new MimeBodyPart();
+        htmlPart.setContent("<p>Seu leitor não suporta e-mails interativos.</p>", "text/html; charset=utf-8");
+        multipart.addBodyPart(htmlPart);
+
+        String htmlContent = buildHtmlBodyForCoordinator(interview, student, coordinator, manager, formattedDate, formattedTime);
+
+        MimeBodyPart ampPart = new MimeBodyPart();
+        ampPart.setContent(htmlContent, "text/html; charset=utf-8");
+        multipart.addBodyPart(ampPart);
+
+        message.setContent(multipart);
+        return message;
+    }
+
+    private String buildHtmlBodyForCoordinator(Interview interview, Student student, Coordinator coordinator, Manager manager, String date, String time) {
+        return """
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Alerta de Entrevista do Aluno</title>
+          <style>
+            body { margin: 0; padding: 0; background-color: #f9fafb; font-family: Arial, sans-serif; color: #1f2937; }
+            .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; }
+          </style>
+        </head>
+        <body>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="padding: 30px 12px;">
+            <tr>
+              <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%%" class="email-container">
+                  <tr>
+                    <td style="padding: 32px; border-bottom: 1px solid #f3f4f6;">
+                      <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Coordenação</p>
+                      <h1 style="color: #111827; font-size: 20px; font-weight: 700; margin: 0;">
+                        Olá %s, o aluno %s foi convidado para uma entrevista
+                      </h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 28px 32px 16px 32px;">
+                      <p style="margin: 0; font-size: 15px; color: #374151;">
+                        Este é um aviso para que você acompanhe o processo de entrevista do aluno vinculado à sua coordenação.
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px 32px 20px 32px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 16px;">
+                        <tr>
+                          <td>
+                            <p style="margin: 0 0 12px 0; font-size: 12px; font-weight: 700; color: #4b5563; text-transform: uppercase;">Informações da Entrevista</p>
+                            <p><strong>Aluno:</strong> %s</p>
+                            <p><strong>Data:</strong> %s</p>
+                            <p><strong>Horário:</strong> %s</p>
+                            <p><strong>Local:</strong> %s</p>
+                            <p><strong>Setor:</strong> %s</p>
+                            <p><strong>Parque Fabril:</strong> %s</p>
+                            <p><strong>Entrevistador(a):</strong> %s</p>
+                            <p><strong>Gerente do Setor:</strong> %s</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 32px 20px 32px;">
+                      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700;">Descrição da Vaga</p>
+                      <p style="margin: 0; font-size: 14px; background-color: #ffffff; border: 1px solid #e5e7eb; padding: 14px;">%s</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 0 32px 24px 32px;">
+                      <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 14px;">
+                        <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">Acompanhamento da coordenação:</p>
+                        <p style="margin: 0; font-size: 13px; color: #6b7280;">Caso necessário, oriente o aluno sobre documentação, postura e comparecimento no horário informado.</p>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 0 32px 32px 32px;">
+                      <a href="http://localhost:3000" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Acessar Sistema</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        """.formatted(
+                coordinator.getName(),
+                student.getName(),
+                student.getName(),
                 date,
                 time,
                 interview.getPlace().getPlaceName(),

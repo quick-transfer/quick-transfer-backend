@@ -28,25 +28,6 @@ public class AdminService {
 
     private final AdminRepository adminRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
-    @Transactional
-    public AdminResponseDTO saveAdmin(AdminRequestDTO adminRequestDTO) {
-        if (adminRequestDTO == null) {
-            throw new IllegalArgumentException("Admin request dto can not be null");
-        }
-
-        Admin admin = adminMapper.toEntity(adminRequestDTO);
-
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-
-        admin.setId(UUID.randomUUID());
-
-        adminRepository.save(admin);
-
-        return adminMapper.toResponse(admin);
-    }
-
     @Transactional(readOnly = true)
     public AdminResponseDTO findAdminById(UUID id) {
 

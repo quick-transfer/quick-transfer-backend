@@ -11,7 +11,6 @@ public record CourseRequestDTO(
         String name,
 
         @NotNull(message = "Coordinator id must not be null")
-        @Positive
         UUID coordinatorId
 ) {
 }
