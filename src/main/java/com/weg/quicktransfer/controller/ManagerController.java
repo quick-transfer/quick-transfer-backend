@@ -37,7 +37,7 @@ public class ManagerController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<ManagerResponseDTO> findCManagerByName(@PathVariable String name) {
+    public ResponseEntity<List<ManagerResponseDTO>> findManagerByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(managerService.findByName(name));
     }
 

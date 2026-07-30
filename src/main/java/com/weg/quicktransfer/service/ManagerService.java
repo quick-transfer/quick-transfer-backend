@@ -89,12 +89,12 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
-    public ManagerResponseDTO findByName(String name) {
-        Manager manager = managerRepository.findFirstByName(name)
-                .orElse(managerRepository.findFirstByName(name)
-                    .orElseThrow(() -> new UserNotFoundException("User not found with name: " + name)));
+    public List<ManagerResponseDTO> findByName(String name) {
+        List<Manager> managers = managerRepository.searchUsersByName(name);
 
-        return managerMapper.toResponse(manager);
+        return managers.stream()
+                .map(managerMapper::toResponse)
+                .toList();
     }
 
     @Transactional

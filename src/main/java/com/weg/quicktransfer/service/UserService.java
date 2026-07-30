@@ -107,12 +107,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponseDTO> findByUsername(String username) {
-        if (!StringUtils.hasText(username)) {
+    public List<UserResponseDTO> findByUsername(String name) {
+        if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name cannot be empty");
         }
 
-        List<User> users = userRepository.findByNameContaining(username);
+        List<User> users = userRepository.searchUsersByName(name);
         return mapUsersToResponseDTOs(users);
     }
 
