@@ -37,7 +37,7 @@ public class PlaceService {
 
         place.setId(UUID.randomUUID());
 
-        placeRepository.save(place);
+        place = placeRepository.save(place);
 
         return placeMapper.toResponse(place);
     }

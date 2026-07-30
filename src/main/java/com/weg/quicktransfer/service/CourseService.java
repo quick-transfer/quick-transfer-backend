@@ -38,7 +38,7 @@ public class CourseService {
         Course course = courseMapper.toEntity(courseRequestDTO, coordinator);
         course.setId(UUID.randomUUID());
 
-        courseRepository.save(course);
+        course = courseRepository.save(course);
 
         return courseMapper.toResponse(course);
     }
