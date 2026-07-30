@@ -15,5 +15,5 @@ public interface ClassEntityRepository extends JpaRepository<ClassEntity, UUID>,
     boolean existsByAcronym(String acronym);
 
     @Query("SELECT c FROM ClassEntity c WHERE LOWER(c.acronym) LIKE LOWER(CONCAT('%', :acronym, '%'))")
-    List<ClassEntity> findByAcronym(@Param("keyword") String acronym);
+    List<ClassEntity> findByAcronym(@Param("acronym") String acronym);
 }
