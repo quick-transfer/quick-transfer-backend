@@ -59,10 +59,6 @@ public class UserService {
                 .orElseGet(() -> userRepository.findFirstByName(request.username())
                         .orElseThrow(() -> new UserNotFoundException("User not found with: " + request.username())));
 
-        if (Boolean.TRUE.equals(user.getFirstLogin())) {
-            throw new FirstLoginException("It is user's first login");
-        }
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
@@ -70,10 +66,21 @@ public class UserService {
                 )
         );
 
+        if (Boolean.TRUE.equals(user.getFirstLogin())) {
+            throw new FirstLoginException("It is user's first login");
+        }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails);
 
-        return new LoginResponseDTO(token, "Bearer");
+        return new LoginResponseDTO(
+                token,
+                "Bearer",
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getRole()
+        );
     }
 
     @Transactional
@@ -173,4 +180,5 @@ public class UserService {
             default -> throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
         };
     }
+
 }
