@@ -89,7 +89,7 @@ public class ManagerService {
     @Transactional(readOnly = true)
     public ManagerResponseDTO findByName(String name) {
         Manager manager = managerRepository.findFirstByName(name)
-                .orElse(managerRepository.findFirstByName(name)
+                .orElse(managerRepository.findFirstByUsername(name)
                     .orElseThrow(() -> new UserNotFoundException("User not found with name: " + name)));
 
         return managerMapper.toResponse(manager);
@@ -187,10 +187,10 @@ public class ManagerService {
               </style>
             </head>
             <body>
-              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 30px 12px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="padding: 30px 12px;">
                 <tr>
                   <td align="center">
-                    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="email-container">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%%" class="email-container">
                       <tr>
                         <td style="padding: 32px; border-bottom: 1px solid #f3f4f6;">
                           <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase;">Recursos Humanos</p>
