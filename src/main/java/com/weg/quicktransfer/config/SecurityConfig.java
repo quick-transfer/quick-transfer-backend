@@ -47,7 +47,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
+                .securityMatcher("/v3/api-docs/**", "/actuator/**", "/swagger-ui/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth

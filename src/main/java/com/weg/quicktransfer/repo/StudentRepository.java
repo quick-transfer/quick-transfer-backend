@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.repo;
 
+import com.weg.quicktransfer.model.Manager;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.weg.quicktransfer.model.Student;
@@ -18,6 +19,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpec
             WHERE s.interview = :interviewId""")
     public Optional<Student> findByInterviewId(@Param("interviewId") UUID interviewId);
 
-    @Query("SELECT s FROM Student s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :studentName, '%'))")
-    List<Student> findByStudentName(@Param("studentName") String studentName);
+    @Query("SELECT s FROM Student s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    public List<Student> findByName(@Param("name") String name);
 }

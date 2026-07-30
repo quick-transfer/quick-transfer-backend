@@ -37,7 +37,7 @@ public class ClassEntityController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("find/acronym/{acronym}")
-    public ResponseEntity<ClassEntityResponseDTO> findClassEntityByAcronym(@PathVariable String acronym){
+    public ResponseEntity<List<ClassEntityResponseDTO>> findClassEntityByAcronym(@PathVariable String acronym){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(acronym));
     }
 
@@ -54,7 +54,7 @@ public class ClassEntityController {
     }
 
     @PreAuthorize("hasRole('COORDINATOR')")
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
             @PathVariable UUID id,
             @RequestBody @Valid ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){

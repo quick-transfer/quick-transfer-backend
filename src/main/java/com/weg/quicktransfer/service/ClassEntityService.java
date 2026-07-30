@@ -51,14 +51,16 @@ public class ClassEntityService {
     }
 
     @Transactional(readOnly = true)
-    public ClassEntityResponseDTO findByAcronym(String acronym){
+    public List<ClassEntityResponseDTO> findByAcronym(String acronym){
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
         }
 
-        ClassEntity classEntity = classEntityRepository.findFirstByAcronym(acronym).orElseThrow(() -> new ClassEntityNotFoundException("No class found"));
+        List<ClassEntity> classEntities = classEntityRepository.findByAcronym(acronym);
 
-        return classEntityMapper.toResponse(classEntity);
+        return classEntities.stream()
+                .map(classEntityMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

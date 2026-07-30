@@ -58,7 +58,7 @@ public class StudentService {
 
     @Transactional(readOnly = true)
     public List<StudentResponseDTO> findByName(String name) {
-        List<Student> students = studentRepository.findByStudentName(name);
+        List<Student> students = studentRepository.findByName(name);
 
         return students.stream()
                 .map(studentMapper::toResponse)
