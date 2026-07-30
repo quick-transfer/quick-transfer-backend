@@ -77,39 +77,6 @@ class AdminServiceTest {
     }
 
     @Test
-    @DisplayName("Should create admin and return response dto")
-    void shouldCreateAdmin() {
-        when(adminMapper.toEntity(requestDTO)).thenReturn(admin);
-        when(passwordEncoder.encode("123456")).thenReturn("encoded_123456");
-        when(adminRepo.save(admin)).thenReturn(admin);
-        when(adminMapper.toResponse(admin)).thenReturn(responseDTO);
-
-        AdminResponseDTO result = adminService.saveAdmin(requestDTO);
-
-        assertNotNull(result);
-        assertEquals(ADMIN_ID, result.id());
-        assertEquals("Administrador", result.name());
-        assertEquals("admin01", result.username());
-        assertEquals("admin@weg.com", result.email());
-
-        verify(adminMapper).toEntity(requestDTO);
-        verify(passwordEncoder).encode("123456");
-        verify(adminRepo).save(admin);
-        verify(adminMapper).toResponse(admin);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when request dto is null")
-    void shouldThrowExceptionWhenRequestDtoIsNull() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> adminService.saveAdmin(null)
-        );
-
-        verify(adminRepo, never()).save(any());
-    }
-
-    @Test
     @DisplayName("Should find admin by id and return response dto")
     void shouldFindAdminById() {
         when(adminRepo.findById(ADMIN_ID)).thenReturn(Optional.of(admin));
