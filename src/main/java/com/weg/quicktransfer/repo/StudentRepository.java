@@ -18,5 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpec
             WHERE s.interview = :interviewId""")
     public Optional<Student> findByInterviewId(@Param("interviewId") UUID interviewId);
 
-    public List<Student> findFirstByName(String name);
+    @Query("SELECT s FROM Student s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :studentName, '%'))")
+    List<Student> findByStudentName(@Param("studentName") String studentName);
 }
