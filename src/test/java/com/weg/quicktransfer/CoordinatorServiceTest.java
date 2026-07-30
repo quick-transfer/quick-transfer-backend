@@ -130,19 +130,18 @@ class CoordinatorServiceTest {
         }
 
         @Test
-        @DisplayName("Should find coordinator by name when username is not found")
+        @DisplayName("Should find coordinator by name")
         void shouldFindCoordinatorByName() {
-            when(coordinatorRepository.findFirstByUsername("Coordenador")).thenReturn(Optional.empty());
-            when(coordinatorRepository.findFirstByName("Coordenador")).thenReturn(Optional.of(coordinator));
+            when(coordinatorRepository.searchUsersByName("Coordenador")).thenReturn(List.of(coordinator));
             when(coordinatorMapper.toResponse(coordinator)).thenReturn(responseDTO);
 
-            CoordinatorResponseDTO result = coordinatorService.findByName("Coordenador");
+            List<CoordinatorResponseDTO> result = coordinatorService.findByName("Coordenador");
 
             assertNotNull(result);
-            assertEquals("Coordenador", result.name());
+            assertEquals(1, result.size());
+            assertEquals("Coordenador", result.get(0).name());
 
-            verify(coordinatorRepository).findFirstByUsername("Coordenador");
-            verify(coordinatorRepository).findFirstByName("Coordenador");
+            verify(coordinatorRepository).searchUsersByName("Coordenador");
             verify(coordinatorMapper).toResponse(coordinator);
         }
 
