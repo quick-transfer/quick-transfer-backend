@@ -188,29 +188,33 @@ class ManagerServiceTest {
     }
 
     @Test
-    @DisplayName("Should find manager by name and return response dto")
+    @DisplayName("Should find manager by name and return response dto list")
     void shouldFindManagerByName() {
-        when(managerRepository.findFirstByName("Manager")).thenReturn(Optional.of(manager));
-        when(managerRepository.findFirstByUsername("Manager")).thenReturn(Optional.of(manager));
+        when(managerRepository.searchUsersByName("Manager")).thenReturn(List.of(manager));
         when(managerMapper.toResponse(manager)).thenReturn(responseDTO);
 
-        ManagerResponseDTO result = managerService.findByName("Manager");
+        List<ManagerResponseDTO> result = managerService.findByName("Manager");
 
         assertNotNull(result);
-        assertEquals("Manager", result.name());
+        assertEquals(1, result.size());
+        assertEquals("Manager", result.get(0).name());
 
-        verify(managerRepository).findFirstByName("Manager");
+        verify(managerRepository).searchUsersByName("Manager");
         verify(managerMapper).toResponse(manager);
     }
 
     @Test
-    @DisplayName("Should throw UserNotFoundException when manager not found by name")
-    void shouldThrowExceptionWhenManagerNotFoundByName() {
-        when(managerRepository.findFirstByName("NonExistent")).thenReturn(Optional.empty());
+    @DisplayName("Should return empty list when manager not found by name")
+    void shouldReturnEmptyListWhenManagerNotFoundByName() {
+        when(managerRepository.searchUsersByName("NonExistent")).thenReturn(List.of());
 
-        assertThrows(UserNotFoundException.class, () -> managerService.findByName("NonExistent"));
+        List<ManagerResponseDTO> result = managerService.findByName("NonExistent");
 
-        verify(managerRepository).findFirstByName("NonExistent");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(managerRepository).searchUsersByName("NonExistent");
+        verifyNoInteractions(managerMapper);
     }
 
     @Test
