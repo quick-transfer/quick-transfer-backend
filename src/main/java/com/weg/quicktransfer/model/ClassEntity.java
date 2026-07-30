@@ -22,7 +22,7 @@ import com.weg.quicktransfer.enums.StatusClass;
 @Setter
 public class ClassEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne

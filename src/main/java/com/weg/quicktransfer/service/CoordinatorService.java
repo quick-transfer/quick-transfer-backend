@@ -39,6 +39,7 @@ public class CoordinatorService {
         Coordinator coordinator = coordinatorMapper.toEntity(coordinatorRequestDTO);
 
         coordinator.setPassword(passwordEncoder.encode(coordinator.getPassword()));
+        coordinator.setId(UUID.randomUUID());
 
         coordinatorRepository.save(coordinator);
 
@@ -60,13 +61,12 @@ public class CoordinatorService {
     }
 
     @Transactional(readOnly = true)
-    public CoordinatorResponseDTO findByName(String name){
-        Coordinator coordinator = coordinatorRepository.findFirstByUsername(name)
-                .orElse(coordinatorRepository.findFirstByName(name)
-                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name))
-                    );
+    public List<CoordinatorResponseDTO> findByName(String name){
+        List<Coordinator> coordinators = coordinatorRepository.searchUsersByName(name);
 
-        return coordinatorMapper.toResponse(coordinator);
+        return coordinators.stream()
+                .map(coordinatorMapper::toResponse)
+                .toList();
     }
 
     @Transactional

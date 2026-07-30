@@ -54,7 +54,7 @@ public class ClassEntityController {
     }
 
     @PreAuthorize("hasRole('COORDINATOR')")
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
             @PathVariable UUID id,
             @RequestBody @Valid ClassEntityUpdateRequestDTO classEntityUpdateRequestDTO){

@@ -37,6 +37,8 @@ public class StudentService {
 
         Student student = studentMapper.toEntity(studentRequestDTO, classEntity);
 
+        student.setId(UUID.randomUUID());
+
         studentRepository.save(student);
 
         return studentMapper.toResponse(student);

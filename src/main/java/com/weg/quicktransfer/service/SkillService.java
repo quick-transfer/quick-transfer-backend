@@ -36,6 +36,8 @@ public class SkillService {
 
         Skill skill = skillMapper.toEntity(skillRequestDTO, student);
 
+        skill.setId(UUID.randomUUID());
+
         skillRepository.save(skill);
 
         return skillMapper.toResponse(skill);

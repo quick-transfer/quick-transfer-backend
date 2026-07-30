@@ -40,6 +40,8 @@ public class AdminService {
 
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
+        admin.setId(UUID.randomUUID());
+
         adminRepository.save(admin);
 
         return adminMapper.toResponse(admin);
@@ -53,16 +55,16 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public AdminResponseDTO findAdminByName(String name) {
+    public List<AdminResponseDTO> findAdminByName(String name) {
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Name can not be empty");
         }
 
-        Admin admin = adminRepository.findFirstByUsername(name)
-                .orElse(adminRepository.findFirstByName(name)
-                        .orElseThrow(() -> new UserNotFoundException("User not found with the name: " + name)));
+        List<Admin> admins = adminRepository.searchAdminsByName(name);
 
-        return adminMapper.toResponse(admin);
+        return admins.stream()
+                .map(adminMapper::toResponse)
+                .toList();
     }
 
     @Transactional

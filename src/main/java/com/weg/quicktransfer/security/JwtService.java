@@ -25,8 +25,8 @@ public class JwtService {
     private final String issuer;
 
     public JwtService(
-            @Value("${app.security.jwt.public-key}") RSAPublicKey publicKey,
-            @Value("${app.security.jwt.private-key}") RSAPrivateKey privateKey,
+            RSAPublicKey publicKey,
+            RSAPrivateKey privateKey,
             @Value("${app.jwt.expiration}") long expirationMs,
             @Value("${app.jwt.issuer:quick-transfer}") String issuer) {
         this.publicKey = publicKey;
