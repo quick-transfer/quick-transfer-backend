@@ -15,5 +15,5 @@ import java.util.Optional;
 public interface VacancyRepository extends JpaRepository<Vacancy, UUID>, JpaSpecificationExecutor<Vacancy> {
 
     @Query("SELECT v FROM Vacancy v WHERE LOWER(v.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<Vacancy> findByName(@Param("keyword") String name);
+    List<Vacancy> findByName(@Param("name") String name);
 }
