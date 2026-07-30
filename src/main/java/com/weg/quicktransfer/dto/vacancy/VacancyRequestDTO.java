@@ -24,7 +24,6 @@ public record VacancyRequestDTO(
     String shift,
     
     @NotNull(message = "Place id must not be null")
-    @Positive(message = "Place id must be a positive number")
     UUID placeId
 ) {
 }

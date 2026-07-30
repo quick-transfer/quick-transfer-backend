@@ -23,7 +23,6 @@ public record StudentUpdateRequestDTO(
     @PositiveOrZero(message = "The average cannot be negative")
     Double averageGrade,
 
-    @Positive(message = "Class id must be a positive number")
     UUID classId,
 
     String statusStudentInterview,

@@ -38,8 +38,6 @@ public class ClassEntityService {
 
         ClassEntity classEntity = classEntityMapper.toEntity(classEntityRequestDTO, course);
 
-        classEntity.setId(UUID.randomUUID());
-
         classEntity = classEntityRepository.save(classEntity);
 
         return classEntityMapper.toResponse(classEntity);

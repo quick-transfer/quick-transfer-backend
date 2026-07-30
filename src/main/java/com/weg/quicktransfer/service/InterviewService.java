@@ -49,8 +49,6 @@ public class InterviewService {
 
         Interview interview = interviewMapper.toEntity(interviewRequestDTO, place, vacancy, manager, student);
 
-        interview.setId(UUID.randomUUID());
-
         interview = interviewRepository.save(interview);
 
         return interviewMapper.toResponse(interview);

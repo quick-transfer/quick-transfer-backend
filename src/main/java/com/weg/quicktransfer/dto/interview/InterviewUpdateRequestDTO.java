@@ -12,16 +12,12 @@ public record InterviewUpdateRequestDTO(
     @Future(message = "Date and time must be in the future")
     LocalDateTime dateTime,
 
-    @Positive(message = "Place ID must be a positive number")
     UUID placeId,
 
-    @Positive(message = "Student ID must be a positive number")
     UUID studentId,
 
-    @Positive(message = "Manager ID must be a positive number")
     UUID managerId,
 
-    @Positive(message = "Vacancy ID must be a positive number")
     UUID vacancyId
 ) {
 }

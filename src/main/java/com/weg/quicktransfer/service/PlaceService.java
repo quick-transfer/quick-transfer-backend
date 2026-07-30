@@ -35,8 +35,6 @@ public class PlaceService {
 
         Place place = placeMapper.toEntity(placeRequestDTO);
 
-        place.setId(UUID.randomUUID());
-
         place = placeRepository.save(place);
 
         return placeMapper.toResponse(place);
