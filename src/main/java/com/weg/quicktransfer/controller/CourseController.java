@@ -36,7 +36,7 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<CourseResponseDTO> findCourseByName(@PathVariable String name){
+    public ResponseEntity<List<CourseResponseDTO>> findCourseByName(@PathVariable String name){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findByName(name));
     }
 
