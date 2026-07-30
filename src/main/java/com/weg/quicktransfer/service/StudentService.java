@@ -80,7 +80,7 @@ public class StudentService {
     public StudentResponseDTO update(UUID id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
-        ClassEntity classEntity = classEntityRepository.findById(studentUpdateRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentUpdateRequestDTO.classId()));
+        
 
         if(studentUpdateRequestDTO.name() != null && !studentUpdateRequestDTO.name().isBlank()) {
             student.setName(studentUpdateRequestDTO.name());
@@ -98,7 +98,10 @@ public class StudentService {
             student.setAverageGrade(studentUpdateRequestDTO.averageGrade());
         }
 
-        student.setClassEntity(classEntity);
+        if(studentUpdateRequestDTO.classId() != null) {
+            ClassEntity classEntity = classEntityRepository.findById(studentUpdateRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentUpdateRequestDTO.classId()));
+            student.setClassEntity(classEntity);
+        }
 
         if(studentUpdateRequestDTO.statusStudentInterview() != null) {
             student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview()));

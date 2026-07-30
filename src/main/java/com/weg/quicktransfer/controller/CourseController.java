@@ -63,7 +63,7 @@ public class CourseController {
 
     @PreAuthorize("hasRole('COORDINATOR')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteCourse(UUID id){
+    public ResponseEntity<Void> deleteCourse(@PathVariable UUID id){
         courseService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
