@@ -141,17 +141,16 @@ class AdminServiceTest {
     @Test
     @DisplayName("Should find admin by username or name")
     void shouldFindAdminsByName() {
-        when(adminRepo.findFirstByUsername("Admin")).thenReturn(Optional.empty());
-        when(adminRepo.findFirstByName("Admin")).thenReturn(Optional.of(admin));
+        when(adminRepo.searchAdminsByName("Admin")).thenReturn(List.of(admin));
         when(adminMapper.toResponse(admin)).thenReturn(responseDTO);
 
-        AdminResponseDTO result = adminService.findAdminByName("Admin");
+        List<AdminResponseDTO> result = adminService.findAdminByName("Admin");
 
         assertNotNull(result);
-        assertEquals("Administrador", result.name());
+        assertEquals(1, result.size());
+        assertEquals("Administrador", result.get(0).name());
 
-        verify(adminRepo).findFirstByUsername("Admin");
-        verify(adminRepo).findFirstByName("Admin");
+        verify(adminRepo).searchAdminsByName("Admin");
         verify(adminMapper).toResponse(admin);
     }
 
@@ -160,11 +159,10 @@ class AdminServiceTest {
     void shouldThrowExceptionWhenSearchNameIsBlank() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> adminService.findAdminByName("   ")
+                () -> adminService.findAdminByName(" ")
         );
 
-        verify(adminRepo, never()).findFirstByUsername(anyString());
-        verify(adminRepo, never()).findFirstByName(anyString());
+        verify(adminRepo, never()).searchAdminsByName(anyString());
     }
 
     @Test
