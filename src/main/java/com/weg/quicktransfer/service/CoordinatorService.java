@@ -39,6 +39,7 @@ public class CoordinatorService {
         Coordinator coordinator = coordinatorMapper.toEntity(coordinatorRequestDTO);
 
         coordinator.setPassword(passwordEncoder.encode(coordinator.getPassword()));
+        coordinator.setId(UUID.randomUUID());
 
         coordinatorRepository.save(coordinator);
 

@@ -40,6 +40,8 @@ public class AdminService {
 
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
+        admin.setId(UUID.randomUUID());
+
         adminRepository.save(admin);
 
         return adminMapper.toResponse(admin);

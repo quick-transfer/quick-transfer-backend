@@ -38,6 +38,8 @@ public class VacancyService {
 
         Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place);
 
+        vacancy.setId(UUID.randomUUID());
+
         vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancy);

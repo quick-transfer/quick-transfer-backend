@@ -1,10 +1,7 @@
 package com.weg.quicktransfer.service;
 
-import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
-import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
-import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
 import com.weg.quicktransfer.dto.user.UserFilter;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;

@@ -57,6 +57,8 @@ public class ManagerService {
 
         manager.setPassword(passwordEncoder.encode(manager.getPassword()));
 
+        manager.setId(UUID.randomUUID());
+
         managerRepository.save(manager);
 
         return managerMapper.toResponse(manager);
