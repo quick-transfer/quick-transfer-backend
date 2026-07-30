@@ -36,6 +36,7 @@ public class CourseService {
         Coordinator coordinator = coordinatorRepository.findById(courseRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseRequestDTO.coordinatorId()));
 
         Course course = courseMapper.toEntity(courseRequestDTO, coordinator);
+        course.setId(UUID.randomUUID());
 
         courseRepository.save(course);
 
