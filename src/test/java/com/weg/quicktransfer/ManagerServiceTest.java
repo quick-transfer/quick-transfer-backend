@@ -93,7 +93,6 @@ class ManagerServiceTest {
         requestDTO = new ManagerRequestDTO("Manager", "manager01", "manager@dominio.com", "123456", null);
         responseDTO = new ManagerResponseDTO(MANAGER_ID, "Manager", "manager01", "manager@dominio.com", null);
 
-        // Instâncias auxiliares para os testes de envio de e-mail
         student = new Student();
         student.setId(STUDENT_ID);
         student.setName("Bruno");
@@ -222,25 +221,26 @@ class ManagerServiceTest {
     void shouldUpdateManager() {
         String newName = "Manager Atualizado";
         String newPassword = "StrongP@ssword1!";
+        String encodedPassword = "encodedStrongPassword1!";
 
         ManagerUpdateRequestDTO updateRequest = new ManagerUpdateRequestDTO(newName, newPassword, Section.IT.toString());
         ManagerResponseDTO updatedResponse = new ManagerResponseDTO(MANAGER_ID, newName, "manager01", "manager@dominio.com", null);
 
-        // manager também é o "User logado" retornado pelo userRepository (Manager é subtipo de User)
         when(userRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
         when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
+        when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         when(managerRepository.save(manager)).thenReturn(manager);
         when(managerMapper.toResponse(manager)).thenReturn(updatedResponse);
 
-        // usa o mesmo MANAGER_ID como id do manager e como userId (referência igual, exigido pelo "==" no service)
         ManagerResponseDTO result = managerService.update(MANAGER_ID, updateRequest, MANAGER_ID);
 
         assertNotNull(result);
         assertEquals(newName, result.name());
-        assertEquals(newPassword, manager.getPassword());
+        assertEquals(encodedPassword, manager.getPassword());
 
         verify(userRepository).findById(MANAGER_ID);
         verify(managerRepository).findById(MANAGER_ID);
+        verify(passwordEncoder).encode(newPassword);
         verify(managerRepository).save(manager);
         verify(managerMapper).toResponse(manager);
     }
@@ -261,6 +261,7 @@ class ManagerServiceTest {
         managerService.update(MANAGER_ID, updateRequest, MANAGER_ID);
 
         assertEquals("123456", manager.getPassword());
+        verify(passwordEncoder, never()).encode(anyString());
     }
 
     @Test
