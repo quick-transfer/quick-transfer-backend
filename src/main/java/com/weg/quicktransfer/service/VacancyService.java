@@ -40,7 +40,7 @@ public class VacancyService {
 
         vacancy.setId(UUID.randomUUID());
 
-        vacancyRepository.save(vacancy);
+        vacancy = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancy);
     }

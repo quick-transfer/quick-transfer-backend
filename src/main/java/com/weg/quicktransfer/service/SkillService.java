@@ -38,7 +38,7 @@ public class SkillService {
 
         skill.setId(UUID.randomUUID());
 
-        skillRepository.save(skill);
+        skill = skillRepository.save(skill);
 
         return skillMapper.toResponse(skill);
     }

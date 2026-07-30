@@ -51,7 +51,7 @@ public class InterviewService {
 
         interview.setId(UUID.randomUUID());
 
-        interviewRepository.save(interview);
+        interview = interviewRepository.save(interview);
 
         return interviewMapper.toResponse(interview);
     }

@@ -39,7 +39,7 @@ public class StudentService {
 
         student.setId(UUID.randomUUID());
 
-        studentRepository.save(student);
+        student = studentRepository.save(student);
 
         return studentMapper.toResponse(student);
     }
