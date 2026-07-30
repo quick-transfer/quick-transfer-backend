@@ -59,7 +59,7 @@ public class ManagerService {
 
         manager.setId(UUID.randomUUID());
 
-        managerRepository.save(manager);
+        manager = managerRepository.save(manager);
 
         return managerMapper.toResponse(manager);
     }

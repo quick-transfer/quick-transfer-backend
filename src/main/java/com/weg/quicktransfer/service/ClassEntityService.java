@@ -40,7 +40,7 @@ public class ClassEntityService {
 
         classEntity.setId(UUID.randomUUID());
 
-        classEntityRepository.save(classEntity);
+        classEntity = classEntityRepository.save(classEntity);
 
         return classEntityMapper.toResponse(classEntity);
     }
