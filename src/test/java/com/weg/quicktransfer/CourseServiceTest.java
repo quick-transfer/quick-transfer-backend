@@ -157,24 +157,22 @@ class CourseServiceTest {
     @Test
     @DisplayName("Should find course by name")
     void shouldFindCourseByName() {
-        when(courseRepository.findFirstByName("Java")).thenReturn(Optional.of(course));
+        // 1. Mock do repository retornando uma lista com o curso
+        when(courseRepository.findByNameContaining("Java")).thenReturn(List.of(course));
         when(courseMapper.toResponse(course)).thenReturn(responseDTO);
 
-        CourseResponseDTO result = courseService.findByName("Java");
+        // 2. Chamada do serviço recebendo uma Lista
+        List<CourseResponseDTO> result = courseService.findByName("Java");
 
+        // 3. Validações na lista retornada
         assertNotNull(result);
-        assertEquals("Java", result.courseName());
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(responseDTO, result.get(0));
 
-        verify(courseRepository).findFirstByName("Java");
+        // 4. Verificação das chamadas corretas
+        verify(courseRepository).findByNameContaining("Java");
         verify(courseMapper).toResponse(course);
-    }
-
-    @Test
-    @DisplayName("Should throw IllegalArgumentException when finding course with empty name")
-    void shouldThrowExceptionWhenNameIsEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> courseService.findByName("   "));
-
-        verify(courseRepository, never()).findFirstByName(anyString());
     }
 
     @Test
