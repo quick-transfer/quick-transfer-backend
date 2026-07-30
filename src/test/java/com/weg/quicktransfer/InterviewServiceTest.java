@@ -110,7 +110,7 @@ class InterviewServiceTest {
         interview.setPlace(place);
         interview.setVacancy(vacancy);
 
-        requestDTO = new InterviewRequestDTO("interview", LocalDateTime.of(2026, 7, 16, 15, 30), PLACE_ID, VACANCY_ID, MANAGER_ID, STUDENT_ID);
+        requestDTO = new InterviewRequestDTO("interview", LocalDateTime.of(2026, 7, 16, 15, 30), PLACE_ID, STUDENT_ID, MANAGER_ID, VACANCY_ID);
         responseDTO = new InterviewResponseDTO(INTERVIEW_ID, "interview", LocalDateTime.of(2026, 7, 16, 15, 30), Park.WEG_II.toString(), Section.IT.toString(), "Bruno", "Guilherme", Shift.FIRST.toString());
     }
 
@@ -261,7 +261,8 @@ class InterviewServiceTest {
     @DisplayName("Should update interview and return response dto")
     void shouldUpdateInterview() {
         LocalDateTime newDateTime = LocalDateTime.of(2026, 7, 17, 10, 0);
-        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO("New Interviewer", newDateTime, PLACE_ID, VACANCY_ID, MANAGER_ID, STUDENT_ID);
+
+        InterviewUpdateRequestDTO updateRequest = new InterviewUpdateRequestDTO("New Interviewer", newDateTime, PLACE_ID, STUDENT_ID, MANAGER_ID, VACANCY_ID);
 
         InterviewResponseDTO updatedResponse = new InterviewResponseDTO(INTERVIEW_ID, "New Interviewer", newDateTime, Park.WEG_II.toString(), Section.IT.toString(), "Bruno", "Guilherme", Shift.FIRST.toString());
 
