@@ -2,12 +2,15 @@ package com.weg.quicktransfer.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,19 +29,28 @@ import lombok.Setter;
 @Setter
 public class Place {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, name = "place_name")
+    private String placeName;
     
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Park park;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Section section;
+
+    @OneToMany(mappedBy = "place")
+    private List<Vacancy> vacancies = new ArrayList<>();
 
     @OneToMany(mappedBy = "place")
     private List<Interview> interviews = new ArrayList<>();
 
-    public Place(Park park, Section section) {
+    public Place(String placeName, Park park, Section section) {
+        this.placeName = placeName;
         this.park = park;
         this.section = section;
     }

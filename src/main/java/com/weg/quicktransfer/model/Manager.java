@@ -1,43 +1,36 @@
 package com.weg.quicktransfer.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.relation.Role;
-
+import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.enums.Section;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "managers")
+@DiscriminatorValue("MANAGER")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Manager extends User{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Section section;
 
     @OneToMany(mappedBy = "manager")
-    List<Interview> interviews = new ArrayList<>();
+    List<Interview> interviews;
 
-    public Manager(String name, String userName, String email, String password, Role role, Section section) {
-        super(name, userName, email, password, role);
+    public Manager(String name, String username, String email, String password, Section section) {
+        super(name, username, email, password, Role.MANAGER);
         this.section = section;
     }
 }
