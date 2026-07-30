@@ -36,7 +36,7 @@ public class CoordinatorController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<CoordinatorResponseDTO> findCoordinatorByName(@PathVariable String name) {
+    public ResponseEntity<List<CoordinatorResponseDTO>> findCoordinatorByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findByName(name));
     }
 
