@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.auth.AuthenticatedUserResponseDTO;
+import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
@@ -54,6 +55,13 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(authenticatedUser);
+    }
+
+    @PostMapping("/first-access")
+    public ResponseEntity<Void> completeFirstAccess(
+            @RequestBody @Valid FirstAccessRequestDTO requestDTO) {
+        userService.completeFirstAccess(requestDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
