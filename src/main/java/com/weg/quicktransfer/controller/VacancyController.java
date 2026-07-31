@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +44,14 @@ public class VacancyController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<VacancyResponseDTO>> findAllVacancies() {
-        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll());
+    public ResponseEntity<Page<VacancyResponseDTO>> findAllVacancies(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<VacancyResponseDTO>> searchVacancies(VacancyFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.searchVacancies(filter));
+    public ResponseEntity<Page<VacancyResponseDTO>> searchVacancies(VacancyFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.searchVacancies(filter, pageable));
     }
 
     @PreAuthorize("hasRole('MANAGER')")

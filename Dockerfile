@@ -3,12 +3,20 @@ WORKDIR /app
 
 COPY . .
 
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /app/target/*.jar app.jar
+RUN addgroup -S quicktransfer && adduser -S quicktransfer -G quicktransfer
+
+COPY --from=builder --chown=quicktransfer:quicktransfer /app/target/*.jar app.jar
+
+USER quicktransfer
 
 EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -q -O - http://localhost:8080/api/actuator/health || exit 1
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,14 +37,14 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
-    public ResponseEntity<List<AdminResponseDTO>> searchAdmins(AdminFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.searchAdmins(filter));
+    public ResponseEntity<Page<AdminResponseDTO>> searchAdmins(AdminFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.searchAdmins(filter, pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<AdminResponseDTO>> findAllAdmins() {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin());
+    public ResponseEntity<Page<AdminResponseDTO>> findAllAdmins(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.findAllAdmin(pageable));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

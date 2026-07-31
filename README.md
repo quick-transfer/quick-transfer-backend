@@ -22,7 +22,7 @@ O **Quick Transfer** é uma plataforma centralizada projetada para automatizar e
 ## 🛠️ Tecnologias Utilizadas
 - **Linguagem & Framework Core:** Java 17, Spring Boot 4.0.7 (Spring Data JPA, Spring WebMVC, Spring Security, Spring Validation, Spring Actuator, Spring Mail)
 - **Banco de Dados:** PostgreSQL 16 (Hibernate ORM)
-- **Autenticação & Segurança:** JWT (JSON Web Tokens) com suporte a criptografia assimétrica (RSA/PEM) e chaves simétricas, BCrypt Password Encoder
+- **Autenticação & Segurança:** JWT assinado com par de chaves RSA/PEM, cookies `HttpOnly`, proteção CSRF e BCrypt Password Encoder
 - **Documentação de API:** Open API 3 / Swagger UI (`springdoc-openapi-starter-webmvc-ui` 3.0.2)
 - **Gerenciamento de Dependências:** Maven
 - **Conteinerização & Orquestração:** Docker, Docker Compose, Socat Bridge
@@ -50,9 +50,9 @@ O **Quick Transfer** é uma plataforma centralizada projetada para automatizar e
 
 3. **Compilar e baixar dependências via Maven:**
    ```bash
-   ./mvnw clean install -DskipTests
+   ./mvnw clean verify
    ```
-   *(No Windows Command Prompt / PowerShell, utilize `mvnw.cmd clean install -DskipTests`)*
+   *(No Windows Command Prompt / PowerShell, utilize `mvnw.cmd clean verify`)*
 
 ---
 
@@ -85,8 +85,21 @@ As variáveis de ambiente devem ser configuradas no arquivo `.env` localizado na
 | `DATABASE_URL` | URL de conexão JDBC do PostgreSQL | `jdbc:postgresql://localhost:5432/quick_transfer` |
 | `DATABASE_USER` | Usuário do banco de dados | `postgres` |
 | `DATABASE_PASSWORD` | Senha do banco de dados | `senha_segura` |
-| `JWT_SECRET` | Chave secreta de assinatura do Token JWT | `SuaChaveSecretaMuitoLongaESegura123!` |
 | `ALLOWED_ORIGINS` | Origens permitidas para requisições CORS | `http://localhost:3000,http://localhost:5173` |
+| `PUBLIC_KEY` | Chave pública RSA em PEM; quebras de linha podem ser representadas por `\n` | Sem padrão |
+| `PRIVATE_KEY` | Chave privada RSA PKCS#8 em PEM; nunca deve ser versionada | Sem padrão |
+| `MAIL_USERNAME` | Usuário do servidor SMTP | Sem padrão |
+| `MAIL_PASSWORD` | Senha ou token de aplicativo SMTP | Sem padrão |
+| `MAIL_FROM` | Remetente apresentado nos e-mails | `no-reply@quick-transfer.local` |
+| `MAIL_HOST` / `MAIL_PORT` | Servidor e porta SMTP | `smtp.gmail.com` / `587` |
+| `FRONTEND_URL` | URL usada nos links dos e-mails | `http://localhost:3000` |
+| `COOKIE_SECURE` | Exige HTTPS para o cookie JWT | `true` |
+| `JPA_DDL_AUTO` | Estratégia Hibernate; use `validate` fora do Docker local | `validate` |
+| `LOCAL_CACHE_ENABLED` | Cache Caffeine local; habilite somente em instância única | `false` |
+
+As chaves RSA devem ser geradas fora do repositório. A chave privada e credenciais SMTP nunca devem ser adicionadas ao Git. Para desenvolvimento HTTP local, defina `COOKIE_SECURE=false`; em produção, mantenha `true`.
+
+Como o projeto não utiliza ferramenta de migração, o Compose usa `JPA_DDL_AUTO=update` por padrão apenas para desenvolvimento. Em ambientes controlados, mantenha `validate` e aplique o DDL de forma administrada antes da publicação.
 
 ---
 
@@ -99,12 +112,18 @@ As variáveis de ambiente devem ser configuradas no arquivo `.env` localizado na
 - **OpenAPI Schema (JSON):**  
   `http://localhost:8080/api/v3/api-docs`
 
+### CSRF e paginação
+
+Depois do login, obtenha o token CSRF com `GET /api/auth/csrf` e envie o valor retornado no cabeçalho `X-XSRF-TOKEN` nas operações que modificam dados. O cookie `XSRF-TOKEN` deve acompanhar a requisição.
+
+Endpoints de listagem e pesquisa aceitam `page`, `size` e `sort`. O tamanho padrão é 50 e o limite máximo é 100 itens por página.
+
 ---
 
 ## ⚙️ Principais Funcionalidades
 
 - **Autenticação e Autorização:**
-  - Login e autenticação segura via JWT com suporte a papéis (`ADMIN`, `MANAGER`, `COORDINATOR`, `STUDENT`).
+  - Login e autenticação segura via JWT com os papéis (`ADMIN`, `MANAGER`, `COORDINATOR`). Estudantes são entidades de domínio, não usuários autenticáveis.
 - **Gestão de Usuários:**
   - CRUD completo para Administradores, Gestores, Coordenadores e Estudantes.
 - **Gestão de Turmas e Cursos (`ClassEntity` & `Course`):**
@@ -142,7 +161,6 @@ quick-transfer-backend/
 │   │   │   ├── security/        # Filtros JWT, UserDetailsService e configurações de segurança
 │   │   │   └── service/         # Camada de Regras de Negócio e Serviços
 │   │   └── resources/
-│   │       ├── certs/           # Certificados e chaves RSA (public.pem / private.pem)
 │   │       ├── application.properties # Configurações da aplicação Spring
 │   │       └── log4j2.xml       # Configurações de logging
 │   └── test/java/com/weg/quicktransfer/ # Testes unitários e de integração de regras de negócio
@@ -158,7 +176,7 @@ quick-transfer-backend/
 
 1. **Autenticação via JWT:** Autenticação stateless baseada em tokens JWT com tempo de expiração definido e suporte a par de chaves RSA.
 2. **Criptografia de Senhas:** Utilização de algoritmo seguro de hashing para armazenamento de credenciais.
-3. **Controle de Acesso Baseado em Perfis (RBAC):** Restrição de endpoints sensíveis através de anotações e filtros do Spring Security de acordo com os papéis do usuário (`ADMIN`, `MANAGER`, `COORDINATOR`, `STUDENT`).
+3. **Controle de Acesso Baseado em Perfis (RBAC):** Restrição de endpoints sensíveis através de anotações e filtros do Spring Security de acordo com os papéis do usuário (`ADMIN`, `MANAGER`, `COORDINATOR`).
 4. **Validação Rigorosa de Dados:** Uso do `spring-boot-starter-validation` e `commons-validator` em DTOs de entrada para prevenir injeção de dados maliciosos.
 5. **Configuração de CORS Controlada:** Permissão explícita apenas para origens e cabeçalhos autorizados via variáveis de ambiente.
 6. **Ocultação de Stacktraces em Produção:** Configuração de `server.error.include-stacktrace=never` para evitar a exposição de detalhes internos do servidor em respostas de erro.
@@ -172,7 +190,7 @@ O projeto utiliza o **JUnit 5** em conjunto com **Spring Boot Test** para garant
 
 ### Tipos de Testes Implementados
 - **Testes de Regras de Negócio (Service Tests):** Cobertura dos fluxos de criação de usuários, agendamento de entrevistas, regras de transferência e gerenciamento de vagas (`AdminServiceTest`, `StudentServiceTest`, `InterviewServiceTest`, `VacancyServiceTest`, etc.).
-- **Testes de Validação de Permissões e Regras:** Testes focados em restrições de cada papel (`AdminUserManagementRulesTest`, `CoordinatorOperationsRulesTest`, `ManagerVacancyRulesTest`, `AuthenticationBusinessRulesTest`).
+- **Testes de Segurança e Infraestrutura:** Contratos de autorização, política de senha, Specifications JPA em H2 e concorrência/idempotência do scheduler.
 
 ### Como Executar os Testes
 Para rodar a suíte completa de testes automatizados, execute o comando:

@@ -23,6 +23,9 @@ public class Student{
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -43,6 +46,7 @@ public class Student{
     private Boolean hasSeenEmail;
     
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StatusStudent statusStudent;
     
     @ManyToOne
@@ -50,7 +54,6 @@ public class Student{
     private ClassEntity classEntity;
 
     @OneToOne(mappedBy = "student")
-    @JoinColumn(name = "interview_id")
     private Interview interview;
 
     @OneToMany(mappedBy = "student")

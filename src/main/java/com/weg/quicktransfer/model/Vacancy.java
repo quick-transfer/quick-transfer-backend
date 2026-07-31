@@ -23,6 +23,9 @@ public class Vacancy {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Version
+    private Long version;
     
     @Column(nullable = false)
     private String name;

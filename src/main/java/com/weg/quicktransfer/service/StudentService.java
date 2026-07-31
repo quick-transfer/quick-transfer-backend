@@ -6,7 +6,11 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.student.StudentFilter;
 import com.weg.quicktransfer.repo.specifications.StudentSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
@@ -50,6 +54,11 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
+    public Page<StudentResponseDTO> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable).map(studentMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public StudentResponseDTO findById(UUID id) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
@@ -75,8 +84,18 @@ public class StudentService {
                 .map(studentMapper::toResponse)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public Page<StudentResponseDTO> searchStudents(StudentFilter filter, Pageable pageable) {
+        Specification<Student> spec = StudentSpecification.getFilteredStudents(filter);
+        return studentRepository.findAll(spec, pageable).map(studentMapper::toResponse);
+    }
     
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "skills", allEntries = true),
+            @CacheEvict(value = "skillById", allEntries = true)
+    })
     public StudentResponseDTO update(UUID id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
@@ -121,6 +140,10 @@ public class StudentService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "skills", allEntries = true),
+            @CacheEvict(value = "skillById", allEntries = true)
+    })
     public void delete(UUID id) {
         if(!studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);

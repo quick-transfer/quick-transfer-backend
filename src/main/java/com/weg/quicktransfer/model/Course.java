@@ -22,6 +22,9 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -29,7 +32,7 @@ public class Course {
     @JoinColumn(name = "coordinator_id", nullable = false)
     private Coordinator coordinator;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<ClassEntity> classes = new ArrayList<>();
 
     public Course(String name, Coordinator coordinator, List<ClassEntity> classes) {

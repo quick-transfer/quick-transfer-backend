@@ -24,6 +24,8 @@ import com.weg.quicktransfer.repo.specifications.PlaceSpecification;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -56,12 +58,23 @@ public class PlaceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<PlaceResponseDTO> searchPlaces(PlaceFilter filter, Pageable pageable) {
+        Specification<Place> spec = PlaceSpecification.getFilteredPlaces(filter);
+        return placeRepository.findAll(spec, pageable).map(placeMapper::toResponse);
+    }
+
     @Cacheable("places")
     @Transactional(readOnly = true)
     public List<PlaceResponseDTO> findAll() {
         List<Place> places = placeRepository.findAll();
 
         return places.stream().map(placeMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PlaceResponseDTO> findAll(Pageable pageable) {
+        return placeRepository.findAll(pageable).map(placeMapper::toResponse);
     }
 
     @Cacheable(value = "placeById", key = "#id")
@@ -84,7 +97,9 @@ public class PlaceService {
                     @CachePut(value = "placeById", key = "#id")
             },
             evict = {
-                    @CacheEvict(value = "places", allEntries = true)
+                    @CacheEvict(value = "places", allEntries = true),
+                    @CacheEvict(value = "vacancies", allEntries = true),
+                    @CacheEvict(value = "vacancyById", allEntries = true)
             }
     )
     @Transactional
@@ -111,7 +126,9 @@ public class PlaceService {
     @Caching(
             evict = {
                     @CacheEvict(value = "places", allEntries = true),
-                    @CacheEvict(value = "placeById", key = "#id")
+                    @CacheEvict(value = "placeById", key = "#id"),
+                    @CacheEvict(value = "vacancies", allEntries = true),
+                    @CacheEvict(value = "vacancyById", allEntries = true)
             }
     )
     @Transactional

@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.idea
+.vscode
+.settings
+target
+build
+*.iml
+*.log
+**/private.pem
+**/public.pem

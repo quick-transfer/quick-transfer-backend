@@ -60,7 +60,7 @@ public class ClassEntitySpecification {
 
             if (filter.shiftClass() != null) {
                 predicates.add(criteriaBuilder.equal(
-                        root.get("shift"),
+                        root.get("shiftClass"),
                         filter.shiftClass()
                 ));
             }
