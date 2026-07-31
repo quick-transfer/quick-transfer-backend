@@ -4,10 +4,8 @@ import com.weg.quicktransfer.enums.Role;
 
 import java.util.UUID;
 
-public record LoginResponseDTO(
-        String token,
-        String type,
-        UUID userId,
+public record AuthenticatedUserResponseDTO(
+        UUID id,
         String name,
         String username,
         Role role
