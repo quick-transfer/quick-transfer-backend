@@ -14,6 +14,8 @@ public record VacancyFilter(
 
         Shift shift,
 
-        String placeName
+        String placeName,
+
+        String skillName
 ) {
 }

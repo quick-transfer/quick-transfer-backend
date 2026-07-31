@@ -35,6 +35,8 @@ class SpecificationRepositoryTest {
     private PlaceRepository placeRepository;
     @Autowired
     private VacancyRepository vacancyRepository;
+    @Autowired
+    private VacancySkillRepository vacancySkillRepository;
 
     @BeforeEach
     void setUp() {
@@ -50,13 +52,17 @@ class SpecificationRepositoryTest {
                 "DEV-01"));
 
         Place place = placeRepository.save(new Place("Technology Center", Park.WEG_II, Section.IT));
-        vacancyRepository.save(new Vacancy(
+        Vacancy vacancy = new Vacancy(
                 "Java Developer",
                 "Backend development",
                 2L,
                 Area.IT,
                 Shift.FIRST,
-                place));
+                place);
+        VacancySkill vacancySkill = vacancySkillRepository.save(
+                new VacancySkill("Java", SkillType.TECHNICAL, 7.0));
+        vacancy.addSkill(vacancySkill);
+        vacancyRepository.save(vacancy);
     }
 
     @Test
@@ -73,12 +79,24 @@ class SpecificationRepositoryTest {
 
     @Test
     void shouldFilterVacancyByNumbersVacanciesAttribute() {
-        VacancyFilter filter = new VacancyFilter(null, null, 2L, null, null, null);
+        VacancyFilter filter = new VacancyFilter(null, null, 2L, null, null, null, null);
 
         List<Vacancy> result = vacancyRepository.findAll(
                 VacancySpecification.getFilteredVacancies(filter));
 
         assertEquals(1, result.size());
         assertEquals(2L, result.get(0).getNumbersVacancies());
+    }
+
+    @Test
+    void shouldFilterVacancyBySkillName() {
+        VacancyFilter filter = new VacancyFilter(null, null, null, null, null, null, "java");
+
+        List<Vacancy> result = vacancyRepository.findAll(
+                VacancySpecification.getFilteredVacancies(filter));
+
+        assertEquals(1, result.size());
+        assertEquals("Java Developer", result.get(0).getName());
+        assertEquals("Java", result.get(0).getSkills().get(0).getName());
     }
 }
