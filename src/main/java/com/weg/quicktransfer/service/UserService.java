@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.user.UserFilter;
@@ -59,10 +60,6 @@ public class UserService {
                 .orElseGet(() -> userRepository.findFirstByName(request.username())
                         .orElseThrow(() -> new UserNotFoundException("User not found with: " + request.username())));
 
-        if (Boolean.TRUE.equals(user.getFirstLogin())) {
-            throw new FirstLoginException("It is user's first login");
-        }
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
@@ -70,10 +67,45 @@ public class UserService {
                 )
         );
 
+        if (Boolean.TRUE.equals(user.getFirstLogin())) {
+            throw new FirstLoginException("It is user's first login");
+        }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails);
 
-        return new LoginResponseDTO(token, "Bearer");
+        return new LoginResponseDTO(
+                token,
+                "Bearer",
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getRole()
+        );
+    }
+
+    @Transactional
+    public void completeFirstAccess(FirstAccessRequestDTO requestDTO) {
+        User user = userRepository.findFirstByUsername(requestDTO.username())
+                .orElseGet(() -> userRepository.findFirstByName(requestDTO.username())
+                        .orElseThrow(() -> new UserNotFoundException(
+                                "User not found with: " + requestDTO.username())));
+
+        if (!Boolean.TRUE.equals(user.getFirstLogin())) {
+            throw new IllegalArgumentException("First access has already been completed.");
+        }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        requestDTO.currentPassword()
+                )
+        );
+
+        validatePassword(requestDTO.newPassword());
+        user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
+        user.setFirstLogin(false);
+        userRepository.save(user);
     }
 
     @Transactional
@@ -173,4 +205,17 @@ public class UserService {
             default -> throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
         };
     }
+
+    private void validatePassword(String password) {
+        boolean validPassword = password != null
+                && password.length() >= 14
+                && password.chars().anyMatch(Character::isUpperCase)
+                && password.chars().anyMatch(Character::isDigit)
+                && password.matches(".*[^A-Za-z0-9].*");
+
+        if (!validPassword) {
+            throw new InvalidPasswordException("Password does not meet security requirements.");
+        }
+    }
+
 }

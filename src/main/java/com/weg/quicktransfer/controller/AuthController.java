@@ -1,5 +1,7 @@
 package com.weg.quicktransfer.controller;
 
+import com.weg.quicktransfer.dto.auth.AuthenticatedUserResponseDTO;
+import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
@@ -30,7 +32,7 @@ public class AuthController {
     private long expirationMs;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
+    public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
 
         LoginResponseDTO response = userService.login(requestDTO);
 
@@ -43,9 +45,23 @@ public class AuthController {
                 .maxAge(Duration.ofMillis(expirationMs))
                 .build();
 
+        AuthenticatedUserResponseDTO authenticatedUser = new AuthenticatedUserResponseDTO(
+                response.userId(),
+                response.name(),
+                response.username(),
+                response.role()
+        );
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .build();
+                .body(authenticatedUser);
+    }
+
+    @PostMapping("/first-access")
+    public ResponseEntity<Void> completeFirstAccess(
+            @RequestBody @Valid FirstAccessRequestDTO requestDTO) {
+        userService.completeFirstAccess(requestDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
@@ -56,7 +72,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(0)
