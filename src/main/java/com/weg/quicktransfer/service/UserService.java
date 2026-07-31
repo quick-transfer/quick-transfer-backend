@@ -122,6 +122,19 @@ public class UserService {
         return mapUserToResponseDTO(user);
     }
 
+    @Transactional
+    public void changePassword(String authenticatedUsername, String currentPassword, String newPassword) {
+        User user = userRepository.findFirstByUsername(authenticatedUsername)
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user was not found"));
+
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                user.getUsername(), currentPassword));
+
+        PasswordPolicy.validate(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public UserResponseDTO findById(UUID id) {
         User user = userRepository.findById(id)
