@@ -52,7 +52,6 @@ public class UserService {
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
-
         User user = userRepository.findFirstByUsername(request.username())
                 .orElseGet(() -> userRepository.findFirstByName(request.username())
                         .orElseThrow(() -> new UserNotFoundException("User not found with: " + request.username())));
@@ -209,5 +208,4 @@ public class UserService {
         }
         throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
     }
-
 }
