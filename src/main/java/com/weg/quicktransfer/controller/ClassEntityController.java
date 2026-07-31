@@ -63,7 +63,7 @@ public class ClassEntityController {
 
     @PreAuthorize("hasRole('COORDINATOR')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteClassEntity(UUID id){
+    public ResponseEntity<Void> deleteClassEntity(@PathVariable UUID id){
         classEntityService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
