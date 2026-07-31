@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,9 @@ public class Interview {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false, name = "interviewer_name")
     private String interviewerName;
@@ -53,6 +57,18 @@ public class Interview {
 
     @Column(name = "reminder_sent")
     private Boolean reminderSent = false;
+
+    @Column(name = "student_reminder_sent")
+    private Boolean studentReminderSent = false;
+
+    @Column(name = "coordinator_reminder_sent")
+    private Boolean coordinatorReminderSent = false;
+
+    @Column(name = "reminder_processing")
+    private Boolean reminderProcessing = false;
+
+    @Column(name = "reminder_claimed_at")
+    private LocalDateTime reminderClaimedAt;
 
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
             Student student) {

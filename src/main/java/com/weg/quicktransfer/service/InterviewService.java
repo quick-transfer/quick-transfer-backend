@@ -7,6 +7,8 @@ import com.weg.quicktransfer.dto.interview.InterviewFilter;
 import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.specifications.InterviewSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,8 @@ public class InterviewService {
 
         Student student = studentRepository.findById(interviewRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewRequestDTO.studentId()));
 
+        validateRelationships(place, vacancy, manager, student, null);
+
         Interview interview = interviewMapper.toEntity(interviewRequestDTO, place, vacancy, manager, student);
 
         interview = interviewRepository.save(interview);
@@ -59,6 +63,11 @@ public class InterviewService {
         List<Interview> interviews = interviewRepository.findAll();
 
         return interviews.stream().map(interviewMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InterviewResponseDTO> findAll(Pageable pageable) {
+        return interviewRepository.findAll(pageable).map(interviewMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +86,12 @@ public class InterviewService {
         return interviews.stream()
                 .map(interviewMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InterviewResponseDTO> searchInterviews(InterviewFilter filter, Pageable pageable) {
+        Specification<Interview> spec = InterviewSpecification.getFilteredInterviews(filter);
+        return interviewRepository.findAll(spec, pageable).map(interviewMapper::toResponse);
     }
 
     @Transactional
@@ -111,6 +126,13 @@ public class InterviewService {
             interview.setStudent(student);
         }
 
+        validateRelationships(
+                interview.getPlace(),
+                interview.getVacancy(),
+                interview.getManager(),
+                interview.getStudent(),
+                interview.getId());
+
         Interview interviewAtt = interviewRepository.save(interview);
 
         return interviewMapper.toResponse(interviewAtt);
@@ -123,5 +145,35 @@ public class InterviewService {
         }
 
         interviewRepository.deleteById(id);
+    }
+
+    private void validateRelationships(
+            Place place,
+            Vacancy vacancy,
+            Manager manager,
+            Student student,
+            UUID currentInterviewId) {
+
+        if (!vacancy.getPlace().getId().equals(place.getId())) {
+            throw new IllegalArgumentException("The vacancy does not belong to the selected place");
+        }
+
+        if (manager.getSection() != place.getSection()) {
+            throw new IllegalArgumentException("The manager does not belong to the selected place section");
+        }
+
+        boolean studentAlreadyScheduled = currentInterviewId == null
+                ? interviewRepository.existsByStudent_Id(student.getId())
+                : interviewRepository.existsByStudent_IdAndIdNot(student.getId(), currentInterviewId);
+        if (studentAlreadyScheduled) {
+            throw new IllegalArgumentException("The student already has an interview");
+        }
+
+        long scheduledInterviews = currentInterviewId == null
+                ? interviewRepository.countByVacancy_Id(vacancy.getId())
+                : interviewRepository.countByVacancy_IdAndIdNot(vacancy.getId(), currentInterviewId);
+        if (scheduledInterviews >= vacancy.getNumbersVacancies()) {
+            throw new IllegalArgumentException("There are no available positions for this vacancy");
+        }
     }
 }

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Positive;
 
 public record InterviewUpdateRequestDTO(
     String interviewerName,

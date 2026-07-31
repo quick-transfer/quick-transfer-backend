@@ -1,9 +1,9 @@
 package com.weg.quicktransfer.dto.student;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
@@ -21,6 +21,7 @@ public record StudentUpdateRequestDTO(
     Long age,
 
     @PositiveOrZero(message = "The average cannot be negative")
+    @DecimalMax(value = "10.0", message = "The average cannot be greater than 10")
     Double averageGrade,
 
     UUID classId,

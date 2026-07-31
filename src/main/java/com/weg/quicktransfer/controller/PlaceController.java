@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +44,14 @@ public class PlaceController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<PlaceResponseDTO>> searchPlaces(PlaceFilter filter){
-        return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter));
+    public ResponseEntity<Page<PlaceResponseDTO>> searchPlaces(PlaceFilter filter, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter, pageable));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<PlaceResponseDTO>> findAllPlaces(){
-        return ResponseEntity.status(HttpStatus.OK).body(placeService.findAll());
+    public ResponseEntity<Page<PlaceResponseDTO>> findAllPlaces(Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(placeService.findAll(pageable));
     }
 
     @PreAuthorize("hasRole('MANAGER')")
