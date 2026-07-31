@@ -12,7 +12,7 @@ import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.mapper.ManagerMapper;
-import com.weg.quicktransfer.model.*;
+import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
@@ -55,7 +55,6 @@ public class UserService {
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
-
         User user = userRepository.findFirstByUsername(request.username())
                 .orElseGet(() -> userRepository.findFirstByName(request.username())
                         .orElseThrow(() -> new UserNotFoundException("User not found with: " + request.username())));
@@ -103,24 +102,29 @@ public class UserService {
         );
 
         validatePassword(requestDTO.newPassword());
+
         user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
         user.setFirstLogin(false);
         userRepository.save(user);
     }
 
     @Transactional
-    public UserResponseDTO resetPassword(LoginRequestDTO requestDTO) {
+    public UserResponseDTO changePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepository.findFirstByUsername(username)
+                .orElseGet(() -> userRepository.findFirstByName(username)
+                        .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + username)));
 
-        User user = userRepository.findFirstByUsername(requestDTO.username())
-                .orElseGet(() -> userRepository.findFirstByName(requestDTO.username())
-                        .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username())));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        currentPassword
+                )
+        );
 
-        String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
-        if (requestDTO.password() == null || !requestDTO.password().matches(passwordRegex)) {
-            throw new InvalidPasswordException("Password does not meet security requirements.");
-        }
+        validatePassword(newPassword);
 
-        user.setPassword(passwordEncoder.encode(requestDTO.password()));
+        user.setPassword(passwordEncoder.encode(newPassword));
+
         if (Boolean.TRUE.equals(user.getFirstLogin())) {
             user.setFirstLogin(false);
         }
@@ -217,5 +221,4 @@ public class UserService {
             throw new InvalidPasswordException("Password does not meet security requirements.");
         }
     }
-
 }
