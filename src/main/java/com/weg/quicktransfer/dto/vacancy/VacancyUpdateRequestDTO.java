@@ -1,7 +1,8 @@
 package com.weg.quicktransfer.dto.vacancy;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 public record VacancyUpdateRequestDTO(
@@ -13,6 +14,8 @@ public record VacancyUpdateRequestDTO(
 
     String shift,
 
-    UUID placeId
+    UUID placeId,
+
+    List<@NotNull(message = "Skill id must not be null") UUID> skillIds
 ) {
 }

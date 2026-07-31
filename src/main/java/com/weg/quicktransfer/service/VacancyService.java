@@ -23,11 +23,14 @@ import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
+import com.weg.quicktransfer.exception.VacancySkillNotFoundException;
 import com.weg.quicktransfer.mapper.VacancyMapper;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
 import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
+import com.weg.quicktransfer.repo.VacancySkillRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,13 +40,15 @@ public class VacancyService {
     private final VacancyRepository vacancyRepository;
     private final VacancyMapper vacancyMapper;
     private final PlaceRepository placeRepository;
+    private final VacancySkillRepository vacancySkillRepository;
 
     @CacheEvict(value = "vacancies", allEntries = true)
     @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
+        List<VacancySkill> skills = resolveSkills(vacancyRequestDTO.skillIds());
 
-        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place);
+        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place, skills);
 
         vacancy = vacancyRepository.save(vacancy);
 
@@ -132,6 +137,10 @@ public class VacancyService {
             vacancy.setPlace(place);
         }
 
+        if (vacancyUpdateRequestDTO.skillIds() != null) {
+            vacancy.setSkills(resolveSkills(vacancyUpdateRequestDTO.skillIds()));
+        }
+
         Vacancy vacancyAtt = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancyAtt);
@@ -150,5 +159,17 @@ public class VacancyService {
         }
 
         vacancyRepository.deleteById(id);
+    }
+
+    private List<VacancySkill> resolveSkills(List<UUID> skillIds) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return List.of();
+        }
+
+        return skillIds.stream()
+                .distinct()
+                .map(skillId -> vacancySkillRepository.findById(skillId)
+                        .orElseThrow(() -> new VacancySkillNotFoundException(skillId)))
+                .toList();
     }
 }

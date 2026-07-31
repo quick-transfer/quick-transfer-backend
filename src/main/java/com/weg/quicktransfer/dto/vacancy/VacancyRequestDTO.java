@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.util.List;
 import java.util.UUID;
 
 public record VacancyRequestDTO(
@@ -24,6 +25,8 @@ public record VacancyRequestDTO(
     String shift,
     
     @NotNull(message = "Place id must not be null")
-    UUID placeId
+    UUID placeId,
+
+    List<@NotNull(message = "Skill id must not be null") UUID> skillIds
 ) {
 }

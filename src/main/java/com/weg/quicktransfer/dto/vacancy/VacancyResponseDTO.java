@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.dto.vacancy;
 
+import java.util.List;
 import java.util.UUID;
 
 public record VacancyResponseDTO(
@@ -17,6 +18,8 @@ public record VacancyResponseDTO(
 
     String park,
     
-    String section
+    String section,
+
+    List<VacancySkillResponseDTO> skills
 ) {
 }

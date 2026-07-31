@@ -24,6 +24,8 @@ public class CacheConfig {
                 "placeById",
                 "skills",
                 "skillById",
+                "vacancySkills",
+                "vacancySkillById",
                 "vacancies",
                 "vacancyById"
         );
