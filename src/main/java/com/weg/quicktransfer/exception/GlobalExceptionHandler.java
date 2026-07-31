@@ -29,7 +29,6 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.UNAUTHORIZED,
                         "Invalid credentials.",
-                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -43,7 +42,6 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.FORBIDDEN,
                         "The user is not authorized",
-                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -55,8 +53,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Internal database error.",
-                        getStackTraceAsString(ex), request));
+                        "Internal database error.", request));
     }
 
     @ExceptionHandler(MessagingException.class)
@@ -69,7 +66,6 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.UNPROCESSABLE_ENTITY,
                         "Email sending error.",
-                        getStackTraceAsString(ex),
                         request));
     }
 
@@ -80,8 +76,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
     }
 
     @ExceptionHandler(FirstLoginException.class)
@@ -91,8 +86,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidUsernameException.class)
@@ -102,8 +96,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidPasswordException.class)
@@ -113,8 +106,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(InvalidEmailException.class)
@@ -124,8 +116,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -135,13 +126,11 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(),
-                        getStackTraceAsString(ex), request));
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleAllExceptions(
-            Exception ex,
             HttpServletRequest request) {
 
         return ResponseEntity
@@ -149,21 +138,18 @@ public class GlobalExceptionHandler {
                 .body(buildError(
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         "An unexpected internal error occurred.",
-                        getStackTraceAsString(ex),
                         request));
     }
 
     private ErrorResponseDTO buildError(
             HttpStatus status,
             String message,
-            String stackTrace,
             HttpServletRequest request) {
 
         return new ErrorResponseDTO(
                 LocalDateTime.now(),
                 status.value(),
                 status.getReasonPhrase(),
-                stackTrace,
                 message,
                 request.getRequestURI());
     }
