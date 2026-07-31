@@ -5,6 +5,10 @@ import java.util.UUID;
 
 import com.weg.quicktransfer.dto.skill.SkillFilter;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,7 @@ public class SkillService {
     private final SkillMapper skillMapper;
     private final StudentRepository studentRepository;
 
+    @CacheEvict(value = "skills", allEntries = true)
     @Transactional
     public SkillResponseDTO create(SkillRequestDTO skillRequestDTO) {
         Student student = studentRepository.findById(skillRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(skillRequestDTO.studentId()));
@@ -41,6 +46,7 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
+    @Cacheable("skills")
     @Transactional(readOnly = true)
     public List<SkillResponseDTO> findAll() {
         List<Skill> skills = skillRepository.findAll();
@@ -48,6 +54,7 @@ public class SkillService {
         return skills.stream().map(skillMapper::toResponse).toList();
     }
 
+    @Cacheable(value = "skillById", key = "#id")
     @Transactional(readOnly = true)
     public SkillResponseDTO findById(UUID id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
@@ -73,6 +80,14 @@ public class SkillService {
                 .toList();
     }
 
+    @Caching(
+            put = {
+                    @CachePut(value = "skillById", key = "#id")
+            },
+            evict = {
+                    @CacheEvict(value = "skills", allEntries = true)
+            }
+    )
     @Transactional
     public SkillResponseDTO update(UUID id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
@@ -99,6 +114,12 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "skills", allEntries = true),
+                    @CacheEvict(value = "skillById", key = "#id")
+            }
+    )
     @Transactional
     public void delete(UUID id) {
         if(!skillRepository.existsById(id)) {
