@@ -5,7 +5,13 @@ import java.util.UUID;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.repo.specifications.VacancySpecification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +38,7 @@ public class VacancyService {
     private final VacancyMapper vacancyMapper;
     private final PlaceRepository placeRepository;
 
+    @CacheEvict(value = "vacancies", allEntries = true)
     @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
@@ -43,6 +50,7 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancy);
     }
 
+    @Cacheable("vacancies")
     @Transactional(readOnly = true)
     public List<VacancyResponseDTO> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
@@ -50,6 +58,12 @@ public class VacancyService {
         return vacancies.stream().map(vacancyMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> findAll(Pageable pageable) {
+        return vacancyRepository.findAll(pageable).map(vacancyMapper::toResponse);
+    }
+
+    @Cacheable(value = "vacancyById", key = "#id")
     @Transactional(readOnly = true)
     public VacancyResponseDTO findById(UUID id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -67,6 +81,12 @@ public class VacancyService {
     }
 
     @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> searchVacancies(VacancyFilter filter, Pageable pageable) {
+        Specification<Vacancy> spec = VacancySpecification.getFilteredVacancies(filter);
+        return vacancyRepository.findAll(spec, pageable).map(vacancyMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<VacancyResponseDTO> searchVacancies(VacancyFilter filter) {
         Specification<Vacancy> spec = VacancySpecification.getFilteredVacancies(filter);
 
@@ -79,6 +99,14 @@ public class VacancyService {
                 .toList();
     }
 
+    @Caching(
+            put = {
+                    @CachePut(value = "vacancyById", key = "#id")
+            },
+            evict = {
+                    @CacheEvict(value = "vacancies", allEntries = true)
+            }
+    )
     @Transactional
     public VacancyResponseDTO update(UUID id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -109,6 +137,12 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancyAtt);
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "vacancies", allEntries = true),
+                    @CacheEvict(value = "vacancyById", key = "#id")
+            }
+    )
     @Transactional
     public void delete(UUID id) {
         if(!vacancyRepository.existsById(id)) {

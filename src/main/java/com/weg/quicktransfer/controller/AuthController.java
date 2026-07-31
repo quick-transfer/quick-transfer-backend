@@ -1,9 +1,11 @@
 package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.auth.AuthenticatedUserResponseDTO;
+import com.weg.quicktransfer.dto.auth.ChangePasswordRequestDto;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
+import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
@@ -80,10 +82,12 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(
             Authentication authentication,
-            @RequestBody @Valid LoginRequestDTO request
+            @RequestBody @Valid ChangePasswordRequestDto request
     ) {
-        userService.resetPassword(
-                request
+        userService.changePassword(
+                authentication.getName(),
+                request.currentPassword(),
+                request.newPassword()
         );
 
         return ResponseEntity.noContent().build();
@@ -112,8 +116,8 @@ public class AuthController {
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/password-reset")
     public UserResponseDTO resetPassword(
-            @RequestBody @Valid LoginRequestDTO requestDTO,
-            Authentication authentication) {
-        return userService.resetPassword(requestDTO);
+            @RequestBody @Valid PasswordResetRequestDTO requestDTO,
+            org.springframework.security.core.Authentication authentication) {
+        return userService.resetPassword(authentication.getName(), requestDTO);
     }
 }

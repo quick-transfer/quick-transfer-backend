@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +44,14 @@ public class CourseController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<CourseResponseDTO>> findAllCourses(){
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll());
+    public ResponseEntity<Page<CourseResponseDTO>> findAllCourses(Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<CourseResponseDTO>> searchCourses(CourseFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.searchCourses(filter));
+    public ResponseEntity<Page<CourseResponseDTO>> searchCourses(CourseFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.searchCourses(filter, pageable));
     }
 
     @PreAuthorize("hasRole('COORDINATOR')")

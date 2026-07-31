@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,17 +37,17 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<UserResponseDTO>> findAllUsers() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findAll());
+    public ResponseEntity<Page<UserResponseDTO>> findAllUsers(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<UserResponseDTO>> searchUsers(UserFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.searchUsers(filter));
+    public ResponseEntity<Page<UserResponseDTO>> searchUsers(UserFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.searchUsers(filter, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     @PatchMapping("/update/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable UUID id,

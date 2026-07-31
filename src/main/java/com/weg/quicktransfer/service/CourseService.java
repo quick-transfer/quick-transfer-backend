@@ -12,7 +12,13 @@ import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
 import com.weg.quicktransfer.repo.specifications.CourseSpecification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +36,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final CoordinatorRepository coordinatorRepository;
 
+    @CacheEvict(value = "courses", allEntries = true)
     @Transactional
     public CourseResponseDTO create(CourseRequestDTO courseRequestDTO){
         Coordinator coordinator = coordinatorRepository.findById(courseRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseRequestDTO.coordinatorId()));
@@ -41,6 +48,7 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
+    @Cacheable("courses")
     @Transactional(readOnly = true)
     public List<CourseResponseDTO> findAll(){
         List<Course> courses = courseRepository.findAll();
@@ -48,6 +56,12 @@ public class CourseService {
         return courses.stream().map(courseMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<CourseResponseDTO> findAll(Pageable pageable) {
+        return courseRepository.findAll(pageable).map(courseMapper::toResponse);
+    }
+
+    @Cacheable(value = "courseById", key = "#id")
     @Transactional(readOnly = true)
     public CourseResponseDTO findById(UUID id){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
@@ -75,6 +89,20 @@ public class CourseService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<CourseResponseDTO> searchCourses(CourseFilter filter, Pageable pageable) {
+        Specification<Course> spec = CourseSpecification.getFilteredCourses(filter);
+        return courseRepository.findAll(spec, pageable).map(courseMapper::toResponse);
+    }
+
+    @Caching(
+            put = {
+                    @CachePut(value = "courseById", key = "#id")
+            },
+            evict = {
+                    @CacheEvict(value = "courses", allEntries = true)
+            }
+    )
     @Transactional
     public CourseResponseDTO update(UUID id, CourseUpdateRequestDTO courseUpdateRequestDTO){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
@@ -93,6 +121,12 @@ public class CourseService {
         return courseMapper.toResponse(courseAtt);
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "courses", allEntries = true),
+                    @CacheEvict(value = "courseById", key = "#id")
+            }
+    )
     @Transactional
     public void delete(UUID id){
         if(!courseRepository.existsById(id)) {

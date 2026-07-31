@@ -90,6 +90,7 @@ class InterviewServiceTest {
         manager = new Manager();
         manager.setId(MANAGER_ID);
         manager.setName("Guilherme");
+        manager.setSection(Section.IT);
 
         place = new Place();
         place.setId(PLACE_ID);
@@ -100,6 +101,8 @@ class InterviewServiceTest {
         vacancy.setId(VACANCY_ID);
         vacancy.setName("vacancy");
         vacancy.setShift(Shift.FIRST);
+        vacancy.setPlace(place);
+        vacancy.setNumbersVacancies(1L);
 
         interview = new Interview();
         interview.setId(INTERVIEW_ID);

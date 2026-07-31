@@ -39,7 +39,7 @@ public class VacancySpecification {
 
             if (filter.numberVacancies() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                        root.get("numberVacancies"),
+                        root.get("numbersVacancies"),
                         filter.numberVacancies()
                 ));
             }
