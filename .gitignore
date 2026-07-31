@@ -4,8 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-src/main/java/com/weg/quicktransfer/config/DataInitializer.java
-
 ### STS ###
 .apt_generated
 .classpath
@@ -38,6 +36,3 @@ build/
 .env
 **/private.pem
 **/public.pem
-
-### Docker ###
-docker-compose.yml
