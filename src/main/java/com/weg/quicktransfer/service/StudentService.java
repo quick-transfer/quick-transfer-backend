@@ -54,11 +54,9 @@ public class StudentService {
 
     @Transactional
     public List<StudentResponseDTO> createMultiple(MultipartFile file) throws IOException {
-        L
-
         List<StudentRequestDTO> studentsRequest = objectMapper.readValue(
                 file.getInputStream(),
-                new TypeReference<>() {
+                new TypeReference<List<StudentRequestDTO>>() {
                 }
         );
 
@@ -67,9 +65,9 @@ public class StudentService {
                         .orElseThrow(() -> new ClassEntityNotFoundException("The operation was canceled because one of the classes id was invalid"))))
                 .toList();
 
-
-
-
+        return studentRepository.saveAll(students).stream()
+                .map(studentMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
