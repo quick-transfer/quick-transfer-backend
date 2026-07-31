@@ -13,13 +13,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,15 +35,17 @@ public class AuthController {
     @Value("${app.jwt.expiration}")
     private long expirationMs;
 
+    @Value("${app.security.cookie.secure:true}")
+    private boolean secureCookie;
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
-
         LoginResponseDTO response = userService.login(requestDTO);
 
         ResponseCookie cookie = ResponseCookie
                 .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(false)
+                .secure(secureCookie)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofMillis(expirationMs))
@@ -54,38 +60,60 @@ public class AuthController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .header(HttpHeaders.PRAGMA, "no-cache")
                 .body(authenticatedUser);
     }
 
+    @GetMapping("/csrf")
+    public Map<String, String> csrf(CsrfToken token) {
+        return Map.of("headerName", token.getHeaderName(), "token", token.getToken());
+    }
+
     @PostMapping("/first-access")
-    public ResponseEntity<Void> completeFirstAccess(
-            @RequestBody @Valid FirstAccessRequestDTO requestDTO) {
+    public ResponseEntity<Void> firstAccess(@RequestBody @Valid FirstAccessRequestDTO requestDTO) {
         userService.completeFirstAccess(requestDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            Authentication authentication,
+            @RequestBody @Valid LoginRequestDTO request
+    ) {
+        userService.resetPassword(
+                request
+        );
+
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-
         SecurityContextHolder.clearContext();
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(secureCookie)
+                .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .header(HttpHeaders.PRAGMA, "no-cache")
                 .build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/password-reset")
-    public UserResponseDTO resetPassword(@RequestBody @Valid LoginRequestDTO requestDTO) {
+    public UserResponseDTO resetPassword(
+            @RequestBody @Valid LoginRequestDTO requestDTO,
+            Authentication authentication) {
         return userService.resetPassword(requestDTO);
     }
 }
