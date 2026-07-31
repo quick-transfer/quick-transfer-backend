@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,14 +44,14 @@ public class SkillController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<SkillResponseDTO>> findAllSkills() {
-        return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll());
+    public ResponseEntity<Page<SkillResponseDTO>> findAllSkills(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<SkillResponseDTO>> searchSkills(SkillFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(skillService.searchSkills(filter));
+    public ResponseEntity<Page<SkillResponseDTO>> searchSkills(SkillFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.searchSkills(filter, pageable));
     }
 
     @PreAuthorize("hasRole('MANAGER')")

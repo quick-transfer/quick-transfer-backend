@@ -5,15 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.manager.*;
+import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.exception.*;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repo.CoordinatorRepository; // Import adicionado
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
-import com.weg.quicktransfer.repo.StudentRepository;
-import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.repo.specifications.ManagerSpecification;
+import com.weg.quicktransfer.security.PasswordPolicy;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
@@ -21,18 +20,21 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 @RequiredArgsConstructor
 public class ManagerService {
 
-    private static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -40,9 +42,13 @@ public class ManagerService {
     private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
     private final InterviewRepository interviewRepository;
-    private final StudentRepository studentRepository;
-    private final UserRepository userRepository;
     private final JavaMailSender mailSender;
+
+    @Value("${app.mail.from}")
+    private String mailFrom;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Transactional
     public ManagerResponseDTO create(ManagerRequestDTO managerRequestDTO) {
@@ -65,6 +71,11 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ManagerResponseDTO> findAll(Pageable pageable) {
+        return managerRepository.findAll(pageable).map(managerMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public ManagerResponseDTO findById(UUID id) {
         Manager manager = managerRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -80,6 +91,12 @@ public class ManagerService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ManagerResponseDTO> searchManagers(ManagerFilter filter, Pageable pageable) {
+        Specification<Manager> spec = ManagerSpecification.getFilteredManagers(filter);
+        return managerRepository.findAll(spec, pageable).map(managerMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<ManagerResponseDTO> findByName(String name) {
         List<Manager> managers = managerRepository.searchUsersByName(name);
         return managers.stream()
@@ -88,31 +105,25 @@ public class ManagerService {
     }
 
     @Transactional
-    public ManagerResponseDTO update(UUID id, ManagerUpdateRequestDTO updateRequestDTO, UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User is not logged"));
+    public ManagerResponseDTO update(UUID id, ManagerUpdateRequestDTO updateRequestDTO) {
+        Manager manager = managerRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
 
-        if (!(user instanceof Manager || user instanceof Admin)) {
-            throw new UserNotAllowdException("User is neither an Admin nor a Manager");
+        if (StringUtils.hasText(updateRequestDTO.name())) {
+            manager.setName(updateRequestDTO.name());
         }
 
-        if (userId.equals(user.getId()) || user instanceof Admin) {
-            Manager manager = managerRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(id));
-
-            if (StringUtils.hasText(updateRequestDTO.name())) {
-                manager.setName(updateRequestDTO.name());
-            }
-
-            if (StringUtils.hasText(updateRequestDTO.password()) && updateRequestDTO.password().matches(PASSWORD_REGEX)) {
-                manager.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
-            }
-
-            Manager managerUpdated = managerRepository.save(manager);
-            return managerMapper.toResponse(managerUpdated);
-        } else {
-            throw new UserNotAllowdException("User is not allowed to update this user");
+        if (StringUtils.hasText(updateRequestDTO.password())) {
+            PasswordPolicy.validate(updateRequestDTO.password());
+            manager.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
         }
+
+        if (StringUtils.hasText(updateRequestDTO.section())) {
+            manager.setSection(Section.valueOf(updateRequestDTO.section()));
+        }
+
+        Manager managerUpdated = managerRepository.save(manager);
+        return managerMapper.toResponse(managerUpdated);
     }
 
     @Transactional
@@ -123,40 +134,72 @@ public class ManagerService {
         managerRepository.deleteById(id);
     }
 
-    @Transactional
-    public void sendDynamicEmailAmp(String to, UUID interviewId) throws MessagingException {
-        validateEmail(to);
-
-        MimeMessage message = createEmailMessage(to, interviewId);
-        mailSender.send(message);
-
-        Student student = studentRepository.findByInterviewId(interviewId)
-                .orElseThrow(() -> new StudentNotFoundException("Student not found with the interview ID: " + interviewId));
-
-        if (student.getClassEntity().getCourse().getCoordinator() != null && StringUtils.hasText(student.getClassEntity().getCourse().getCoordinator() .getEmail())) {
-            String coordinatorEmail = student.getClassEntity().getCourse().getCoordinator().getEmail();
-            validateEmail(coordinatorEmail);
-
-            MimeMessage coordinatorMessage = createEmailMessageToCoordinator(coordinatorEmail, interviewId);
-            mailSender.send(coordinatorMessage);
-        }
-    }
-
-    private MimeMessage createEmailMessage(String to, UUID interviewId) throws MessagingException {
+    public void sendDynamicEmailAmp(UUID interviewId) throws MessagingException {
         Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new InterviewNotFoundException("Interview not found with ID: " + interviewId));
+        Student student = interview.getStudent();
+        Manager manager = interview.getManager();
 
-        Student student = studentRepository.findByInterviewId(interviewId)
-                .orElseThrow(() -> new StudentNotFoundException("Student not found with the interview ID: " + interviewId));
+        if (student == null) {
+            throw new StudentNotFoundException("Student not found with the interview ID: " + interviewId);
+        }
+        if (manager == null) {
+            throw new UserNotFoundException("Manager not found with the interview ID: " + interviewId);
+        }
 
-        Manager manager = managerRepository.findByInterviewId(interviewId)
-                .orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId));
+        boolean sendStudent = !Boolean.TRUE.equals(interview.getStudentReminderSent());
+        if (sendStudent) {
+            validateEmail(student.getEmail());
+        }
 
+        Coordinator coordinator = findCoordinator(student);
+        boolean coordinatorHasEmail = coordinator != null && StringUtils.hasText(coordinator.getEmail());
+        boolean sendCoordinator = coordinatorHasEmail
+                && !Boolean.TRUE.equals(interview.getCoordinatorReminderSent());
+        if (sendCoordinator) {
+            validateEmail(coordinator.getEmail());
+        }
+
+        MimeMessage studentMessage = sendStudent
+                ? createEmailMessage(student.getEmail(), interview, student, manager)
+                : null;
+        MimeMessage coordinatorMessage = sendCoordinator
+                ? createEmailMessageToCoordinator(coordinator.getEmail(), interview, student, manager, coordinator)
+                : null;
+
+        if (!coordinatorHasEmail) {
+            interview.setCoordinatorReminderSent(true);
+        }
+
+        if (studentMessage != null) {
+            mailSender.send(studentMessage);
+            interview.setStudentReminderSent(true);
+            interview = interviewRepository.save(interview);
+        }
+        if (coordinatorMessage != null) {
+            mailSender.send(coordinatorMessage);
+            interview.setCoordinatorReminderSent(true);
+            interview = interviewRepository.save(interview);
+        }
+
+        interview.setReminderSent(
+                Boolean.TRUE.equals(interview.getStudentReminderSent())
+                        && Boolean.TRUE.equals(interview.getCoordinatorReminderSent()));
+        interview.setReminderProcessing(false);
+        interview.setReminderClaimedAt(null);
+        interviewRepository.save(interview);
+    }
+
+    private MimeMessage createEmailMessage(
+            String to,
+            Interview interview,
+            Student student,
+            Manager manager) throws MessagingException {
         String formattedDate = DATE_FORMATTER.format(interview.getDateTime());
         String formattedTime = TIME_FORMATTER.format(interview.getDateTime());
 
         MimeMessage message = mailSender.createMimeMessage();
-        message.setFrom("quick.transfer.gmail@gmail.com");
+        message.setFrom(mailFrom);
         message.setRecipients(MimeMessage.RecipientType.TO, to);
         message.setSubject("Entrevista de Emprego");
 
@@ -168,9 +211,9 @@ public class ManagerService {
 
         String htmlContent = buildHtmlBody(interview, student, manager, formattedDate, formattedTime);
 
-        MimeBodyPart ampPart = new MimeBodyPart();
-        ampPart.setContent(htmlContent, "text/html; charset=utf-8");
-        multipart.addBodyPart(ampPart);
+        MimeBodyPart contentPart = new MimeBodyPart();
+        contentPart.setContent(htmlContent, "text/html; charset=utf-8");
+        multipart.addBodyPart(contentPart);
 
         message.setContent(multipart);
         return message;
@@ -242,7 +285,7 @@ public class ManagerService {
             
                       <tr>
                         <td style="padding: 0 32px 32px 32px;">
-                          <a href="http://localhost:3000" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Confirmar Presença</a>
+                          <a href="%s" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Confirmar Presença</a>
                         </td>
                       </tr>
                     </table>
@@ -252,39 +295,31 @@ public class ManagerService {
             </body>
             </html>
             """.formatted(
-                student.getName(),
-                interview.getPlace().getPlaceName(),
-                date,
-                time,
-                interview.getPlace().getPlaceName(),
-                interview.getPlace().getSection(),
-                interview.getPlace().getPark(),
-                interview.getInterviewerName(),
-                manager.getName(),
-                interview.getVacancy().getDescription()
+                escape(student.getName()),
+                escape(interview.getPlace().getPlaceName()),
+                escape(date),
+                escape(time),
+                escape(interview.getPlace().getPlaceName()),
+                escape(interview.getPlace().getSection()),
+                escape(interview.getPlace().getPark()),
+                escape(interview.getInterviewerName()),
+                escape(manager.getName()),
+                escape(interview.getVacancy().getDescription()),
+                escape(frontendUrl)
         );
     }
 
-    private MimeMessage createEmailMessageToCoordinator(String to, UUID interviewId) throws MessagingException {
-        Interview interview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new InterviewNotFoundException("Interview not found with ID: " + interviewId));
-
-        Student student = studentRepository.findByInterviewId(interviewId)
-                .orElseThrow(() -> new StudentNotFoundException("Student not found with the interview ID: " + interviewId));
-
-        Manager manager = managerRepository.findByInterviewId(interviewId)
-                .orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId));
-
-        Coordinator coordinator = student.getClassEntity().getCourse().getCoordinator();
-        if (coordinator == null) {
-            throw new UserNotFoundException("Coordinator not found for student ID: " + student.getId());
-        }
-
+    private MimeMessage createEmailMessageToCoordinator(
+            String to,
+            Interview interview,
+            Student student,
+            Manager manager,
+            Coordinator coordinator) throws MessagingException {
         String formattedDate = DATE_FORMATTER.format(interview.getDateTime());
         String formattedTime = TIME_FORMATTER.format(interview.getDateTime());
 
         MimeMessage message = mailSender.createMimeMessage();
-        message.setFrom("quick.transfer.gmail@gmail.com");
+        message.setFrom(mailFrom);
         message.setRecipients(MimeMessage.RecipientType.TO, to);
         message.setSubject("Alerta de Entrevista do Aluno");
 
@@ -296,9 +331,9 @@ public class ManagerService {
 
         String htmlContent = buildHtmlBodyForCoordinator(interview, student, coordinator, manager, formattedDate, formattedTime);
 
-        MimeBodyPart ampPart = new MimeBodyPart();
-        ampPart.setContent(htmlContent, "text/html; charset=utf-8");
-        multipart.addBodyPart(ampPart);
+        MimeBodyPart contentPart = new MimeBodyPart();
+        contentPart.setContent(htmlContent, "text/html; charset=utf-8");
+        multipart.addBodyPart(contentPart);
 
         message.setContent(multipart);
         return message;
@@ -372,7 +407,7 @@ public class ManagerService {
                   </tr>
                   <tr>
                     <td style="padding: 0 32px 32px 32px;">
-                      <a href="http://localhost:3000" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Acessar Sistema</a>
+                      <a href="%s" style="background-color: #374151; color: #ffffff; text-decoration: none; padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: 4px; display: inline-block;">Acessar Sistema</a>
                     </td>
                   </tr>
                 </table>
@@ -382,18 +417,30 @@ public class ManagerService {
         </body>
         </html>
         """.formatted(
-                coordinator.getName(),
-                student.getName(),
-                student.getName(),
-                date,
-                time,
-                interview.getPlace().getPlaceName(),
-                interview.getPlace().getSection(),
-                interview.getPlace().getPark(),
-                interview.getInterviewerName(),
-                manager.getName(),
-                interview.getVacancy().getDescription()
+                escape(coordinator.getName()),
+                escape(student.getName()),
+                escape(student.getName()),
+                escape(date),
+                escape(time),
+                escape(interview.getPlace().getPlaceName()),
+                escape(interview.getPlace().getSection()),
+                escape(interview.getPlace().getPark()),
+                escape(interview.getInterviewerName()),
+                escape(manager.getName()),
+                escape(interview.getVacancy().getDescription()),
+                escape(frontendUrl)
         );
+    }
+
+    private Coordinator findCoordinator(Student student) {
+        if (student.getClassEntity() == null || student.getClassEntity().getCourse() == null) {
+            return null;
+        }
+        return student.getClassEntity().getCourse().getCoordinator();
+    }
+
+    private String escape(Object value) {
+        return HtmlUtils.htmlEscape(String.valueOf(value));
     }
 
     private void validateEmail(String email) {

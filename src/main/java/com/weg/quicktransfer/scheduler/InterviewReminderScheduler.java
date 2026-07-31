@@ -3,18 +3,14 @@ package com.weg.quicktransfer.scheduler;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.weg.quicktransfer.exception.StudentNotFoundException;
 import com.weg.quicktransfer.model.Interview;
-import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.InterviewRepository;
-import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.service.ManagerService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,19 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterviewReminderScheduler {
 
     private final InterviewRepository interviewRepository;
-    private final StudentRepository studentRepository;
     private final ManagerService managerService;
 
     /**
      * Executa a cada 5 minutos.
-     * Procura entrevistas que acontecerão entre 24h e 24h05min a partir de agora.
+     * Processa entrevistas ainda não notificadas que acontecerão nas próximas 24 horas.
      */
     @Scheduled(cron = "0 */5 * * * *")
-    @Transactional
     public void sendInterviewReminders() {
 
-        LocalDateTime start = LocalDateTime.now().plusHours(24);
-        LocalDateTime end = start.plusMinutes(5);
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = start.plusHours(24);
 
         log.info(
                 "Checking interview reminders between {} and {}",
@@ -50,26 +44,19 @@ public class InterviewReminderScheduler {
         }
 
         for (Interview interview : interviews) {
+            int claimed = interviewRepository.claimReminder(
+                    interview.getId(),
+                    start,
+                    start.minusMinutes(15));
+            if (claimed == 0) {
+                continue;
+            }
+
             try {
-
-                Student student = studentRepository
-                        .findByInterviewId(interview.getId())
-                        .orElseThrow(() ->
-                                new StudentNotFoundException(
-                                        "Student not found for interview ID: "
-                                                + interview.getId()));
-
-                managerService.sendDynamicEmailAmp(
-                        student.getEmail(),
-                        interview.getId()
-                );
-
-                interview.setReminderSent(true);
-                interviewRepository.save(interview);
+                managerService.sendDynamicEmailAmp(interview.getId());
 
                 log.info(
-                        "Reminder sent successfully to {} for interview {}",
-                        student.getEmail(),
+                        "Reminder sent successfully for interview {}",
                         interview.getId()
                 );
 
@@ -80,6 +67,7 @@ public class InterviewReminderScheduler {
                         interview.getId(),
                         e
                 );
+                interviewRepository.releaseReminderClaim(interview.getId());
             }
         }
     }

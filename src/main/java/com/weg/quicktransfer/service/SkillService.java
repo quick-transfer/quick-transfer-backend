@@ -10,6 +10,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
@@ -54,6 +56,11 @@ public class SkillService {
         return skills.stream().map(skillMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<SkillResponseDTO> findAll(Pageable pageable) {
+        return skillRepository.findAll(pageable).map(skillMapper::toResponse);
+    }
+
     @Cacheable(value = "skillById", key = "#id")
     @Transactional(readOnly = true)
     public SkillResponseDTO findById(UUID id) {
@@ -78,6 +85,12 @@ public class SkillService {
         return admins.stream()
                 .map(skillMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SkillResponseDTO> searchSkills(SkillFilter filter, Pageable pageable) {
+        Specification<Skill> spec = SkillSpecification.getFilteredSkills(filter);
+        return skillRepository.findAll(spec, pageable).map(skillMapper::toResponse);
     }
 
     @Caching(

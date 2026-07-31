@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
@@ -156,14 +157,14 @@ class PlaceServiceTest {
     void shouldSearchPlacesWithFilter() {
         PlaceFilter filter = new PlaceFilter("Jaraguá", Park.WEG_II, Section.IT);
 
-        when(placeRepo.findAll(any(Specification.class))).thenReturn(List.of(place));
+        when(placeRepo.findAll(ArgumentMatchers.<Specification<Place>>any())).thenReturn(List.of(place));
         when(placeMapper.toResponse(place)).thenReturn(responseDTO);
 
         List<PlaceResponseDTO> result = placeService.searchPlaces(filter);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(placeRepo).findAll(any(Specification.class));
+        verify(placeRepo).findAll(ArgumentMatchers.<Specification<Place>>any());
     }
 
     @Test

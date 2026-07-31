@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,24 +44,23 @@ public class CoordinatorController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @GetMapping("/search")
-    public ResponseEntity<List<CoordinatorResponseDTO>> searchCoordinators(CoordinatorFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.searchCoordinators(filter));
+    public ResponseEntity<Page<CoordinatorResponseDTO>> searchCoordinators(CoordinatorFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.searchCoordinators(filter, pageable));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<CoordinatorResponseDTO>> findAllCoordinators() {
-        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findAll());
+    public ResponseEntity<Page<CoordinatorResponseDTO>> findAllCoordinators(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('COORDINATOR') and #id == authentication.principal.id)")
     @PatchMapping("/update/{id}")
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
             @PathVariable UUID id,
-            @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO,
-            @RequestParam UUID userId
+            @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO, userId));
+        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

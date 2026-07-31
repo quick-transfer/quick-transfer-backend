@@ -10,6 +10,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +58,11 @@ public class VacancyService {
         return vacancies.stream().map(vacancyMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> findAll(Pageable pageable) {
+        return vacancyRepository.findAll(pageable).map(vacancyMapper::toResponse);
+    }
+
     @Cacheable(value = "vacancyById", key = "#id")
     @Transactional(readOnly = true)
     public VacancyResponseDTO findById(UUID id) {
@@ -71,6 +78,12 @@ public class VacancyService {
         return vacancies.stream()
                 .map(vacancyMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> searchVacancies(VacancyFilter filter, Pageable pageable) {
+        Specification<Vacancy> spec = VacancySpecification.getFilteredVacancies(filter);
+        return vacancyRepository.findAll(spec, pageable).map(vacancyMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

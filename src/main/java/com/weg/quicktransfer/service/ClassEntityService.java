@@ -6,6 +6,8 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
 import com.weg.quicktransfer.repo.specifications.ClassEntitySpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import com.weg.quicktransfer.enums.ShiftClass;
 import com.weg.quicktransfer.enums.StatusClass;
 import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.CourseNotFoundException;
+import com.weg.quicktransfer.exception.DateOutOfRangeException;
 import com.weg.quicktransfer.mapper.ClassEntityMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
@@ -34,6 +37,7 @@ public class ClassEntityService {
 
     @Transactional
     public ClassEntityResponseDTO create(ClassEntityRequestDTO classEntityRequestDTO) {
+        validateDates(classEntityRequestDTO.startDate(), classEntityRequestDTO.finishDate());
         Course course = courseRepository.findById(classEntityRequestDTO.courseId()).orElseThrow(() -> new CourseNotFoundException(classEntityRequestDTO.courseId()));
 
         ClassEntity classEntity = classEntityMapper.toEntity(classEntityRequestDTO, course);
@@ -51,6 +55,11 @@ public class ClassEntityService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ClassEntityResponseDTO> findAll(Pageable pageable) {
+        return classEntityRepository.findAll(pageable).map(classEntityMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<ClassEntityResponseDTO> findByAcronym(String acronym){
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
@@ -61,6 +70,12 @@ public class ClassEntityService {
         return classEntities.stream()
                 .map(classEntityMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClassEntityResponseDTO> searchClassEntities(ClassEntityFilter filter, Pageable pageable) {
+        Specification<ClassEntity> spec = ClassEntitySpecification.getFilteredClassEntities(filter);
+        return classEntityRepository.findAll(spec, pageable).map(classEntityMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +124,8 @@ public class ClassEntityService {
             classEntity.setAcronym(classEntityUpdateRequestDTO.acronym());
         }
 
+        validateDates(classEntity.getStartDate(), classEntity.getFinishDate());
+
         ClassEntity classEntityAtt = classEntityRepository.save(classEntity);
 
         return classEntityMapper.toResponse(classEntityAtt);
@@ -121,5 +138,11 @@ public class ClassEntityService {
         }
 
         classEntityRepository.deleteById(id);
+    }
+
+    private void validateDates(java.time.LocalDate startDate, java.time.LocalDate finishDate) {
+        if (startDate != null && finishDate != null && finishDate.isBefore(startDate)) {
+            throw new DateOutOfRangeException("Finish date cannot be before start date");
+        }
     }
 }

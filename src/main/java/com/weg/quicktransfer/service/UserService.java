@@ -3,24 +3,24 @@ package com.weg.quicktransfer.service;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
+import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserFilter;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
 import com.weg.quicktransfer.exception.FirstLoginException;
-import com.weg.quicktransfer.exception.InvalidPasswordException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.AdminMapper;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.*;
-import com.weg.quicktransfer.repo.AdminRepository;
-import com.weg.quicktransfer.repo.CoordinatorRepository;
-import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.repo.specifications.UserSpecification;
 import com.weg.quicktransfer.security.JwtService;
+import com.weg.quicktransfer.security.PasswordPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,13 +44,10 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    private final AdminRepository adminRepository;
     private final AdminMapper adminMapper;
 
-    private final CoordinatorRepository coordinatorRepository;
     private final CoordinatorMapper coordinatorMapper;
 
-    private final ManagerRepository managerRepository;
     private final ManagerMapper managerMapper;
 
     @Transactional
@@ -102,28 +99,24 @@ public class UserService {
                 )
         );
 
-        validatePassword(requestDTO.newPassword());
+        PasswordPolicy.validate(requestDTO.newPassword());
         user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
         user.setFirstLogin(false);
         userRepository.save(user);
     }
 
     @Transactional
-    public UserResponseDTO resetPassword(LoginRequestDTO requestDTO) {
+    public UserResponseDTO resetPassword(String authenticatedUsername, PasswordResetRequestDTO requestDTO) {
 
-        User user = userRepository.findFirstByUsername(requestDTO.username())
-                .orElseGet(() -> userRepository.findFirstByName(requestDTO.username())
-                        .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username())));
+        User user = userRepository.findFirstByUsername(authenticatedUsername)
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user was not found"));
 
-        String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
-        if (requestDTO.password() == null || !requestDTO.password().matches(passwordRegex)) {
-            throw new InvalidPasswordException("Password does not meet security requirements.");
-        }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                user.getUsername(), requestDTO.currentPassword()));
 
-        user.setPassword(passwordEncoder.encode(requestDTO.password()));
-        if (Boolean.TRUE.equals(user.getFirstLogin())) {
-            user.setFirstLogin(false);
-        }
+        PasswordPolicy.validate(requestDTO.newPassword());
+
+        user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
 
         userRepository.save(user);
 
@@ -155,10 +148,21 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Page<UserResponseDTO> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::mapUserToResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
     public List<UserResponseDTO> searchUsers(UserFilter filter) {
         Specification<User> spec = UserSpecification.getFilteredUsers(filter);
         List<User> users = userRepository.findAll(spec);
         return mapUsersToResponseDTOs(users);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponseDTO> searchUsers(UserFilter filter, Pageable pageable) {
+        Specification<User> spec = UserSpecification.getFilteredUsers(filter);
+        return userRepository.findAll(spec, pageable).map(this::mapUserToResponseDTO);
     }
 
     @Transactional
@@ -168,6 +172,11 @@ public class UserService {
 
         if (StringUtils.hasText(updateRequestDTO.name())) {
             user.setName(updateRequestDTO.name());
+        }
+
+        if (StringUtils.hasText(updateRequestDTO.password())) {
+            PasswordPolicy.validate(updateRequestDTO.password());
+            user.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
         }
 
         userRepository.save(user);
@@ -189,33 +198,16 @@ public class UserService {
     }
 
     private UserResponseDTO mapUserToResponseDTO(User user) {
-        return switch (user.getRole()) {
-            case ADMIN -> adminMapper.toResponse(
-                    adminRepository.findById(user.getId())
-                            .orElseThrow(() -> new UserNotFoundException("Admin does not exist for ID: " + user.getId()))
-            );
-            case COORDINATOR -> coordinatorMapper.toResponse(
-                    coordinatorRepository.findById(user.getId())
-                            .orElseThrow(() -> new UserNotFoundException("Coordinator does not exist for ID: " + user.getId()))
-            );
-            case MANAGER -> managerMapper.toResponse(
-                    managerRepository.findById(user.getId())
-                            .orElseThrow(() -> new UserNotFoundException("Manager does not exist for ID: " + user.getId()))
-            );
-            default -> throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
-        };
-    }
-
-    private void validatePassword(String password) {
-        boolean validPassword = password != null
-                && password.length() >= 14
-                && password.chars().anyMatch(Character::isUpperCase)
-                && password.chars().anyMatch(Character::isDigit)
-                && password.matches(".*[^A-Za-z0-9].*");
-
-        if (!validPassword) {
-            throw new InvalidPasswordException("Password does not meet security requirements.");
+        if (user instanceof Admin admin) {
+            return adminMapper.toResponse(admin);
         }
+        if (user instanceof Coordinator coordinator) {
+            return coordinatorMapper.toResponse(coordinator);
+        }
+        if (user instanceof Manager manager) {
+            return managerMapper.toResponse(manager);
+        }
+        throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
     }
 
 }
