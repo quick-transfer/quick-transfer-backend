@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,9 @@ import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final ClassEntityRepository classEntityRepository;
+
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public StudentResponseDTO create(StudentRequestDTO studentRequestDTO) {
@@ -44,6 +50,26 @@ public class StudentService {
         student = studentRepository.save(student);
 
         return studentMapper.toResponse(student);
+    }
+
+    @Transactional
+    public List<StudentResponseDTO> createMultiple(MultipartFile file) throws IOException {
+        L
+
+        List<StudentRequestDTO> studentsRequest = objectMapper.readValue(
+                file.getInputStream(),
+                new TypeReference<>() {
+                }
+        );
+
+        List<Student> students = studentsRequest.stream()
+                .map(dto -> studentMapper.toEntity(dto, classEntityRepository.findById(dto.classId())
+                        .orElseThrow(() -> new ClassEntityNotFoundException("The operation was canceled because one of the classes id was invalid"))))
+                .toList();
+
+
+
+
     }
 
     @Transactional(readOnly = true)
