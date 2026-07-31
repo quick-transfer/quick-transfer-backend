@@ -18,7 +18,6 @@ public record SkillRequestDTO(
     Double grade,
 
     @NotNull(message = "Student id must not be null")
-    @Positive(message = "Student id must be a positive number")
     UUID studentId
 ) {
 }
