@@ -1,10 +1,10 @@
 package com.weg.quicktransfer.controller;
 
 import com.weg.quicktransfer.dto.auth.AuthenticatedUserResponseDTO;
+import com.weg.quicktransfer.dto.auth.ChangePasswordRequestDto;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
-import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,15 +32,17 @@ public class AuthController {
     @Value("${app.jwt.expiration}")
     private long expirationMs;
 
+    @Value("${app.cookie.secure:true}")
+    private boolean secureCookie;
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
-
         LoginResponseDTO response = userService.login(requestDTO);
 
         ResponseCookie cookie = ResponseCookie
                 .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(false)
+                .secure(secureCookie)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofMillis(expirationMs))
@@ -54,25 +57,40 @@ public class AuthController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .header(HttpHeaders.PRAGMA, "no-cache")
                 .body(authenticatedUser);
     }
 
     @PostMapping("/first-access")
-    public ResponseEntity<Void> completeFirstAccess(
-            @RequestBody @Valid FirstAccessRequestDTO requestDTO) {
+    public ResponseEntity<Void> firstAccess(@RequestBody @Valid FirstAccessRequestDTO requestDTO) {
         userService.completeFirstAccess(requestDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            Authentication authentication,
+            @RequestBody @Valid ChangePasswordRequestDto request
+    ) {
+        userService.changePassword(
+                authentication.getName(),
+                request.currentPassword(),
+                request.newPassword()
+        );
+
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-
         SecurityContextHolder.clearContext();
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(secureCookie)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(0)
@@ -80,12 +98,8 @@ public class AuthController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .header(HttpHeaders.PRAGMA, "no-cache")
                 .build();
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
-    @PostMapping("/password-reset")
-    public UserResponseDTO resetPassword(@RequestBody @Valid LoginRequestDTO requestDTO) {
-        return userService.resetPassword(requestDTO);
     }
 }
