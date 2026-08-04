@@ -7,6 +7,7 @@ import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 @Component
 public class ClassEntityMapper {
@@ -16,8 +17,8 @@ public class ClassEntityMapper {
                 course,
                 classEntityResquestDTO.startDate(),
                 classEntityResquestDTO.finishDate(),
-                StatusClass.valueOf(classEntityResquestDTO.status()),
-                ShiftClass.valueOf(classEntityResquestDTO.shiftClass()),
+                StatusClass.valueOf(classEntityResquestDTO.status().trim().toUpperCase(Locale.ROOT)),
+                ShiftClass.valueOf(classEntityResquestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)),
                 classEntityResquestDTO.acronym()
         );
     }

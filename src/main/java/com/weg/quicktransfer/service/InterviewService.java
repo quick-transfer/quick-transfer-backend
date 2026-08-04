@@ -89,6 +89,7 @@ public class InterviewService {
 
         if(interviewUpdateRequestDTO.dateTime() != null) {
             interview.setDateTime(interviewUpdateRequestDTO.dateTime());
+            interview.setReminderSent(false);
         }
 
         if(interviewUpdateRequestDTO.placeId() != null) {
@@ -109,6 +110,7 @@ public class InterviewService {
         if(interviewUpdateRequestDTO.studentId() != null) {
             Student student = studentRepository.findById(interviewUpdateRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(interviewUpdateRequestDTO.studentId()));
             interview.setStudent(student);
+            interview.setReminderSent(false);
         }
 
         Interview interviewAtt = interviewRepository.save(interview);

@@ -25,7 +25,7 @@ public class ClassEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
     
@@ -46,8 +46,12 @@ public class ClassEntity {
     @Column(nullable = false, unique = true)
     private String acronym;
 
-    @OneToMany(mappedBy = "classEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "classEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Student> students = new ArrayList<>();
+
+    @Version
+    @Column(nullable = false)
+    private long version;
     
     public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
             ShiftClass shiftClass, String acronym) {

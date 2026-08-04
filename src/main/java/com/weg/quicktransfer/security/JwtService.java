@@ -13,6 +13,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -33,6 +34,12 @@ public class JwtService {
         this.privateKey = privateKey;
         this.expirationMs = expirationMs;
         this.issuer = (issuer == null || issuer.isBlank()) ? DEFAULT_ISSUER : issuer;
+        if (publicKey.getModulus().bitLength() < 2048 || privateKey.getModulus().bitLength() < 2048) {
+            throw new IllegalArgumentException("JWT RSA keys must be at least 2048 bits");
+        }
+        if (!publicKey.getModulus().equals(privateKey.getModulus())) {
+            throw new IllegalArgumentException("JWT public and private keys do not form a pair");
+        }
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -41,9 +48,18 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         Date now = new Date();
+        Map<String, Object> claims = new HashMap<>(extraClaims);
+
+        if (userDetails instanceof UserPrincipal principal) {
+            claims.put("ver", principal.getTokenVersion());
+            claims.put("uid", principal.getId().toString());
+        } else {
+            claims.putIfAbsent("ver", 0L);
+        }
 
         return Jwts.builder()
-                .claims(extraClaims)
+                .claims(claims)
+                .id(UUID.randomUUID().toString())
                 .issuer(issuer)
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
@@ -59,11 +75,17 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             Claims claims = extractAllClaims(token);
+            long currentTokenVersion = userDetails instanceof UserPrincipal principal
+                    ? principal.getTokenVersion()
+                    : 0L;
+            Number tokenVersion = claims.get("ver", Number.class);
 
             return claims.getSubject() != null
                     && claims.getSubject().equals(userDetails.getUsername())
                     && claims.getIssuer() != null
                     && claims.getIssuer().equals(issuer)
+                    && tokenVersion != null
+                    && tokenVersion.longValue() == currentTokenVersion
                     && claims.getExpiration() != null
                     && claims.getExpiration().after(new Date());
         } catch (ExpiredJwtException e) {

@@ -1,20 +1,17 @@
 package com.weg.quicktransfer.scheduler;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import com.weg.quicktransfer.exception.StudentNotFoundException;
-import com.weg.quicktransfer.model.Interview;
-import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.InterviewRepository;
-import com.weg.quicktransfer.repo.StudentRepository;
-import com.weg.quicktransfer.service.ManagerService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,64 +19,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterviewReminderScheduler {
 
     private final InterviewRepository interviewRepository;
-    private final StudentRepository studentRepository;
-    private final ManagerService managerService;
+    private final InterviewReminderProcessor reminderProcessor;
 
-    /**
-     * Executa a cada 5 minutos.
-     * Procura entrevistas que acontecerão entre 24h e 24h05min a partir de agora.
-     */
-    @Scheduled(cron = "0 */5 * * * *")
-    @Transactional
+    @Value("${app.reminders.look-ahead-hours:24}")
+    private long lookAheadHours;
+
+    @Value("${app.reminders.batch-size:100}")
+    private int batchSize;
+
+    @Value("${app.reminders.zone:America/Sao_Paulo}")
+    private String reminderZone;
+
+    @Scheduled(
+            cron = "${app.reminders.cron:0 */5 * * * *}",
+            zone = "${app.reminders.zone:America/Sao_Paulo}")
     public void sendInterviewReminders() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of(reminderZone));
+        LocalDateTime deadline = now.plusHours(lookAheadHours);
+        List<UUID> interviewIds = interviewRepository.findPendingReminderIds(
+                now,
+                deadline,
+                PageRequest.of(0, Math.max(1, Math.min(batchSize, 1000))));
 
-        LocalDateTime start = LocalDateTime.now().plusHours(24);
-        LocalDateTime end = start.plusMinutes(5);
-
-        log.info(
-                "Checking interview reminders between {} and {}",
-                start,
-                end
-        );
-
-        List<Interview> interviews = interviewRepository
-                .findByDateTimeBetweenAndReminderSentFalse(start, end);
-
-        if (interviews.isEmpty()) {
-            return;
-        }
-
-        for (Interview interview : interviews) {
+        for (UUID interviewId : interviewIds) {
             try {
-
-                Student student = studentRepository
-                        .findByInterviewId(interview.getId())
-                        .orElseThrow(() ->
-                                new StudentNotFoundException(
-                                        "Student not found for interview ID: "
-                                                + interview.getId()));
-
-                managerService.sendDynamicEmailAmp(
-                        student.getEmail(),
-                        interview.getId()
-                );
-
-                interview.setReminderSent(true);
-                interviewRepository.save(interview);
-
-                log.info(
-                        "Reminder sent successfully to {} for interview {}",
-                        student.getEmail(),
-                        interview.getId()
-                );
-
-            } catch (Exception e) {
-
-                log.error(
-                        "Failed to send reminder for interview {}",
-                        interview.getId(),
-                        e
-                );
+                if (reminderProcessor.process(interviewId)) {
+                    log.info("Reminder sent successfully for interview {}", interviewId);
+                }
+            } catch (Exception ex) {
+                log.error("Failed to send reminder for interview {}", interviewId, ex);
             }
         }
     }

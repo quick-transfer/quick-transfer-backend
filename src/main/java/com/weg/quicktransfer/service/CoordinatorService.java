@@ -80,15 +80,15 @@ public class CoordinatorService {
     }
 
     @Transactional
-    public CoordinatorResponseDTO update(UUID id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO, UUID userId) {
-        User user = userRepository.findById(userId)
+    public CoordinatorResponseDTO update(UUID id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO, String requesterUsername) {
+        User user = userRepository.findFirstByUsername(requesterUsername)
                 .orElseThrow(() -> new UserNotFoundException("User is not logged"));
 
         if (!(user instanceof Coordinator || user instanceof Admin)) {
             throw new UserNotAllowdException("User is neither a Admin nor a Coordinator");
         }
 
-        if (user instanceof Admin || user.getId() == userId) {
+        if (user instanceof Admin || id.equals(user.getId())) {
             Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
 
             if(coordinatorUpdateRequestDTO.name() != null && !coordinatorUpdateRequestDTO.name().isBlank()) {
@@ -97,6 +97,7 @@ public class CoordinatorService {
 
             if(coordinatorUpdateRequestDTO.password() != null && !coordinatorUpdateRequestDTO.password().isBlank()) {
                 coordinator.setPassword(passwordEncoder.encode(coordinatorUpdateRequestDTO.password()));
+                coordinator.setTokenVersion(coordinator.getTokenVersion() + 1);
             }
 
             Coordinator coordinatorAtt = coordinatorRepository.save(coordinator);

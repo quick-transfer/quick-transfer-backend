@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,10 @@ public class Place {
 
     @OneToMany(mappedBy = "place")
     private List<Interview> interviews = new ArrayList<>();
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     public Place(String placeName, Park park, Section section) {
         this.placeName = placeName;

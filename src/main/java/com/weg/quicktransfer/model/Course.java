@@ -25,12 +25,16 @@ public class Course {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coordinator_id", nullable = false)
     private Coordinator coordinator;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<ClassEntity> classes = new ArrayList<>();
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     public Course(String name, Coordinator coordinator, List<ClassEntity> classes) {
         this.name = name;

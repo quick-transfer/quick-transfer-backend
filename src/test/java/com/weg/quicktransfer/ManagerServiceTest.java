@@ -141,7 +141,7 @@ class ManagerServiceTest {
                 () -> managerService.create(null)
         );
 
-        assertEquals("Manager can not be null", exception.getMessage());
+        assertEquals("Manager cannot be null", exception.getMessage());
     }
 
     @Test
@@ -226,19 +226,19 @@ class ManagerServiceTest {
         ManagerUpdateRequestDTO updateRequest = new ManagerUpdateRequestDTO(newName, newPassword, Section.IT.toString());
         ManagerResponseDTO updatedResponse = new ManagerResponseDTO(MANAGER_ID, newName, "manager01", "manager@dominio.com", null);
 
-        when(userRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
+        when(userRepository.findFirstByUsername("manager01")).thenReturn(Optional.of(manager));
         when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         when(managerRepository.save(manager)).thenReturn(manager);
         when(managerMapper.toResponse(manager)).thenReturn(updatedResponse);
 
-        ManagerResponseDTO result = managerService.update(MANAGER_ID, updateRequest, MANAGER_ID);
+        ManagerResponseDTO result = managerService.update(MANAGER_ID, updateRequest, "manager01");
 
         assertNotNull(result);
         assertEquals(newName, result.name());
         assertEquals(encodedPassword, manager.getPassword());
 
-        verify(userRepository).findById(MANAGER_ID);
+        verify(userRepository).findFirstByUsername("manager01");
         verify(managerRepository).findById(MANAGER_ID);
         verify(passwordEncoder).encode(newPassword);
         verify(managerRepository).save(manager);
@@ -246,22 +246,21 @@ class ManagerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not update password if it fails strength regex validation")
-    void shouldNotUpdatePasswordWhenInvalidRegex() {
+    @DisplayName("Should reject a password that fails strength validation")
+    void shouldRejectPasswordWhenInvalidRegex() {
         String newName = "Manager Atualizado";
         String weakPassword = "123456";
 
         ManagerUpdateRequestDTO updateRequest = new ManagerUpdateRequestDTO(newName, weakPassword, Section.IT.toString());
 
-        when(userRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
+        when(userRepository.findFirstByUsername("manager01")).thenReturn(Optional.of(manager));
         when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
-        when(managerRepository.save(manager)).thenReturn(manager);
-        when(managerMapper.toResponse(manager)).thenReturn(responseDTO);
 
-        managerService.update(MANAGER_ID, updateRequest, MANAGER_ID);
-
+        assertThrows(com.weg.quicktransfer.exception.InvalidPasswordException.class,
+                () -> managerService.update(MANAGER_ID, updateRequest, "manager01"));
         assertEquals("123456", manager.getPassword());
         verify(passwordEncoder, never()).encode(anyString());
+        verify(managerRepository, never()).save(any());
     }
 
     @Test

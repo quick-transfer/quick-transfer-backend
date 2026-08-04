@@ -22,6 +22,7 @@ import com.weg.quicktransfer.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,17 +56,15 @@ public class UserService {
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO request) {
-
-        User user = userRepository.findFirstByUsername(request.username())
-                .orElseGet(() -> userRepository.findFirstByName(request.username())
-                        .orElseThrow(() -> new UserNotFoundException("User not found with: " + request.username())));
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
+                        request.username(),
                         request.password()
                 )
         );
+
+        User user = userRepository.findFirstByUsername(request.username())
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
         if (Boolean.TRUE.equals(user.getFirstLogin())) {
             throw new FirstLoginException("It is user's first login");
@@ -87,9 +86,7 @@ public class UserService {
     @Transactional
     public void completeFirstAccess(FirstAccessRequestDTO requestDTO) {
         User user = userRepository.findFirstByUsername(requestDTO.username())
-                .orElseGet(() -> userRepository.findFirstByName(requestDTO.username())
-                        .orElseThrow(() -> new UserNotFoundException(
-                                "User not found with: " + requestDTO.username())));
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
         if (!Boolean.TRUE.equals(user.getFirstLogin())) {
             throw new IllegalArgumentException("First access has already been completed.");
@@ -105,6 +102,7 @@ public class UserService {
         validatePassword(requestDTO.newPassword());
         user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
         user.setFirstLogin(false);
+        user.setTokenVersion(user.getTokenVersion() + 1);
         userRepository.save(user);
     }
 
@@ -112,15 +110,16 @@ public class UserService {
     public UserResponseDTO resetPassword(LoginRequestDTO requestDTO) {
 
         User user = userRepository.findFirstByUsername(requestDTO.username())
-                .orElseGet(() -> userRepository.findFirstByName(requestDTO.username())
-                        .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username())));
+                .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username()));
 
+        validatePassword(requestDTO.password());
         String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
         if (requestDTO.password() == null || !requestDTO.password().matches(passwordRegex)) {
             throw new InvalidPasswordException("Password does not meet security requirements.");
         }
 
         user.setPassword(passwordEncoder.encode(requestDTO.password()));
+        user.setTokenVersion(user.getTokenVersion() + 1);
         if (Boolean.TRUE.equals(user.getFirstLogin())) {
             user.setFirstLogin(false);
         }
@@ -162,12 +161,25 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO update(UUID id, UserUpdateRequestDTO updateRequestDTO) {
+    public UserResponseDTO update(UUID id, UserUpdateRequestDTO updateRequestDTO, String requesterUsername) {
+        User requester = userRepository.findFirstByUsername(requesterUsername)
+                .orElseThrow(() -> new UserNotFoundException("User is not logged"));
+        if (!(requester instanceof Admin) && !id.equals(requester.getId())) {
+            throw new com.weg.quicktransfer.exception.UserNotAllowdException(
+                    "User is not allowed to update this user");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
         if (StringUtils.hasText(updateRequestDTO.name())) {
             user.setName(updateRequestDTO.name());
+        }
+
+        if (StringUtils.hasText(updateRequestDTO.password())) {
+            validatePassword(updateRequestDTO.password());
+            user.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
+            user.setTokenVersion(user.getTokenVersion() + 1);
         }
 
         userRepository.save(user);
@@ -180,6 +192,14 @@ public class UserService {
             throw new UserNotFoundException("User does not exist");
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void revokeSessions(String username) {
+        User user = userRepository.findFirstByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        userRepository.save(user);
     }
 
     private List<UserResponseDTO> mapUsersToResponseDTOs(List<User> users) {
@@ -210,6 +230,7 @@ public class UserService {
         boolean validPassword = password != null
                 && password.length() >= 14
                 && password.chars().anyMatch(Character::isUpperCase)
+                && password.chars().anyMatch(Character::isLowerCase)
                 && password.chars().anyMatch(Character::isDigit)
                 && password.matches(".*[^A-Za-z0-9].*");
 

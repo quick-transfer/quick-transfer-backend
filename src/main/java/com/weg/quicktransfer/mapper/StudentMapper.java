@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
@@ -17,7 +18,8 @@ public class StudentMapper {
             studentRequestDTO.age(),
             studentRequestDTO.averageGrade(),
             classEntity,
-            StudentInterviewStatus.valueOf(studentRequestDTO.statusStudentInterview()),
+            StudentInterviewStatus.valueOf(
+                    studentRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)),
             studentRequestDTO.hasSeenEmail(),
             null
         );

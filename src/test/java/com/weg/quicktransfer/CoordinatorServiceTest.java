@@ -197,14 +197,15 @@ class CoordinatorServiceTest {
 
             Admin adminUser = new Admin();
             adminUser.setId(ADMIN_USER_ID);
+            adminUser.setUsername("admin01");
 
-            when(userRepository.findById(ADMIN_USER_ID)).thenReturn(Optional.of(adminUser));
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.of(adminUser));
             when(coordinatorRepository.findById(COORDINATOR_ID)).thenReturn(Optional.of(coordinator));
             when(passwordEncoder.encode("654321")).thenReturn("encodedNewPassword");
             when(coordinatorRepository.save(coordinator)).thenReturn(coordinator);
             when(coordinatorMapper.toResponse(coordinator)).thenReturn(updatedResponse);
 
-            CoordinatorResponseDTO result = coordinatorService.update(COORDINATOR_ID, updateRequest, ADMIN_USER_ID);
+            CoordinatorResponseDTO result = coordinatorService.update(COORDINATOR_ID, updateRequest, "admin01");
 
             assertNotNull(result);
             assertEquals("Coordenador Atualizado", result.name());
@@ -213,7 +214,7 @@ class CoordinatorServiceTest {
             assertEquals("Coordenador Atualizado", coordinator.getName());
             assertEquals("encodedNewPassword", coordinator.getPassword());
 
-            verify(userRepository).findById(ADMIN_USER_ID);
+            verify(userRepository).findFirstByUsername("admin01");
             verify(coordinatorRepository).findById(COORDINATOR_ID);
             verify(passwordEncoder).encode("654321");
             verify(coordinatorRepository).save(coordinator);
@@ -227,12 +228,12 @@ class CoordinatorServiceTest {
                     "Coordenador Atualizado", "654321"
             );
 
-            when(userRepository.findById(ADMIN_USER_ID)).thenReturn(Optional.empty());
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.empty());
 
             assertThrows(UserNotFoundException.class,
-                    () -> coordinatorService.update(COORDINATOR_ID, updateRequest, ADMIN_USER_ID));
+                    () -> coordinatorService.update(COORDINATOR_ID, updateRequest, "admin01"));
 
-            verify(userRepository).findById(ADMIN_USER_ID);
+            verify(userRepository).findFirstByUsername("admin01");
             verify(coordinatorRepository, never()).findById(any());
         }
 
@@ -245,12 +246,13 @@ class CoordinatorServiceTest {
 
             Admin adminUser = new Admin();
             adminUser.setId(ADMIN_USER_ID);
+            adminUser.setUsername("admin01");
 
-            when(userRepository.findById(ADMIN_USER_ID)).thenReturn(Optional.of(adminUser));
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.of(adminUser));
             when(coordinatorRepository.findById(NON_EXISTENT_COORDINATOR_ID)).thenReturn(Optional.empty());
 
             assertThrows(CoordinatorNotFoundException.class,
-                    () -> coordinatorService.update(NON_EXISTENT_COORDINATOR_ID, updateRequest, ADMIN_USER_ID));
+                    () -> coordinatorService.update(NON_EXISTENT_COORDINATOR_ID, updateRequest, "admin01"));
 
             verify(coordinatorRepository).findById(NON_EXISTENT_COORDINATOR_ID);
             verify(coordinatorRepository, never()).save(any());

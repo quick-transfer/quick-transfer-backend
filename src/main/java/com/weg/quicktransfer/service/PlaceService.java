@@ -1,12 +1,9 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +28,6 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
 
-    @CacheEvict(value = "places", allEntries = true)
     @Transactional
     public PlaceResponseDTO create(PlaceRequestDTO placeRequestDTO) {
         if (placeRequestDTO == null) {
@@ -56,7 +52,6 @@ public class PlaceService {
                 .toList();
     }
 
-    @Cacheable("places")
     @Transactional(readOnly = true)
     public List<PlaceResponseDTO> findAll() {
         List<Place> places = placeRepository.findAll();
@@ -64,7 +59,6 @@ public class PlaceService {
         return places.stream().map(placeMapper::toResponse).toList();
     }
 
-    @Cacheable(value = "placeById", key = "#id")
     @Transactional(readOnly = true)
     public PlaceResponseDTO findById(UUID id) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
@@ -79,14 +73,6 @@ public class PlaceService {
         return places.stream().map(placeMapper::toResponse).toList();
     }
 
-    @Caching(
-            put = {
-                    @CachePut(value = "placeById", key = "#id")
-            },
-            evict = {
-                    @CacheEvict(value = "places", allEntries = true)
-            }
-    )
     @Transactional
     public PlaceResponseDTO update(UUID id, PlaceUpdateRequestDTO placeUpdateRequestDTO) {
         Place place = placeRepository.findById(id).orElseThrow(() -> new PlaceNotFoundException(id));
@@ -96,11 +82,11 @@ public class PlaceService {
         }
 
         if(placeUpdateRequestDTO.park() != null && !placeUpdateRequestDTO.park().isBlank()) {
-            place.setPark(Park.valueOf(placeUpdateRequestDTO.park()));
+            place.setPark(Park.valueOf(placeUpdateRequestDTO.park().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(placeUpdateRequestDTO.section() != null && !placeUpdateRequestDTO.section().isBlank()) {
-            place.setSection(Section.valueOf(placeUpdateRequestDTO.section()));
+            place.setSection(Section.valueOf(placeUpdateRequestDTO.section().trim().toUpperCase(Locale.ROOT)));
         }
 
         Place placeAtt = placeRepository.save(place);
@@ -108,12 +94,6 @@ public class PlaceService {
         return placeMapper.toResponse(placeAtt);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "places", allEntries = true),
-                    @CacheEvict(value = "placeById", key = "#id")
-            }
-    )
     @Transactional
     public void delete(UUID id) {
         if(!placeRepository.existsById(id)) {

@@ -27,7 +27,7 @@ public class Vacancy {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false, name = "numbers_vacancies")
@@ -41,12 +41,16 @@ public class Vacancy {
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "place_id")
     private Place place;
 
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     public Vacancy(String name, String description, Long numbersVacancies, Area area, Shift shift, Place place) {
         this.name = name;

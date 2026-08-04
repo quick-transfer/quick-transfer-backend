@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
@@ -16,6 +17,7 @@ import com.weg.quicktransfer.enums.ShiftClass;
 import com.weg.quicktransfer.enums.StatusClass;
 import com.weg.quicktransfer.exception.ClassEntityNotFoundException;
 import com.weg.quicktransfer.exception.CourseNotFoundException;
+import com.weg.quicktransfer.exception.DateOutOfRangeException;
 import com.weg.quicktransfer.mapper.ClassEntityMapper;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
@@ -34,6 +36,7 @@ public class ClassEntityService {
 
     @Transactional
     public ClassEntityResponseDTO create(ClassEntityRequestDTO classEntityRequestDTO) {
+        validateDates(classEntityRequestDTO.startDate(), classEntityRequestDTO.finishDate());
         Course course = courseRepository.findById(classEntityRequestDTO.courseId()).orElseThrow(() -> new CourseNotFoundException(classEntityRequestDTO.courseId()));
 
         ClassEntity classEntity = classEntityMapper.toEntity(classEntityRequestDTO, course);
@@ -97,12 +100,16 @@ public class ClassEntityService {
             classEntity.setFinishDate(classEntityUpdateRequestDTO.finishDate());
         }
 
+        validateDates(classEntity.getStartDate(), classEntity.getFinishDate());
+
         if(classEntityUpdateRequestDTO.status() != null) {
-            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status()));
+            classEntity.setStatus(StatusClass.valueOf(
+                    classEntityUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.shiftClass() != null) {
-            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass()));
+            classEntity.setShiftClass(ShiftClass.valueOf(
+                    classEntityUpdateRequestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {
@@ -121,5 +128,11 @@ public class ClassEntityService {
         }
 
         classEntityRepository.deleteById(id);
+    }
+
+    private void validateDates(java.time.LocalDate startDate, java.time.LocalDate finishDate) {
+        if (startDate != null && finishDate != null && !finishDate.isAfter(startDate)) {
+            throw new DateOutOfRangeException("Finish date must be after start date");
+        }
     }
 }

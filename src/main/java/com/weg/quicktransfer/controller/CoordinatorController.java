@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,9 +58,10 @@ public class CoordinatorController {
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
             @PathVariable UUID id,
             @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO,
-            @RequestParam UUID userId
+            Authentication authentication
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO, userId));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(coordinatorService.update(id, coordinatorUpdateRequestDTO, authentication.getName()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

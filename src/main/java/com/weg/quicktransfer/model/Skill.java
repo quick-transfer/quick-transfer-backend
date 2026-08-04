@@ -6,6 +6,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Version;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -32,14 +36,19 @@ public class Skill {
     private String name;
 
     @Column(name = "skill_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private SkillType skillType;
 
     @Column(nullable = false)
     private Double grade;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     public Skill(String name, SkillType skillType, Double grade, Student student) {
         this.name = name;

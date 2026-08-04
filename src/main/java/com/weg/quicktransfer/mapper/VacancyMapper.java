@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
@@ -16,8 +17,8 @@ public class VacancyMapper {
             vacancyRequestDTO.name(),
             vacancyRequestDTO.description(),
             vacancyRequestDTO.numbersVacancies(),
-            Area.valueOf(vacancyRequestDTO.area()),
-            Shift.valueOf(vacancyRequestDTO.shift()),
+            Area.valueOf(vacancyRequestDTO.area().trim().toUpperCase(Locale.ROOT)),
+            Shift.valueOf(vacancyRequestDTO.shift().trim().toUpperCase(Locale.ROOT)),
             place
         );
     }

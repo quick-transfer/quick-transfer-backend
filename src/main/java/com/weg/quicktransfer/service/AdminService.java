@@ -25,8 +25,8 @@ import java.util.UUID;
 public class AdminService {
 
     private final AdminMapper adminMapper;
-
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public AdminResponseDTO findAdminById(UUID id) {
@@ -77,7 +77,12 @@ public class AdminService {
             admin.setName(updateRequestDTO.name());
         }
 
-        return adminMapper.toResponse(admin);
+        if (StringUtils.hasText(updateRequestDTO.password())) {
+            admin.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
+            admin.setTokenVersion(admin.getTokenVersion() + 1);
+        }
+
+        return adminMapper.toResponse(adminRepository.save(admin));
     }
 
     @Transactional

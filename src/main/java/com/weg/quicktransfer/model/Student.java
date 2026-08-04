@@ -43,18 +43,22 @@ public class Student{
     private Boolean hasSeenEmail;
     
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StatusStudent statusStudent;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classentity_id", nullable = false)
     private ClassEntity classEntity;
 
     @OneToOne(mappedBy = "student")
-    @JoinColumn(name = "interview_id")
     private Interview interview;
 
     @OneToMany(mappedBy = "student")
     private List<Skill> skills = new ArrayList<>();
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     public Student(String name, String email, Long age, Double averageGrade, ClassEntity classEntity,
             StudentInterviewStatus status, Boolean hasSeenEmail, Interview interview) {

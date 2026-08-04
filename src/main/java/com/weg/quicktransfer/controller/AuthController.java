@@ -13,7 +13,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +34,9 @@ public class AuthController {
     @Value("${app.jwt.expiration}")
     private long expirationMs;
 
+    @Value("${app.security.cookie-secure:true}")
+    private boolean cookieSecure;
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
 
@@ -39,7 +45,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie
                 .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofMillis(expirationMs))
@@ -64,16 +70,23 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/csrf")
+    public CsrfToken csrf(CsrfToken token) {
+        return token;
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity<Void> logout(Authentication authentication) {
+
+        userService.revokeSessions(authentication.getName());
 
         SecurityContextHolder.clearContext();
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(cookieSecure)
+                .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
                 .build();
@@ -83,7 +96,7 @@ public class AuthController {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/password-reset")
     public UserResponseDTO resetPassword(@RequestBody @Valid LoginRequestDTO requestDTO) {
         return userService.resetPassword(requestDTO);

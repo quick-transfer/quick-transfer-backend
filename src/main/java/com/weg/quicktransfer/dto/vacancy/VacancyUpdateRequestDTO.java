@@ -13,6 +13,9 @@ public record VacancyUpdateRequestDTO(
 
     String shift,
 
+    @Positive(message = "The number of vacancies must be positive")
+    Long numbersVacancies,
+
     UUID placeId
 ) {
 }

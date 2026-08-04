@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,9 +59,10 @@ public class ManagerController {
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable UUID id,
             @RequestBody @Valid ManagerUpdateRequestDTO updateRequestDTO,
-            @RequestParam UUID userId
+            Authentication authentication
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO, userId));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(managerService.update(id, updateRequestDTO, authentication.getName()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -74,14 +76,11 @@ public class ManagerController {
     @PostMapping("/interview/sendEmail/{interviewId}")
     public ResponseEntity<String> postSendInterviewEmail(
             @PathVariable UUID interviewId,
-            @RequestParam("email") String to,
-            @RequestHeader(value = "AMP-Same-Origin", required = false) String sameOrigin,
-            @RequestHeader(value = "AMP-Email-Sender", required = false) String sender)  throws MessagingException {
+            Authentication authentication) throws MessagingException {
 
-        managerService.sendDynamicEmailAmp(to, interviewId);
+        managerService.sendInterviewEmail(interviewId, authentication.getName());
 
         return ResponseEntity.ok()
-                .header("AMP-Email-Allow-Sender", "quick.transfer.gmail@gmail.com")
                 .body("{\"message\": \"success!\"}");
     }
 }
