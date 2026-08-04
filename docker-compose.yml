@@ -1,72 +1,67 @@
-version: '3.8'
-
 services:
-  # ==========================================
-  # DATABASE - POSTGRESQL
-  # ==========================================
   postgres:
     image: postgres:16-alpine
-    container_name: quick-transfer-db
     restart: unless-stopped
+    ports:
+      - ${POSTGRES_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432
     environment:
-      POSTGRES_DB: quick_transfer
+      POSTGRES_DB: ${POSTGRES_DB:-quick_transfer}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U backend -d quick_transfer"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${POSTGRES_DB:-quick_transfer}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - quick-transfer-net
+      - quick-transfer
 
-  # ==========================================
-  # SPRING BOOT APPLICATION
-  # ==========================================
   app:
     build: .
-    container_name: quick-transfer-app
     restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - "8081:8080"
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8081}:8080"
     environment:
-      SPRING_DATASOURCE_URL: ${DATABASE_URL}
-      SPRING_DATASOURCE_USERNAME: ${DATABASE_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quick_transfer}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      PUBLIC_KEY: ${PUBLIC_KEY}
+      PRIVATE_KEY: ${PRIVATE_KEY}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      FRONTEND_URL: ${FRONTEND_URL}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM:-${MAIL_USERNAME}}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
     networks:
-      - quick-transfer-net
+      - quick-transfer
 
-
-  # ==========================================
-  # NETWORK BRIDGE
-  # ==========================================
-  rede-externa-bridge:
-    image: alpine/socat
-    container_name: quick-transfer-bridge
-    restart: unless-stopped
-    command: TCP4-LISTEN:8082,fork,reuseaddr TCP4:app:8080
-    ports:
-      - "0.0.0.0:8082:8082"
-    depends_on:
-      - app
-    networks:
-      - quick-transfer-net
-
-# ==========================================
-# GLOBAL RESOURCES
-# ==========================================
 volumes:
   postgres_data:
-    driver: local
 
 networks:
-  quick-transfer-net:
-    driver: bridge
+  quick-transfer:
