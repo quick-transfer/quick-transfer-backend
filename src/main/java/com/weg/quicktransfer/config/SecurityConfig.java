@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -53,7 +54,9 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain swaggerSecurityFilterChain(
+            HttpSecurity http,
+            BasicAuthenticationEntryPoint swaggerAuthenticationEntryPoint) throws Exception {
         return http
                 .securityMatcher("/v3/api-docs/**", "/actuator/**", "/swagger-ui/**")
                 .csrf(csrf -> csrf.disable())
@@ -62,13 +65,21 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .anyRequest().hasRole("ADMIN")
                 )
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(basic ->
+                        basic.authenticationEntryPoint(swaggerAuthenticationEntryPoint))
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(securityErrorHandler)
+                        .authenticationEntryPoint(swaggerAuthenticationEntryPoint)
                         .accessDeniedHandler(securityErrorHandler))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
+    }
+
+    @Bean
+    public BasicAuthenticationEntryPoint swaggerAuthenticationEntryPoint() {
+        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+        entryPoint.setRealmName("QuickTransferAPI");
+        return entryPoint;
     }
 
     @Bean

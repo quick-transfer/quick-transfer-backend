@@ -4,12 +4,14 @@ import com.weg.quicktransfer.controller.AdminController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -17,7 +19,13 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,6 +38,9 @@ class ApplicationContextTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private WebApplicationContext applicationContext;
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
@@ -46,6 +57,18 @@ class ApplicationContextTest {
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void swaggerRequestsBasicAuthenticationFromTheBrowser() throws Exception {
+        webAppContextSetup(applicationContext)
+                .apply(springSecurity())
+                .build()
+                .perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string(
+                        HttpHeaders.WWW_AUTHENTICATE,
+                        containsString("Basic realm=\"QuickTransferAPI\"")));
     }
 
     @Test
