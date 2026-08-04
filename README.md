@@ -78,6 +78,8 @@ No Windows, use `mvnw.cmd`.
 
 O Flyway aplica as migrations de `src/main/resources/db/migration`. O Hibernate usa `ddl-auto=validate`: ele valida o mapeamento, mas não altera o schema.
 
+Para adotar o Flyway uma única vez em um banco legado que ainda não possui `flyway_schema_history`, execute a primeira inicialização com `FLYWAY_BASELINE_ON_MIGRATE=true`. Depois que as migrations forem aplicadas, volte a variável para `false`. Bancos novos devem mantê-la em `false` desde o início.
+
 Não use `flyway clean` em produção. Faça backup e teste restauração antes de cada implantação que contenha migration.
 
 ## Autenticação
