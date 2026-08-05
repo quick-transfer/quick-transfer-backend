@@ -23,6 +23,10 @@ public class Vacancy {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
     
     @Column(nullable = false)
     private String name;
@@ -48,9 +52,14 @@ public class Vacancy {
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
 
-    @Version
-    @Column(nullable = false)
-    private long version;
+    @ManyToMany
+    @JoinTable(
+            name = "vacancy_skill_assignments",
+            joinColumns = @JoinColumn(name = "vacancy_id"),
+            inverseJoinColumns = @JoinColumn(name = "vacancy_skill_id")
+    )
+    @OrderBy("name ASC")
+    private List<VacancySkill> skills = new ArrayList<>();
 
     public Vacancy(String name, String description, Long numbersVacancies, Area area, Shift shift, Place place) {
         this.name = name;
@@ -59,5 +68,27 @@ public class Vacancy {
         this.area = area;
         this.shift = shift;
         this.place = place;
+    }
+
+    public void setSkills(List<VacancySkill> skills) {
+        new ArrayList<>(this.skills).forEach(this::removeSkill);
+        if (skills != null) {
+            skills.forEach(this::addSkill);
+        }
+    }
+
+    public void addSkill(VacancySkill skill) {
+        if (skill != null && !this.skills.contains(skill)) {
+            this.skills.add(skill);
+            if (!skill.getVacancies().contains(this)) {
+                skill.getVacancies().add(this);
+            }
+        }
+    }
+
+    public void removeSkill(VacancySkill skill) {
+        if (skill != null && this.skills.remove(skill)) {
+            skill.getVacancies().remove(this);
+        }
     }
 }

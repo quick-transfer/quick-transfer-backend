@@ -13,11 +13,12 @@ import com.weg.quicktransfer.repo.CoordinatorRepository;
 import com.weg.quicktransfer.repo.CourseRepository;
 import com.weg.quicktransfer.repo.specifications.CourseSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +50,11 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true)
+    public Page<CourseResponseDTO> findAll(Pageable pageable) {
+        return courseRepository.findAll(pageable).map(courseMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public CourseResponseDTO findById(UUID id){
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseNotFoundException(id));
 
@@ -73,6 +79,12 @@ public class CourseService {
         return courses.stream()
                 .map(courseMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseResponseDTO> searchCourses(CourseFilter filter, Pageable pageable) {
+        Specification<Course> spec = CourseSpecification.getFilteredCourses(filter);
+        return courseRepository.findAll(spec, pageable).map(courseMapper::toResponse);
     }
 
     @Transactional

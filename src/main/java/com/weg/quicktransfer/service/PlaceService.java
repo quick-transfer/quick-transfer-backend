@@ -21,6 +21,8 @@ import com.weg.quicktransfer.repo.specifications.PlaceSpecification;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -53,10 +55,21 @@ public class PlaceService {
     }
 
     @Transactional(readOnly = true)
+    public Page<PlaceResponseDTO> searchPlaces(PlaceFilter filter, Pageable pageable) {
+        Specification<Place> spec = PlaceSpecification.getFilteredPlaces(filter);
+        return placeRepository.findAll(spec, pageable).map(placeMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<PlaceResponseDTO> findAll() {
         List<Place> places = placeRepository.findAll();
 
         return places.stream().map(placeMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PlaceResponseDTO> findAll(Pageable pageable) {
+        return placeRepository.findAll(pageable).map(placeMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

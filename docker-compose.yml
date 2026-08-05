@@ -1,4 +1,7 @@
 services:
+  # ==========================================
+  # DATABASE - POSTGRESQL
+  # ==========================================
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -18,6 +21,9 @@ services:
     networks:
       - quick-transfer
 
+  # ==========================================
+  # SPRING BOOT APPLICATION
+  # ==========================================
   app:
     build: .
     restart: unless-stopped
@@ -34,9 +40,9 @@ services:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       FLYWAY_BASELINE_ON_MIGRATE: ${FLYWAY_BASELINE_ON_MIGRATE:-false}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
       PUBLIC_KEY: ${PUBLIC_KEY}
       PRIVATE_KEY: ${PRIVATE_KEY}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
       FRONTEND_URL: ${FRONTEND_URL}
       MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       MAIL_PORT: ${MAIL_PORT:-587}
@@ -61,6 +67,25 @@ services:
     networks:
       - quick-transfer
 
+
+  # ==========================================
+  # NETWORK BRIDGE
+  # ==========================================
+  rede-externa-bridge:
+    image: alpine/socat
+    container_name: quick-transfer-bridge
+    restart: unless-stopped
+    command: TCP4-LISTEN:8082,fork,reuseaddr TCP4:app:8080
+    ports:
+      - "127.0.0.1:8082:8082"
+    depends_on:
+      - app
+    networks:
+      - quick-transfer
+
+# ==========================================
+# GLOBAL RESOURCES
+# ==========================================
 volumes:
   postgres_data:
 

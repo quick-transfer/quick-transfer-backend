@@ -22,13 +22,13 @@ public class InterviewReminderScheduler {
     private final InterviewReminderProcessor reminderProcessor;
 
     @Value("${app.reminders.look-ahead-hours:24}")
-    private long lookAheadHours;
+    private long lookAheadHours = 24;
 
     @Value("${app.reminders.batch-size:100}")
-    private int batchSize;
+    private int batchSize = 100;
 
     @Value("${app.reminders.zone:America/Sao_Paulo}")
-    private String reminderZone;
+    private String reminderZone = "America/Sao_Paulo";
 
     @Scheduled(
             cron = "${app.reminders.cron:0 */5 * * * *}",

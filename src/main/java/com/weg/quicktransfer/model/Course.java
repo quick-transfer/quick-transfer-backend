@@ -22,6 +22,10 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -31,10 +35,6 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<ClassEntity> classes = new ArrayList<>();
-
-    @Version
-    @Column(nullable = false)
-    private long version;
 
     public Course(String name, Coordinator coordinator, List<ClassEntity> classes) {
         this.name = name;

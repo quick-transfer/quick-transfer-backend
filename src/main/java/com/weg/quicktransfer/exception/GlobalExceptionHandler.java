@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -118,6 +119,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleConflict(
             Exception ex,
             HttpServletRequest request) {
+        log.warn("Persistence conflict on {}", request.getRequestURI(), ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(buildError(HttpStatus.CONFLICT,
                         "The operation conflicts with the current resource state.", request));
@@ -134,9 +136,9 @@ public class GlobalExceptionHandler {
                         "Internal database error.", request));
     }
 
-    @ExceptionHandler(MessagingException.class)
+    @ExceptionHandler({MessagingException.class, MailException.class})
     public ResponseEntity<ErrorResponseDTO> handleMessagingException(
-            MessagingException ex,
+            Exception ex,
             HttpServletRequest request) {
 
         return ResponseEntity

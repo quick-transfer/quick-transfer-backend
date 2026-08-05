@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.repo.specifications.VacancySpecification;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +20,14 @@ import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
+import com.weg.quicktransfer.exception.VacancySkillNotFoundException;
 import com.weg.quicktransfer.mapper.VacancyMapper;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
 import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
+import com.weg.quicktransfer.repo.VacancySkillRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,12 +37,14 @@ public class VacancyService {
     private final VacancyRepository vacancyRepository;
     private final VacancyMapper vacancyMapper;
     private final PlaceRepository placeRepository;
+    private final VacancySkillRepository vacancySkillRepository;
 
     @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
+        List<VacancySkill> skills = resolveSkills(vacancyRequestDTO.skillIds());
 
-        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place);
+        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place, skills);
 
         vacancy = vacancyRepository.save(vacancy);
 
@@ -49,6 +56,11 @@ public class VacancyService {
         List<Vacancy> vacancies = vacancyRepository.findAll();
 
         return vacancies.stream().map(vacancyMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> findAll(Pageable pageable) {
+        return vacancyRepository.findAll(pageable).map(vacancyMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +77,12 @@ public class VacancyService {
         return vacancies.stream()
                 .map(vacancyMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VacancyResponseDTO> searchVacancies(VacancyFilter filter, Pageable pageable) {
+        Specification<Vacancy> spec = VacancySpecification.getFilteredVacancies(filter);
+        return vacancyRepository.findAll(spec, pageable).map(vacancyMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +127,10 @@ public class VacancyService {
             vacancy.setPlace(place);
         }
 
+        if (vacancyUpdateRequestDTO.skillIds() != null) {
+            vacancy.setSkills(resolveSkills(vacancyUpdateRequestDTO.skillIds()));
+        }
+
         Vacancy vacancyAtt = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancyAtt);
@@ -121,5 +143,17 @@ public class VacancyService {
         }
 
         vacancyRepository.deleteById(id);
+    }
+
+    private List<VacancySkill> resolveSkills(List<UUID> skillIds) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return List.of();
+        }
+
+        return skillIds.stream()
+                .distinct()
+                .map(skillId -> vacancySkillRepository.findById(skillId)
+                        .orElseThrow(() -> new VacancySkillNotFoundException(skillId)))
+                .toList();
     }
 }

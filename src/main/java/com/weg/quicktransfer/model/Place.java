@@ -33,6 +33,10 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false, name = "place_name")
     private String placeName;
     
@@ -49,10 +53,6 @@ public class Place {
 
     @OneToMany(mappedBy = "place")
     private List<Interview> interviews = new ArrayList<>();
-
-    @Version
-    @Column(nullable = false)
-    private long version;
 
     public Place(String placeName, Park park, Section section) {
         this.placeName = placeName;

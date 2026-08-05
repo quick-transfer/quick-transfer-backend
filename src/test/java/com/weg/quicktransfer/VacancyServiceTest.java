@@ -8,14 +8,18 @@ import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.enums.Shift;
+import com.weg.quicktransfer.enums.SkillType;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
+import com.weg.quicktransfer.exception.VacancySkillNotFoundException;
 import com.weg.quicktransfer.mapper.VacancyMapper;
 import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
 import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
+import com.weg.quicktransfer.repo.VacancySkillRepository;
 import com.weg.quicktransfer.service.VacancyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +51,9 @@ class VacancyServiceTest {
     @Mock
     private PlaceRepository placeRepository;
 
+    @Mock
+    private VacancySkillRepository vacancySkillRepository;
+
     @InjectMocks
     private VacancyService vacancyService;
 
@@ -57,6 +64,8 @@ class VacancyServiceTest {
 
     private static final UUID VACANCY_ID      = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final UUID PLACE_ID        = UUID.fromString("123e4567-e89b-12d3-a456-426614174333");
+    private static final UUID SKILL_ID        = UUID.fromString("123e4567-e89b-12d3-a456-426614174555");
+    private static final UUID SECOND_SKILL_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174556");
     private static final UUID NON_EXISTENT_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174999");
 
     @BeforeEach
@@ -76,9 +85,12 @@ class VacancyServiceTest {
         vacancy.setShift(Shift.FIRST);
         vacancy.setPlace(place);
         vacancy.setInterviews(new ArrayList<Interview>());
+        vacancy.setSkills(new ArrayList<>());
 
-        requestDTO = new VacancyRequestDTO("Fullstack", "description", 8L, Area.IT.toString(), Shift.FIRST.toString(), PLACE_ID);
-        responseDTO = new VacancyResponseDTO(VACANCY_ID, "Fullstack", "description", 8L, Area.IT.toString(), Shift.FIRST.toString(), Park.WEG_II.toString(), Section.IT.toString());
+        requestDTO = new VacancyRequestDTO("Fullstack", "description", 8L, Area.IT.toString(),
+                Shift.FIRST.toString(), PLACE_ID, List.of());
+        responseDTO = new VacancyResponseDTO(VACANCY_ID, "Fullstack", "description", 8L,
+                Area.IT.toString(), Shift.FIRST.toString(), Park.WEG_II.toString(), Section.IT.toString(), List.of());
     }
 
     // --- CREATE TESTS ---
@@ -87,7 +99,7 @@ class VacancyServiceTest {
     @DisplayName("Should create vacancy and return response dto")
     void shouldCreateVacancy() {
         when(placeRepository.findById(PLACE_ID)).thenReturn(Optional.of(place));
-        when(vacancyMapper.toEntity(requestDTO, place)).thenReturn(vacancy);
+        when(vacancyMapper.toEntity(requestDTO, place, List.of())).thenReturn(vacancy);
         when(vacancyRepository.save(vacancy)).thenReturn(vacancy);
         when(vacancyMapper.toResponse(vacancy)).thenReturn(responseDTO);
 
@@ -98,9 +110,48 @@ class VacancyServiceTest {
         assertEquals(Shift.FIRST.toString(), result.shift());
 
         verify(placeRepository).findById(PLACE_ID);
-        verify(vacancyMapper).toEntity(requestDTO, place);
+        verify(vacancyMapper).toEntity(requestDTO, place, List.of());
         verify(vacancyRepository).save(vacancy);
         verify(vacancyMapper).toResponse(vacancy);
+    }
+
+    @Test
+    @DisplayName("Should create vacancy with distinct existing skills")
+    void shouldCreateVacancyWithSkills() {
+        VacancySkill javaSkill = new VacancySkill("Java", SkillType.TECHNICAL, 7.0);
+        javaSkill.setId(SKILL_ID);
+        VacancyRequestDTO requestWithSkills = new VacancyRequestDTO(
+                "Fullstack", "description", 8L, Area.IT.name(), Shift.FIRST.name(),
+                PLACE_ID, List.of(SKILL_ID, SKILL_ID));
+
+        when(placeRepository.findById(PLACE_ID)).thenReturn(Optional.of(place));
+        when(vacancySkillRepository.findById(SKILL_ID)).thenReturn(Optional.of(javaSkill));
+        when(vacancyMapper.toEntity(requestWithSkills, place, List.of(javaSkill)))
+                .thenReturn(vacancy);
+        when(vacancyRepository.save(vacancy)).thenReturn(vacancy);
+        when(vacancyMapper.toResponse(vacancy)).thenReturn(responseDTO);
+
+        assertEquals(responseDTO, vacancyService.create(requestWithSkills));
+
+        verify(vacancySkillRepository).findById(SKILL_ID);
+        verify(vacancyMapper).toEntity(requestWithSkills, place, List.of(javaSkill));
+    }
+
+    @Test
+    @DisplayName("Should reject vacancy creation when a skill does not exist")
+    void shouldThrowExceptionWhenSkillNotFoundOnCreate() {
+        VacancyRequestDTO requestWithMissingSkill = new VacancyRequestDTO(
+                "Fullstack", "description", 8L, Area.IT.name(), Shift.FIRST.name(),
+                PLACE_ID, List.of(NON_EXISTENT_ID));
+        when(placeRepository.findById(PLACE_ID)).thenReturn(Optional.of(place));
+        when(vacancySkillRepository.findById(NON_EXISTENT_ID)).thenReturn(Optional.empty());
+
+        assertThrows(
+                VacancySkillNotFoundException.class,
+                () -> vacancyService.create(requestWithMissingSkill));
+
+        verify(vacancyRepository, never()).save(any());
+        verifyNoInteractions(vacancyMapper);
     }
 
     @Test
@@ -229,11 +280,11 @@ class VacancyServiceTest {
     @DisplayName("Should update vacancy and return response dto")
     void shouldUpdateVacancy() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "Fullstack Updated", "new description", Area.IT.toString(), Shift.SECOND.toString(), 12L, PLACE_ID
+                "Fullstack Updated", "new description", Area.IT.toString(), Shift.SECOND.toString(), 12L, PLACE_ID, null
         );
 
         VacancyResponseDTO updatedResponse = new VacancyResponseDTO(
-                VACANCY_ID, "Fullstack Updated", "new description", 10L, Area.IT.toString(), Shift.SECOND.toString(), Park.WEG_II.toString(), Section.IT.toString()
+                VACANCY_ID, "Fullstack Updated", "new description", 10L, Area.IT.toString(), Shift.SECOND.toString(), Park.WEG_II.toString(), Section.IT.toString(), List.of()
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
@@ -257,7 +308,7 @@ class VacancyServiceTest {
     @DisplayName("Should throw VacancyNotFoundException when updating non-existent vacancy")
     void shouldThrowExceptionWhenUpdateVacancyNotFound() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "Name", "Description", Area.IT.toString(), Shift.FIRST.toString(), null, PLACE_ID
+                "Name", "Description", Area.IT.toString(), Shift.FIRST.toString(), null, PLACE_ID, null
         );
 
         when(vacancyRepository.findById(NON_EXISTENT_ID)).thenReturn(Optional.empty());
@@ -272,7 +323,7 @@ class VacancyServiceTest {
     @DisplayName("Should throw PlaceNotFoundException when updating vacancy with non-existent place id")
     void shouldThrowExceptionWhenPlaceNotFoundOnUpdate() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                null, null, null, null, null, PLACE_ID
+                null, null, null, null, null, PLACE_ID, null
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
@@ -289,7 +340,7 @@ class VacancyServiceTest {
     @DisplayName("Should update vacancy keeping existing values when request fields are null or blank")
     void shouldUpdateVacancyWithoutChangingBlankFields() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "  ", "", "   ", "", null, null
+                "  ", "", "   ", "", null, null, null
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
@@ -306,6 +357,37 @@ class VacancyServiceTest {
 
         verify(vacancyRepository).findById(VACANCY_ID);
         verify(placeRepository, never()).findById(any());
+        verify(vacancyRepository).save(vacancy);
+    }
+
+    @Test
+    @DisplayName("Should replace vacancy skills when they are provided during update")
+    void shouldReplaceVacancySkillsOnUpdate() {
+        VacancySkill oldSkill = new VacancySkill("Legacy", SkillType.TECHNICAL, 5.0);
+        vacancy.addSkill(oldSkill);
+        VacancySkill javaSkill = new VacancySkill("Java", SkillType.TECHNICAL, 7.0);
+        javaSkill.setId(SKILL_ID);
+        VacancySkill communicationSkill =
+                new VacancySkill("Communication", SkillType.SOCIOEMOTIONAL, 6.0);
+        communicationSkill.setId(SECOND_SKILL_ID);
+        VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
+                null, null, null, null, null, null, List.of(SKILL_ID, SECOND_SKILL_ID)
+        );
+
+        when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
+        when(vacancySkillRepository.findById(SKILL_ID)).thenReturn(Optional.of(javaSkill));
+        when(vacancySkillRepository.findById(SECOND_SKILL_ID))
+                .thenReturn(Optional.of(communicationSkill));
+        when(vacancyRepository.save(vacancy)).thenReturn(vacancy);
+        when(vacancyMapper.toResponse(vacancy)).thenReturn(responseDTO);
+
+        VacancyResponseDTO result = vacancyService.update(VACANCY_ID, updateRequestDTO);
+
+        assertEquals(responseDTO, result);
+        assertEquals(List.of(javaSkill, communicationSkill), vacancy.getSkills());
+        assertTrue(javaSkill.getVacancies().contains(vacancy));
+        assertTrue(communicationSkill.getVacancies().contains(vacancy));
+        assertFalse(oldSkill.getVacancies().contains(vacancy));
         verify(vacancyRepository).save(vacancy);
     }
 

@@ -12,13 +12,17 @@ import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
+import com.weg.quicktransfer.repo.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.repo.specifications.CoordinatorSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +57,11 @@ public class CoordinatorService {
     }
 
     @Transactional(readOnly = true)
+    public Page<CoordinatorResponseDTO> findAll(Pageable pageable) {
+        return coordinatorRepository.findAll(pageable).map(coordinatorMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public CoordinatorResponseDTO findById(UUID id){
         Coordinator coordinator = coordinatorRepository.findById(id).orElseThrow(() -> new CoordinatorNotFoundException(id));
 
@@ -68,6 +77,12 @@ public class CoordinatorService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<CoordinatorResponseDTO> searchCoordinators(CoordinatorFilter filter, Pageable pageable) {
+        Specification<Coordinator> spec = CoordinatorSpecification.getFilteredCoordinators(filter);
+        return coordinatorRepository.findAll(spec, pageable).map(coordinatorMapper::toResponse);
+    }
+
     @Transactional
     public List<CoordinatorResponseDTO> searchCoordinators(CoordinatorFilter filter) {
         Specification<Coordinator> spec = CoordinatorSpecification.getFilteredCoordinators(filter);
@@ -80,9 +95,13 @@ public class CoordinatorService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "courses", allEntries = true),
+            @CacheEvict(value = "courseById", allEntries = true)
+    })
     public CoordinatorResponseDTO update(UUID id, CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO, String requesterUsername) {
         User user = userRepository.findFirstByUsername(requesterUsername)
-                .orElseThrow(() -> new UserNotFoundException("User is not logged"));
+            .orElseThrow(() -> new UserNotFoundException("User is not logged"));
 
         if (!(user instanceof Coordinator || user instanceof Admin)) {
             throw new UserNotAllowdException("User is neither a Admin nor a Coordinator");
@@ -99,16 +118,21 @@ public class CoordinatorService {
                 coordinator.setPassword(passwordEncoder.encode(coordinatorUpdateRequestDTO.password()));
                 coordinator.setTokenVersion(coordinator.getTokenVersion() + 1);
             }
-
             Coordinator coordinatorAtt = coordinatorRepository.save(coordinator);
 
             return coordinatorMapper.toResponse(coordinatorAtt);
-        } else {
+
+        }else {
             throw new UserNotAllowdException("User is not the given coordinator");
         }
+
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "courses", allEntries = true),
+            @CacheEvict(value = "courseById", allEntries = true)
+    })
     public void delete(UUID id) {
         if(!coordinatorRepository.existsById(id)) {
             throw new CoordinatorNotFoundException(id);

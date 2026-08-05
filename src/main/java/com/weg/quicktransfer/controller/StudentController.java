@@ -9,9 +9,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +32,12 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(studentRequestDTO));
     }
 
+    @PreAuthorize("hasRole('COORDINATOR')")
+    @PostMapping("/create/multiple")
+    public ResponseEntity<List<StudentResponseDTO>> createMultipleStudents(@RequestPart("file") MultipartFile file) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(studentService.createMultiple(file));
+    }
+
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<StudentResponseDTO> findStudentById(@PathVariable UUID id) {
@@ -42,14 +52,14 @@ public class StudentController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<StudentResponseDTO>> findAllStudents() {
-        return ResponseEntity.status(HttpStatus.OK).body(studentService.findAll());
+    public ResponseEntity<Page<StudentResponseDTO>> findAllStudents(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<StudentResponseDTO>> searchCourses(StudentFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(studentService.searchInterviews(filter));
+    public ResponseEntity<Page<StudentResponseDTO>> searchCourses(StudentFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.searchStudents(filter, pageable));
     }
 
 

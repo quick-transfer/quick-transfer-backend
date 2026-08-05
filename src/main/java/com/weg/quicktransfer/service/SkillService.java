@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.skill.SkillFilter;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
@@ -50,6 +52,11 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
+    public Page<SkillResponseDTO> findAll(Pageable pageable) {
+        return skillRepository.findAll(pageable).map(skillMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public SkillResponseDTO findById(UUID id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
 
@@ -73,6 +80,12 @@ public class SkillService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<SkillResponseDTO> searchSkills(SkillFilter filter, Pageable pageable) {
+        Specification<Skill> spec = SkillSpecification.getFilteredSkills(filter);
+        return skillRepository.findAll(spec, pageable).map(skillMapper::toResponse);
+    }
+
     @Transactional
     public SkillResponseDTO update(UUID id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
@@ -82,8 +95,7 @@ public class SkillService {
         }
 
         if(skillUpdateRequestDTO.skillType() != null) {
-            skill.setSkillType(SkillType.valueOf(
-                    skillUpdateRequestDTO.skillType().trim().toUpperCase(Locale.ROOT)));
+            skill.setSkillType(SkillType.valueOf(skillUpdateRequestDTO.skillType().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(skillUpdateRequestDTO.grade() != null) {

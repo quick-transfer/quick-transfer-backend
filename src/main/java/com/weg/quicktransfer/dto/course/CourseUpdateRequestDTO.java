@@ -1,6 +1,5 @@
 package com.weg.quicktransfer.dto.course;
 
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;

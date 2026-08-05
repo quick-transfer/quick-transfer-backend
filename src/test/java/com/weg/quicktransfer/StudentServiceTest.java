@@ -18,11 +18,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +48,9 @@ class StudentServiceTest {
 
     @Mock
     private ClassEntityRepository classEntityRepository;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private StudentService studentService;
@@ -105,6 +115,29 @@ class StudentServiceTest {
         verify(classEntityRepository).findById(CLASS_ID);
         verify(studentMapper).toEntity(requestDTO, classEntity);
         verify(studentRepository).save(student);
+        verify(studentMapper).toResponse(student);
+    }
+
+    @Test
+    @DisplayName("Should create multiple students and return response dtos")
+    void shouldCreateMultipleStudents() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("[]".getBytes());
+
+        when(file.getInputStream()).thenReturn(inputStream);
+        when(objectMapper.readValue(
+                same(inputStream),
+                ArgumentMatchers.<TypeReference<List<StudentRequestDTO>>>any()
+        )).thenReturn(List.of(requestDTO));
+        when(classEntityRepository.findById(CLASS_ID)).thenReturn(Optional.of(classEntity));
+        when(studentMapper.toEntity(requestDTO, classEntity)).thenReturn(student);
+        when(studentRepository.saveAll(List.of(student))).thenReturn(List.of(student));
+        when(studentMapper.toResponse(student)).thenReturn(responseDTO);
+
+        List<StudentResponseDTO> result = studentService.createMultiple(file);
+
+        assertEquals(List.of(responseDTO), result);
+        verify(studentRepository).saveAll(List.of(student));
         verify(studentMapper).toResponse(student);
     }
 

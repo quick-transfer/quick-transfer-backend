@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -44,17 +46,17 @@ public class ManagerController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<ManagerResponseDTO>> findAllManagers() {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll());
+    public ResponseEntity<Page<ManagerResponseDTO>> findAllManagers(Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(managerService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<ManagerResponseDTO>> searchManager(ManagerFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.searchManagers(filter));
+    public ResponseEntity<Page<ManagerResponseDTO>> searchManager(ManagerFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(managerService.searchManagers(filter, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER') and #id == authentication.principal.id)")
     @PatchMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable UUID id,
@@ -75,8 +77,7 @@ public class ManagerController {
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/interview/sendEmail/{interviewId}")
     public ResponseEntity<String> postSendInterviewEmail(
-            @PathVariable UUID interviewId,
-            Authentication authentication) throws MessagingException {
+            @PathVariable UUID interviewId, Authentication authentication) throws MessagingException {
 
         managerService.sendInterviewEmail(interviewId, authentication.getName());
 

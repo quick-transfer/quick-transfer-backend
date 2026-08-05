@@ -89,10 +89,17 @@ Os perfis autenticáveis são `ADMIN`, `MANAGER` e `COORDINATOR`. Estudantes sã
 - `POST /api/auth/login`: autentica pelo `username` e cria o cookie HttpOnly `JWT`;
 - `POST /api/auth/first-access`: troca a senha temporária;
 - `POST /api/auth/logout`: revoga os tokens atuais e remove o cookie;
-- `POST /api/auth/password-reset`: redefinição administrativa, exclusiva de `ADMIN`;
+- `POST /api/auth/password-reset`: troca a senha do próprio usuário após validar a senha atual;
+- `POST /api/auth/change-password`: alternativa autenticada para troca da própria senha;
 - `GET /api/auth/csrf`: obtém o token CSRF.
 
 Para operações mutáveis autenticadas por cookie, primeiro consulte `/api/auth/csrf` e envie o valor retornado no cabeçalho `X-XSRF-TOKEN`. O cliente também deve enviar cookies (`credentials: include`). Tokens antigos deixam de ser válidos após logout ou troca de senha.
+
+## Recursos de domínio
+
+- `POST /api/student/create/multiple` importa estudantes a partir de um arquivo JSON;
+- `/api/vacancy-skill` gerencia competências exigidas pelas vagas;
+- listagens e pesquisas aceitam paginação pelos parâmetros do Spring Data.
 
 ## Observabilidade e documentação
 

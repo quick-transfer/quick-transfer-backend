@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,14 +45,14 @@ public class ClassEntityController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<ClassEntityResponseDTO>> searchClassEntities(ClassEntityFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter));
+    public ResponseEntity<Page<ClassEntityResponseDTO>> searchClassEntities(ClassEntityFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter, pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("find/all")
-    public ResponseEntity<List<ClassEntityResponseDTO>> findAllClassEntities(){
-        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll());
+    public ResponseEntity<Page<ClassEntityResponseDTO>> findAllClassEntities(Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll(pageable));
     }
 
     @PreAuthorize("hasRole('COORDINATOR')")

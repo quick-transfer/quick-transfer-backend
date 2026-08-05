@@ -1,7 +1,6 @@
 package com.weg.quicktransfer.repo;
 
 import com.weg.quicktransfer.model.Coordinator;
-import com.weg.quicktransfer.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

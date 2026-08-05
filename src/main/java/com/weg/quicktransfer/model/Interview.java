@@ -3,12 +3,11 @@ package com.weg.quicktransfer.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -31,14 +30,18 @@ public class Interview {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false, name = "interviewer_name")
     private String interviewerName;
-    
+
     @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vacancy_id", nullable = false) 
+    @JoinColumn(name = "vacancy_id", nullable = false)
     private Vacancy vacancy;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,10 +58,6 @@ public class Interview {
 
     @Column(name = "reminder_sent", nullable = false)
     private Boolean reminderSent = false;
-
-    @Version
-    @Column(nullable = false)
-    private long version;
 
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
             Student student) {

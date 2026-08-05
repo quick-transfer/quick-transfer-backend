@@ -6,6 +6,9 @@ import com.weg.quicktransfer.enums.StatusClass;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
+
+import java.util.Locale;
+
 import org.springframework.stereotype.Component;
 import java.util.Locale;
 

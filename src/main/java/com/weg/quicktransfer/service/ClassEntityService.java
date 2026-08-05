@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
 import com.weg.quicktransfer.repo.specifications.ClassEntitySpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +56,11 @@ public class ClassEntityService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ClassEntityResponseDTO> findAll(Pageable pageable) {
+        return classEntityRepository.findAll(pageable).map(classEntityMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<ClassEntityResponseDTO> findByAcronym(String acronym){
         if(!StringUtils.hasText(acronym)){
             throw new IllegalArgumentException("Acronym can not be empty");
@@ -64,6 +71,12 @@ public class ClassEntityService {
         return classEntities.stream()
                 .map(classEntityMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClassEntityResponseDTO> searchClassEntities(ClassEntityFilter filter, Pageable pageable) {
+        Specification<ClassEntity> spec = ClassEntitySpecification.getFilteredClassEntities(filter);
+        return classEntityRepository.findAll(spec, pageable).map(classEntityMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -100,21 +113,19 @@ public class ClassEntityService {
             classEntity.setFinishDate(classEntityUpdateRequestDTO.finishDate());
         }
 
-        validateDates(classEntity.getStartDate(), classEntity.getFinishDate());
-
         if(classEntityUpdateRequestDTO.status() != null) {
-            classEntity.setStatus(StatusClass.valueOf(
-                    classEntityUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
+            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.shiftClass() != null) {
-            classEntity.setShiftClass(ShiftClass.valueOf(
-                    classEntityUpdateRequestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)));
+            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {
             classEntity.setAcronym(classEntityUpdateRequestDTO.acronym());
         }
+
+        validateDates(classEntity.getStartDate(), classEntity.getFinishDate());
 
         ClassEntity classEntityAtt = classEntityRepository.save(classEntity);
 

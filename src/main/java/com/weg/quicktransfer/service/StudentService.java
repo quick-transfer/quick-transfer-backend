@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -7,7 +8,11 @@ import java.util.UUID;
 import com.weg.quicktransfer.dto.student.StudentFilter;
 import com.weg.quicktransfer.repo.specifications.StudentSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
@@ -24,6 +29,9 @@ import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +39,8 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final ClassEntityRepository classEntityRepository;
+
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public StudentResponseDTO create(StudentRequestDTO studentRequestDTO) {
@@ -43,11 +53,34 @@ public class StudentService {
         return studentMapper.toResponse(student);
     }
 
+    @Transactional
+    public List<StudentResponseDTO> createMultiple(MultipartFile file) throws IOException {
+        List<StudentRequestDTO> studentsRequest = objectMapper.readValue(
+                file.getInputStream(),
+                new TypeReference<List<StudentRequestDTO>>() {
+                }
+        );
+
+        List<Student> students = studentsRequest.stream()
+                .map(dto -> studentMapper.toEntity(dto, classEntityRepository.findById(dto.classId())
+                        .orElseThrow(() -> new ClassEntityNotFoundException("The operation was canceled because one of the classes id was invalid"))))
+                .toList();
+
+        return studentRepository.saveAll(students).stream()
+                .map(studentMapper::toResponse)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public List<StudentResponseDTO> findAll() {
         List<Student> students = studentRepository.findAll();
 
         return students.stream().map(studentMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<StudentResponseDTO> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable).map(studentMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -76,8 +109,18 @@ public class StudentService {
                 .map(studentMapper::toResponse)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public Page<StudentResponseDTO> searchStudents(StudentFilter filter, Pageable pageable) {
+        Specification<Student> spec = StudentSpecification.getFilteredStudents(filter);
+        return studentRepository.findAll(spec, pageable).map(studentMapper::toResponse);
+    }
     
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "skills", allEntries = true),
+            @CacheEvict(value = "skillById", allEntries = true)
+    })
     public StudentResponseDTO update(UUID id, StudentUpdateRequestDTO studentUpdateRequestDTO) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
 
@@ -105,8 +148,7 @@ public class StudentService {
         }
 
         if(studentUpdateRequestDTO.statusStudentInterview() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(
-                    studentUpdateRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)));
+            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(studentUpdateRequestDTO.hasSeenEmail() != null) {
@@ -114,8 +156,7 @@ public class StudentService {
         }
 
         if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatusStudent(StatusStudent.valueOf(
-                    studentUpdateRequestDTO.statusStudent().trim().toUpperCase(Locale.ROOT)));
+            student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent().trim().toUpperCase(Locale.ROOT)));
         }
 
         Student studentAtt = studentRepository.save(student);
@@ -124,6 +165,10 @@ public class StudentService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "skills", allEntries = true),
+            @CacheEvict(value = "skillById", allEntries = true)
+    })
     public void delete(UUID id) {
         if(!studentRepository.existsById(id)) {
             throw new StudentNotFoundException(id);

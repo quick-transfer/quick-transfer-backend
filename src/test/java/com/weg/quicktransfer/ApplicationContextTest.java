@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -88,6 +89,8 @@ class ApplicationContextTest {
                 Map.entry("PLACES", Set.of("ID", "PLACE_NAME", "PARK", "SECTION", "VERSION")),
                 Map.entry("VACANCIES", Set.of("ID", "NAME", "DESCRIPTION", "NUMBERS_VACANCIES",
                         "AREA", "SHIFT", "PLACE_ID", "VERSION")),
+                Map.entry("VACANCY_SKILLS", Set.of("ID", "NAME", "SKILL_TYPE", "MINIMUM_GRADE", "VERSION")),
+                Map.entry("VACANCY_SKILL_ASSIGNMENTS", Set.of("VACANCY_ID", "VACANCY_SKILL_ID")),
                 Map.entry("INTERVIEWS", Set.of("ID", "INTERVIEWER_NAME", "DATE_TIME", "VACANCY_ID",
                         "PLACE_ID", "MANAGER_ID", "STUDENT_ID", "REMINDER_SENT", "VERSION")));
 
@@ -104,7 +107,7 @@ class ApplicationContextTest {
     @Test
     @WithMockUser(roles = "MANAGER")
     void methodSecurityRejectsInsufficientRole() {
-        assertThrows(AccessDeniedException.class, adminController::findAllAdmins);
+        assertThrows(AccessDeniedException.class, () -> adminController.findAllAdmins(Pageable.unpaged()));
     }
 
     private static KeyPair generateKeyPair() {

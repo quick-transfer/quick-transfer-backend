@@ -23,6 +23,10 @@ public class Student{
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -55,10 +59,6 @@ public class Student{
 
     @OneToMany(mappedBy = "student")
     private List<Skill> skills = new ArrayList<>();
-
-    @Version
-    @Column(nullable = false)
-    private long version;
 
     public Student(String name, String email, Long age, Double averageGrade, ClassEntity classEntity,
             StudentInterviewStatus status, Boolean hasSeenEmail, Interview interview) {

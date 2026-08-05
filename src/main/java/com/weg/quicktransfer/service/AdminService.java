@@ -1,7 +1,6 @@
 package com.weg.quicktransfer.service;
 
 import com.weg.quicktransfer.dto.admin.AdminFilter;
-import com.weg.quicktransfer.dto.admin.AdminRequestDTO;
 import com.weg.quicktransfer.dto.admin.AdminResponseDTO;
 import com.weg.quicktransfer.dto.admin.AdminUpdateRequestDTO;
 import com.weg.quicktransfer.exception.UserNotFoundException;
@@ -10,6 +9,8 @@ import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.repo.AdminRepository;
 import com.weg.quicktransfer.repo.specifications.AdminSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,12 +60,23 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
+    public Page<AdminResponseDTO> searchAdmins(AdminFilter filter, Pageable pageable) {
+        Specification<Admin> spec = AdminSpecification.getFilteredAdmins(filter);
+        return adminRepository.findAll(spec, pageable).map(adminMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
     public List<AdminResponseDTO> findAllAdmin() {
         List<Admin> admins = adminRepository.findAll();
 
         return admins.stream()
                 .map(adminMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminResponseDTO> findAllAdmin(Pageable pageable) {
+        return adminRepository.findAll(pageable).map(adminMapper::toResponse);
     }
 
     @Transactional

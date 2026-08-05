@@ -24,6 +24,10 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -47,10 +51,6 @@ public abstract class User {
     @Builder.Default
     @Column(nullable = false, name = "token_version")
     private long tokenVersion = 0L;
-
-    @Version
-    @Column(nullable = false)
-    private long version;
 
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;

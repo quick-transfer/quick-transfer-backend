@@ -9,10 +9,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,14 +37,14 @@ public class InterviewController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<List<InterviewResponseDTO>> findAllInterviews(){
-        return ResponseEntity.status(HttpStatus.OK).body(interviewService.findAll());
+    public ResponseEntity<Page<InterviewResponseDTO>> findAllInterviews(Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(interviewService.findAll(pageable));
     }
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<InterviewResponseDTO>> searchCourses(InterviewFilter filter) {
-        return ResponseEntity.status(HttpStatus.OK).body(interviewService.searchInterviews(filter));
+    public ResponseEntity<Page<InterviewResponseDTO>> searchCourses(InterviewFilter filter, Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(interviewService.searchInterviews(filter, pageable));
     }
 
     @PreAuthorize("hasRole('COORDINATOR')")

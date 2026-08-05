@@ -58,7 +58,7 @@ public class SecurityConfig {
             HttpSecurity http,
             BasicAuthenticationEntryPoint swaggerAuthenticationEntryPoint) throws Exception {
         return http
-                .securityMatcher("/v3/api-docs/**", "/actuator/**", "/swagger-ui/**")
+                .securityMatcher("/v3/api-docs/**", "/actuator/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
