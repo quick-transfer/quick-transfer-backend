@@ -25,12 +25,13 @@ public class Vacancy {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
     
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false, name = "numbers_vacancies")
@@ -44,7 +45,7 @@ public class Vacancy {
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "place_id")
     private Place place;
 

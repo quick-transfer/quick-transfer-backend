@@ -1,14 +1,11 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.repo.specifications.VacancySpecification;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +39,6 @@ public class VacancyService {
     private final PlaceRepository placeRepository;
     private final VacancySkillRepository vacancySkillRepository;
 
-    @CacheEvict(value = "vacancies", allEntries = true)
     @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
@@ -55,7 +51,6 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancy);
     }
 
-    @Cacheable("vacancies")
     @Transactional(readOnly = true)
     public List<VacancyResponseDTO> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
@@ -68,7 +63,6 @@ public class VacancyService {
         return vacancyRepository.findAll(pageable).map(vacancyMapper::toResponse);
     }
 
-    @Cacheable(value = "vacancyById", key = "#id")
     @Transactional(readOnly = true)
     public VacancyResponseDTO findById(UUID id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -104,14 +98,6 @@ public class VacancyService {
                 .toList();
     }
 
-    @Caching(
-            put = {
-                    @CachePut(value = "vacancyById", key = "#id")
-            },
-            evict = {
-                    @CacheEvict(value = "vacancies", allEntries = true)
-            }
-    )
     @Transactional
     public VacancyResponseDTO update(UUID id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -125,11 +111,15 @@ public class VacancyService {
         }
 
         if(vacancyUpdateRequestDTO.area() != null && !vacancyUpdateRequestDTO.area().isBlank()) {
-            vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area()));
+            vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(vacancyUpdateRequestDTO.shift() != null && !vacancyUpdateRequestDTO.shift().isBlank()) {
-            vacancy.setShift(Shift.valueOf(vacancyUpdateRequestDTO.shift()));
+            vacancy.setShift(Shift.valueOf(vacancyUpdateRequestDTO.shift().trim().toUpperCase(Locale.ROOT)));
+        }
+
+        if (vacancyUpdateRequestDTO.numbersVacancies() != null) {
+            vacancy.setNumbersVacancies(vacancyUpdateRequestDTO.numbersVacancies());
         }
 
         if(vacancyUpdateRequestDTO.placeId() != null) {
@@ -146,12 +136,6 @@ public class VacancyService {
         return vacancyMapper.toResponse(vacancyAtt);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "vacancies", allEntries = true),
-                    @CacheEvict(value = "vacancyById", key = "#id")
-            }
-    )
     @Transactional
     public void delete(UUID id) {
         if(!vacancyRepository.existsById(id)) {
