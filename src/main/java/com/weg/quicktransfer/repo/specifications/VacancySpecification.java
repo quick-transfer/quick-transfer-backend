@@ -4,6 +4,7 @@ import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.exception.NullFilterException;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -65,6 +66,17 @@ public class VacancySpecification {
                         criteriaBuilder.lower(placeJoin.get("placeName")),
                         "%" + filter.placeName().toLowerCase() + "%"
                 ));
+            }
+
+            if (StringUtils.hasText(filter.skillName())) {
+                Join<Vacancy, VacancySkill> skillJoin = root.join("skills", JoinType.INNER);
+
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(skillJoin.get("name")),
+                        "%" + filter.skillName().toLowerCase() + "%"
+                ));
+
+                query.distinct(true);
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

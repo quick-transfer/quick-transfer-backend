@@ -8,11 +8,18 @@ import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class VacancyMapper {
-    public Vacancy toEntity(VacancyRequestDTO vacancyRequestDTO, Place place) {
-        return new Vacancy(
+    private final VacancySkillMapper vacancySkillMapper;
+
+    public Vacancy toEntity(VacancyRequestDTO vacancyRequestDTO, Place place, List<VacancySkill> skills) {
+        Vacancy vacancy = new Vacancy(
             vacancyRequestDTO.name(),
             vacancyRequestDTO.description(),
             vacancyRequestDTO.numbersVacancies(),
@@ -20,6 +27,9 @@ public class VacancyMapper {
             Shift.valueOf(vacancyRequestDTO.shift()),
             place
         );
+
+        vacancy.setSkills(skills);
+        return vacancy;
     }
 
     public VacancyResponseDTO toResponse(Vacancy vacancy) {
@@ -31,7 +41,10 @@ public class VacancyMapper {
             vacancy.getArea().name(),
             vacancy.getShift().name(),
             vacancy.getPlace().getPark().name(),
-            vacancy.getPlace().getSection().name()
+            vacancy.getPlace().getSection().name(),
+            vacancy.getSkills().stream()
+                    .map(vacancySkillMapper::toResponse)
+                    .toList()
         );
     }
 }
