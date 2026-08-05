@@ -120,9 +120,9 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .status(HttpStatus.BAD_GATEWAY)
                 .body(buildError(
-                        HttpStatus.UNPROCESSABLE_CONTENT,
+                        HttpStatus.BAD_GATEWAY,
                         "Email sending error.",
                         request));
     }
@@ -179,7 +179,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class, DateOutOfRangeException.class, NullFilterException.class})
     public ResponseEntity<ErrorResponseDTO> handleIllegalArgument(
-            RuntimeException ex,
+            Exception ex,
             HttpServletRequest request) {
 
         return ResponseEntity
@@ -192,7 +192,7 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request) {
 
-        log.error("Unexpected error while handling {}", request.getRequestURI(), ex);
+        log.error("Unexpected error processing {} {}", request.getMethod(), request.getRequestURI(), ex);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

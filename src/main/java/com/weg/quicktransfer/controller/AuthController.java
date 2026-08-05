@@ -5,7 +5,6 @@ import com.weg.quicktransfer.dto.auth.ChangePasswordRequestDto;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
-import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,6 +35,9 @@ public class AuthController {
     @Value("${app.jwt.expiration}")
     private long expirationMs;
 
+    @Value("${app.security.cookie-secure:true}")
+    private boolean cookieSecure;
+
     @Value("${app.security.cookie.secure:true}")
     private boolean secureCookie;
 
@@ -47,7 +48,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie
                 .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(secureCookie)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofMillis(expirationMs))
@@ -68,8 +69,8 @@ public class AuthController {
     }
 
     @GetMapping("/csrf")
-    public Map<String, String> csrf(CsrfToken token) {
-        return Map.of("headerName", token.getHeaderName(), "token", token.getToken());
+    public CsrfToken csrf(CsrfToken token) {
+        return token;
     }
 
     @PostMapping("/first-access")
@@ -94,13 +95,14 @@ public class AuthController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity<Void> logout(Authentication authentication) {
+
+        userService.revokeSessions(authentication.getName());
         SecurityContextHolder.clearContext();
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(secureCookie)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
@@ -113,11 +115,9 @@ public class AuthController {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/password-reset")
-    public UserResponseDTO resetPassword(
-            @RequestBody @Valid PasswordResetRequestDTO requestDTO,
-            org.springframework.security.core.Authentication authentication) {
-        return userService.resetPassword(authentication.getName(), requestDTO);
+    public UserResponseDTO resetPassword(@RequestBody @Valid LoginRequestDTO requestDTO) {
+        return userService.resetPassword(requestDTO);
     }
 }

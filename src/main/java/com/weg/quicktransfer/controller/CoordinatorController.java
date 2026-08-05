@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,9 +59,11 @@ public class CoordinatorController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<CoordinatorResponseDTO> updateCoordinator(
             @PathVariable UUID id,
-            @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO
+            @RequestBody @Valid CoordinatorUpdateRequestDTO coordinatorUpdateRequestDTO,
+            Authentication authentication
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(coordinatorService.update(id, coordinatorUpdateRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(coordinatorService.update(id, coordinatorUpdateRequestDTO, authentication.getName()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
