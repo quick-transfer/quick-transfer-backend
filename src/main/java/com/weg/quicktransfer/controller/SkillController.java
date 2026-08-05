@@ -38,7 +38,7 @@ public class SkillController {
 
     @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @GetMapping("/find/name/{name}")
-    public ResponseEntity<SkillResponseDTO> findSkillByName(@PathVariable String name) {
+    public ResponseEntity<List<SkillResponseDTO>> findSkillByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
     }
 

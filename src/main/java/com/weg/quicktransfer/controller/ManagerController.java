@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,9 +60,11 @@ public class ManagerController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<ManagerResponseDTO> updateManager(
             @PathVariable UUID id,
-            @RequestBody @Valid ManagerUpdateRequestDTO updateRequestDTO
+            @RequestBody @Valid ManagerUpdateRequestDTO updateRequestDTO,
+            Authentication authentication
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(managerService.update(id, updateRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(managerService.update(id, updateRequestDTO, authentication.getName()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -74,9 +77,9 @@ public class ManagerController {
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/interview/sendEmail/{interviewId}")
     public ResponseEntity<String> postSendInterviewEmail(
-            @PathVariable UUID interviewId) throws MessagingException {
+            @PathVariable UUID interviewId, Authentication authentication) throws MessagingException {
 
-        managerService.sendDynamicEmailAmp(interviewId);
+        managerService.sendInterviewEmail(interviewId, authentication.getName());
 
         return ResponseEntity.ok()
                 .body("{\"message\": \"success!\"}");
