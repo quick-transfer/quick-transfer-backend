@@ -1,5 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
+import java.util.Locale;
+
 import org.springframework.stereotype.Component;
 
 import com.weg.quicktransfer.dto.place.PlaceRequestDTO;
@@ -13,8 +15,8 @@ public class PlaceMapper {
     public Place toEntity(PlaceRequestDTO placeRequestDTO) {
         return new Place(
             placeRequestDTO.placeName(),
-            Park.valueOf(placeRequestDTO.park()),
-            Section.valueOf(placeRequestDTO.section())
+            Park.valueOf(placeRequestDTO.park().trim().toUpperCase(Locale.ROOT)),
+            Section.valueOf(placeRequestDTO.section().trim().toUpperCase(Locale.ROOT))
         );
     }
 

@@ -1,6 +1,5 @@
 package com.weg.quicktransfer.repo;
 
-import com.weg.quicktransfer.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.weg.quicktransfer.model.Manager;
