@@ -1,9 +1,8 @@
 package com.weg.quicktransfer;
 
-import com.weg.quicktransfer.model.Interview;
 import com.weg.quicktransfer.repo.InterviewRepository;
+import com.weg.quicktransfer.scheduler.InterviewReminderProcessor;
 import com.weg.quicktransfer.scheduler.InterviewReminderScheduler;
-import com.weg.quicktransfer.service.ManagerService;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,48 +22,44 @@ class InterviewReminderSchedulerTest {
     @Mock
     private InterviewRepository interviewRepository;
     @Mock
-    private ManagerService managerService;
+    private InterviewReminderProcessor reminderProcessor;
 
     private InterviewReminderScheduler scheduler;
-    private Interview interview;
+    private UUID interviewId;
 
     @BeforeEach
     void setUp() {
-        scheduler = new InterviewReminderScheduler(interviewRepository, managerService);
-        interview = new Interview();
-        interview.setId(UUID.randomUUID());
-        interview.setDateTime(LocalDateTime.now().plusHours(12));
-        when(interviewRepository.findByDateTimeBetweenAndReminderSentFalse(any(), any()))
-                .thenReturn(List.of(interview));
+        scheduler = new InterviewReminderScheduler(interviewRepository, reminderProcessor);
+        interviewId = UUID.randomUUID();
+        when(interviewRepository.findPendingReminderIds(any(), any(), any()))
+                .thenReturn(List.of(interviewId));
     }
 
     @Test
-    void shouldSendOnlyAfterClaimingReminder() throws Exception {
-        when(interviewRepository.claimReminder(any(), any(), any())).thenReturn(1);
+    void shouldProcessPendingReminder() throws Exception {
+        when(reminderProcessor.process(interviewId)).thenReturn(true);
 
         scheduler.sendInterviewReminders();
 
-        verify(managerService).sendDynamicEmailAmp(interview.getId());
-        verify(interviewRepository, never()).releaseReminderClaim(any());
+        verify(reminderProcessor).process(interviewId);
     }
 
     @Test
-    void shouldSkipReminderClaimedByAnotherInstance() throws Exception {
-        when(interviewRepository.claimReminder(any(), any(), any())).thenReturn(0);
+    void shouldIgnoreReminderAlreadyProcessed() throws Exception {
+        when(reminderProcessor.process(interviewId)).thenReturn(false);
 
         scheduler.sendInterviewReminders();
 
-        verifyNoInteractions(managerService);
+        verify(reminderProcessor).process(interviewId);
     }
 
     @Test
-    void shouldReleaseClaimWhenSendingFails() throws Exception {
-        when(interviewRepository.claimReminder(any(), any(), any())).thenReturn(1);
+    void shouldContinueWhenProcessingFails() throws Exception {
         doThrow(new MessagingException("SMTP unavailable"))
-                .when(managerService).sendDynamicEmailAmp(interview.getId());
+                .when(reminderProcessor).process(interviewId);
 
         scheduler.sendInterviewReminders();
 
-        verify(interviewRepository).releaseReminderClaim(interview.getId());
+        verify(reminderProcessor).process(interviewId);
     }
 }

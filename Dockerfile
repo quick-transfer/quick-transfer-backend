@@ -13,9 +13,7 @@ WORKDIR /app
 COPY --from=builder --chown=quicktransfer:quicktransfer /workspace/target/*.jar app.jar
 
 USER quicktransfer
-
 EXPOSE 8080
-
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -q -O /dev/null http://127.0.0.1:8080/api/actuator/health || exit 1
 

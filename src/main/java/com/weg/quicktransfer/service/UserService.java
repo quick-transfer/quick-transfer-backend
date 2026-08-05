@@ -3,6 +3,7 @@ package com.weg.quicktransfer.service;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
+import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserFilter;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
@@ -110,7 +111,7 @@ public class UserService {
         User user = userRepository.findFirstByUsername(requestDTO.username())
                 .orElseThrow(() -> new UserNotFoundException("User not found with the username: " + requestDTO.username()));
 
-        validatePassword(requestDTO.password());
+        PasswordPolicy.validate(requestDTO.password());
 
         String passwordRegex = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{14,}$";
 
@@ -130,6 +131,24 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponseDTO resetPassword(
+            String authenticatedUsername,
+            PasswordResetRequestDTO requestDTO) {
+        User user = userRepository.findFirstByUsername(authenticatedUsername)
+                .orElseThrow(() -> new UserNotFoundException("Authenticated user was not found"));
+
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                user.getUsername(), requestDTO.currentPassword()));
+
+        PasswordPolicy.validate(requestDTO.newPassword());
+        user.setPassword(passwordEncoder.encode(requestDTO.newPassword()));
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        userRepository.save(user);
+
+        return mapUserToResponseDTO(user);
+    }
+
+    @Transactional
     public void changePassword(String authenticatedUsername, String currentPassword, String newPassword) {
         User user = userRepository.findFirstByUsername(authenticatedUsername)
                 .orElseThrow(() -> new UserNotFoundException("Authenticated user was not found"));
@@ -139,6 +158,7 @@ public class UserService {
 
         PasswordPolicy.validate(newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setTokenVersion(user.getTokenVersion() + 1);
         userRepository.save(user);
     }
 
@@ -192,7 +212,7 @@ public class UserService {
             throw new com.weg.quicktransfer.exception.UserNotAllowdException(
                     "User is not allowed to update this user");
         }
-        
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist"));
 
@@ -201,7 +221,7 @@ public class UserService {
         }
 
         if (StringUtils.hasText(updateRequestDTO.password())) {
-            validatePassword(updateRequestDTO.password());
+            PasswordPolicy.validate(updateRequestDTO.password());
             user.setPassword(passwordEncoder.encode(updateRequestDTO.password()));
             user.setTokenVersion(user.getTokenVersion() + 1);
         }
@@ -245,16 +265,4 @@ public class UserService {
         throw new UserNotFoundException("Role not recognized for user ID: " + user.getId());
     }
 
-    private void validatePassword(String password) {
-        boolean validPassword = password != null
-                && password.length() >= 14
-                && password.chars().anyMatch(Character::isUpperCase)
-                && password.chars().anyMatch(Character::isLowerCase)
-                && password.chars().anyMatch(Character::isDigit)
-                && password.matches(".*[^A-Za-z0-9].*");
-
-        if (!validPassword) {
-            throw new InvalidPasswordException("Password does not meet security requirements.");
-        }
-    }
 }

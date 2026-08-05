@@ -23,6 +23,7 @@ public class VacancySkill {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false)

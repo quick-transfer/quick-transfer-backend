@@ -60,7 +60,7 @@ public class ManagerService {
     @Transactional
     public ManagerResponseDTO create(ManagerRequestDTO managerRequestDTO) {
         if (managerRequestDTO == null) {
-            throw new IllegalArgumentException("Manager can not be null");
+            throw new IllegalArgumentException("Manager cannot be null");
         }
 
         Manager manager = managerMapper.toEntity(managerRequestDTO);
@@ -187,7 +187,7 @@ public class ManagerService {
                 .orElseThrow(() -> new UserNotFoundException("Manager not found with the interview ID: " + interviewId));
 
         MimeMessage message = mailSender.createMimeMessage();
-        
+
         MimeMessageHelper helper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
         helper.setFrom(mailFrom);
         helper.setTo(to);

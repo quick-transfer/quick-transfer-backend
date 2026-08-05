@@ -2,7 +2,6 @@ package com.weg.quicktransfer;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
-import com.weg.quicktransfer.config.CacheConfig;
 import com.weg.quicktransfer.enums.*;
 import com.weg.quicktransfer.model.*;
 import com.weg.quicktransfer.repo.*;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(CacheConfig.class)
 class SpecificationRepositoryTest {
 
     @Autowired

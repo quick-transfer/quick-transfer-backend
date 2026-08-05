@@ -40,8 +40,11 @@ class SecurityContractTest {
 
     @Test
     void shouldNotAcceptEmailRecipientFromRequest() throws Exception {
-        Method method = ManagerController.class.getMethod("postSendInterviewEmail", UUID.class);
-        assertEquals(1, method.getParameterCount());
+        Method method = ManagerController.class.getMethod(
+                "postSendInterviewEmail", UUID.class, Authentication.class);
+        assertEquals(2, method.getParameterCount());
+        assertFalse(Arrays.stream(method.getParameters())
+                .anyMatch(parameter -> parameter.isAnnotationPresent(RequestParam.class)));
     }
 
     @Test
@@ -72,7 +75,8 @@ class SecurityContractTest {
             Class<?> controller,
             String methodName,
             Class<?> requestType) throws Exception {
-        Method method = controller.getMethod(methodName, UUID.class, requestType);
+        Method method = controller.getMethod(
+                methodName, UUID.class, requestType, Authentication.class);
         PreAuthorize authorization = method.getAnnotation(PreAuthorize.class);
 
         assertNotNull(authorization);

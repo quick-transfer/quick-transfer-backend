@@ -280,7 +280,7 @@ class VacancyServiceTest {
     @DisplayName("Should update vacancy and return response dto")
     void shouldUpdateVacancy() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "Fullstack Updated", "new description", Area.IT.toString(), Shift.SECOND.toString(), PLACE_ID, null
+                "Fullstack Updated", "new description", Area.IT.toString(), Shift.SECOND.toString(), 12L, PLACE_ID, null
         );
 
         VacancyResponseDTO updatedResponse = new VacancyResponseDTO(
@@ -308,7 +308,7 @@ class VacancyServiceTest {
     @DisplayName("Should throw VacancyNotFoundException when updating non-existent vacancy")
     void shouldThrowExceptionWhenUpdateVacancyNotFound() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "Name", "Description", Area.IT.toString(), Shift.FIRST.toString(), PLACE_ID, null
+                "Name", "Description", Area.IT.toString(), Shift.FIRST.toString(), null, PLACE_ID, null
         );
 
         when(vacancyRepository.findById(NON_EXISTENT_ID)).thenReturn(Optional.empty());
@@ -323,7 +323,7 @@ class VacancyServiceTest {
     @DisplayName("Should throw PlaceNotFoundException when updating vacancy with non-existent place id")
     void shouldThrowExceptionWhenPlaceNotFoundOnUpdate() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                null, null, null, null, PLACE_ID, null
+                null, null, null, null, null, PLACE_ID, null
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
@@ -340,7 +340,7 @@ class VacancyServiceTest {
     @DisplayName("Should update vacancy keeping existing values when request fields are null or blank")
     void shouldUpdateVacancyWithoutChangingBlankFields() {
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                "  ", "", "   ", "", null, null
+                "  ", "", "   ", "", null, null, null
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));
@@ -371,7 +371,7 @@ class VacancyServiceTest {
                 new VacancySkill("Communication", SkillType.SOCIOEMOTIONAL, 6.0);
         communicationSkill.setId(SECOND_SKILL_ID);
         VacancyUpdateRequestDTO updateRequestDTO = new VacancyUpdateRequestDTO(
-                null, null, null, null, null, List.of(SKILL_ID, SECOND_SKILL_ID)
+                null, null, null, null, null, null, List.of(SKILL_ID, SECOND_SKILL_ID)
         );
 
         when(vacancyRepository.findById(VACANCY_ID)).thenReturn(Optional.of(vacancy));

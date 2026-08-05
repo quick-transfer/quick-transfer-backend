@@ -2,10 +2,7 @@ package com.weg.quicktransfer.repo;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.weg.quicktransfer.model.Interview;
 
@@ -43,30 +40,4 @@ public interface InterviewRepository extends JpaRepository<Interview, UUID>, Jpa
 
     long countByVacancy_IdAndIdNot(UUID vacancyId, UUID interviewId);
 
-    @Modifying
-    @Transactional
-    @Query("""
-            UPDATE Interview i
-               SET i.reminderProcessing = true,
-                   i.reminderClaimedAt = :claimedAt
-             WHERE i.id = :id
-               AND i.reminderSent = false
-               AND (i.reminderProcessing = false
-                    OR i.reminderClaimedAt IS NULL
-                    OR i.reminderClaimedAt < :staleBefore)
-            """)
-    int claimReminder(
-            @Param("id") UUID id,
-            @Param("claimedAt") LocalDateTime claimedAt,
-            @Param("staleBefore") LocalDateTime staleBefore);
-
-    @Modifying
-    @Transactional
-    @Query("""
-            UPDATE Interview i
-               SET i.reminderProcessing = false,
-                   i.reminderClaimedAt = null
-             WHERE i.id = :id
-            """)
-    void releaseReminderClaim(@Param("id") UUID id);
 }

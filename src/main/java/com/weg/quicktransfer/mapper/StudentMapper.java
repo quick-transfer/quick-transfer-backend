@@ -1,8 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
-import java.util.Locale;
-
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
@@ -14,28 +13,30 @@ import com.weg.quicktransfer.model.Student;
 public class StudentMapper {
     public Student toEntity(StudentRequestDTO studentRequestDTO, ClassEntity classEntity) {
         return new Student(
-                studentRequestDTO.name(),
-                studentRequestDTO.email(),
-                studentRequestDTO.age(),
-                studentRequestDTO.averageGrade(),
-                classEntity,
-                StudentInterviewStatus.valueOf(
-                        studentRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)),
-                studentRequestDTO.hasSeenEmail(),
-                null);
+            studentRequestDTO.name(),
+            studentRequestDTO.email(),
+            studentRequestDTO.age(),
+            studentRequestDTO.averageGrade(),
+            classEntity,
+            StudentInterviewStatus.valueOf(
+                    studentRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)),
+            studentRequestDTO.hasSeenEmail(),
+            null
+        );
     }
 
     public StudentResponseDTO toResponse(Student student) {
         return new StudentResponseDTO(
-                student.getId(),
-                student.getName(),
-                student.getEmail(),
-                student.getAge(),
-                student.getAverageGrade(),
-                student.getClassEntity().getAcronym(),
-                student.getClassEntity().getCourse().getName(),
-                student.getStatus().name(),
-                student.getHasSeenEmail(),
-                student.getStatusStudent().name());
+            student.getId(),
+            student.getName(),
+            student.getEmail(),
+            student.getAge(),
+            student.getAverageGrade(),
+            student.getClassEntity().getAcronym(),
+            student.getClassEntity().getCourse().getName(),
+            student.getStatus().name(),
+            student.getHasSeenEmail(),
+            student.getStatusStudent().name()
+        );
     }
 }

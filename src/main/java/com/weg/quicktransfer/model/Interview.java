@@ -59,18 +59,6 @@ public class Interview {
     @Column(name = "reminder_sent", nullable = false)
     private Boolean reminderSent = false;
 
-    @Column(name = "student_reminder_sent")
-    private Boolean studentReminderSent = false;
-
-    @Column(name = "coordinator_reminder_sent")
-    private Boolean coordinatorReminderSent = false;
-
-    @Column(name = "reminder_processing")
-    private Boolean reminderProcessing = false;
-
-    @Column(name = "reminder_claimed_at")
-    private LocalDateTime reminderClaimedAt;
-
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
             Student student) {
         this.interviewerName = interviewerName;

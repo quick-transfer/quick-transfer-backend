@@ -34,14 +34,12 @@ public class JwtService {
         this.privateKey = privateKey;
         this.expirationMs = expirationMs;
         this.issuer = (issuer == null || issuer.isBlank()) ? DEFAULT_ISSUER : issuer;
-
         if (publicKey.getModulus().bitLength() < 2048 || privateKey.getModulus().bitLength() < 2048) {
             throw new IllegalArgumentException("JWT RSA keys must be at least 2048 bits");
         }
         if (!publicKey.getModulus().equals(privateKey.getModulus())) {
             throw new IllegalArgumentException("JWT public and private keys do not form a pair");
         }
-
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -50,7 +48,6 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         Date now = new Date();
-
         Map<String, Object> claims = new HashMap<>(extraClaims);
 
         if (userDetails instanceof UserPrincipal principal) {
@@ -78,7 +75,6 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             Claims claims = extractAllClaims(token);
-
             long currentTokenVersion = userDetails instanceof UserPrincipal principal
                     ? principal.getTokenVersion()
                     : 0L;

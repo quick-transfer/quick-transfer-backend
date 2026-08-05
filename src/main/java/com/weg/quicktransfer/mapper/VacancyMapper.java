@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.mapper;
 
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;

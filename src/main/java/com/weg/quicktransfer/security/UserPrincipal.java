@@ -21,7 +21,7 @@ public class UserPrincipal implements UserDetails {
         return user.getId();
     }
 
-     public long getTokenVersion() {
+    public long getTokenVersion() {
         return user.getTokenVersion();
     }
 

@@ -26,7 +26,6 @@ import java.util.UUID;
 public class AdminService {
 
     private final AdminMapper adminMapper;
-
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 

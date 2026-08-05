@@ -5,12 +5,14 @@ import com.weg.quicktransfer.dto.coordinator.CoordinatorRequestDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorResponseDTO;
 import com.weg.quicktransfer.dto.coordinator.CoordinatorUpdateRequestDTO;
 import com.weg.quicktransfer.exception.CoordinatorNotFoundException;
+import com.weg.quicktransfer.exception.UserNotAllowdException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.CoordinatorMapper;
 import com.weg.quicktransfer.model.Admin;
 import com.weg.quicktransfer.model.Coordinator;
 import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.CoordinatorRepository;
+import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.service.CoordinatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +44,9 @@ class CoordinatorServiceTest {
 
     @Mock
     private CoordinatorMapper coordinatorMapper;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private CoordinatorService coordinatorService;
@@ -183,7 +188,7 @@ class CoordinatorServiceTest {
         @DisplayName("Should update coordinator fields selectively and return response DTO when user is Admin")
         void shouldUpdateCoordinatorWhenUserIsAdmin() {
             CoordinatorUpdateRequestDTO updateRequest = new CoordinatorUpdateRequestDTO(
-                    "Coordenador Atualizado", "StrongP@ssword1!"
+                    "Coordenador Atualizado", "654321"
             );
 
             CoordinatorResponseDTO updatedResponse = new CoordinatorResponseDTO(
@@ -192,13 +197,15 @@ class CoordinatorServiceTest {
 
             Admin adminUser = new Admin();
             adminUser.setId(ADMIN_USER_ID);
+            adminUser.setUsername("admin01");
 
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.of(adminUser));
             when(coordinatorRepository.findById(COORDINATOR_ID)).thenReturn(Optional.of(coordinator));
-            when(passwordEncoder.encode("StrongP@ssword1!")).thenReturn("encodedNewPassword");
+            when(passwordEncoder.encode("654321")).thenReturn("encodedNewPassword");
             when(coordinatorRepository.save(coordinator)).thenReturn(coordinator);
             when(coordinatorMapper.toResponse(coordinator)).thenReturn(updatedResponse);
 
-            CoordinatorResponseDTO result = coordinatorService.update(COORDINATOR_ID, updateRequest);
+            CoordinatorResponseDTO result = coordinatorService.update(COORDINATOR_ID, updateRequest, "admin01");
 
             assertNotNull(result);
             assertEquals("Coordenador Atualizado", result.name());
@@ -207,41 +214,45 @@ class CoordinatorServiceTest {
             assertEquals("Coordenador Atualizado", coordinator.getName());
             assertEquals("encodedNewPassword", coordinator.getPassword());
 
+            verify(userRepository).findFirstByUsername("admin01");
             verify(coordinatorRepository).findById(COORDINATOR_ID);
-            verify(passwordEncoder).encode("StrongP@ssword1!");
+            verify(passwordEncoder).encode("654321");
             verify(coordinatorRepository).save(coordinator);
             verify(coordinatorMapper).toResponse(coordinator);
         }
 
         @Test
-        @DisplayName("Should throw CoordinatorNotFoundException when target does not exist")
-        void shouldThrowExceptionWhenTargetDoesNotExist() {
+        @DisplayName("Should throw UserNotFoundException when user performing update is not logged in")
+        void shouldThrowExceptionWhenUserNotLogged() {
             CoordinatorUpdateRequestDTO updateRequest = new CoordinatorUpdateRequestDTO(
-                    "Coordenador Atualizado", "StrongP@ssword1!"
+                    "Coordenador Atualizado", "654321"
             );
 
-            when(coordinatorRepository.findById(COORDINATOR_ID)).thenReturn(Optional.empty());
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.empty());
 
-            assertThrows(CoordinatorNotFoundException.class,
-                    () -> coordinatorService.update(COORDINATOR_ID, updateRequest));
+            assertThrows(UserNotFoundException.class,
+                    () -> coordinatorService.update(COORDINATOR_ID, updateRequest, "admin01"));
 
-            verify(coordinatorRepository).findById(COORDINATOR_ID);
+            verify(userRepository).findFirstByUsername("admin01");
+            verify(coordinatorRepository, never()).findById(any());
         }
 
         @Test
         @DisplayName("Should throw CoordinatorNotFoundException when updating non-existent coordinator")
         void shouldThrowExceptionWhenUpdateNotFound() {
             CoordinatorUpdateRequestDTO updateRequest = new CoordinatorUpdateRequestDTO(
-                    "Coordenador", "StrongP@ssword1!"
+                    "Coordenador", "123456"
             );
 
             Admin adminUser = new Admin();
             adminUser.setId(ADMIN_USER_ID);
+            adminUser.setUsername("admin01");
 
+            when(userRepository.findFirstByUsername("admin01")).thenReturn(Optional.of(adminUser));
             when(coordinatorRepository.findById(NON_EXISTENT_COORDINATOR_ID)).thenReturn(Optional.empty());
 
             assertThrows(CoordinatorNotFoundException.class,
-                    () -> coordinatorService.update(NON_EXISTENT_COORDINATOR_ID, updateRequest));
+                    () -> coordinatorService.update(NON_EXISTENT_COORDINATOR_ID, updateRequest, "admin01"));
 
             verify(coordinatorRepository).findById(NON_EXISTENT_COORDINATOR_ID);
             verify(coordinatorRepository, never()).save(any());

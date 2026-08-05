@@ -10,6 +10,7 @@ import com.weg.quicktransfer.model.Course;
 import java.util.Locale;
 
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 @Component
 public class ClassEntityMapper {

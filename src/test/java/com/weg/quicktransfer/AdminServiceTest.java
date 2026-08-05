@@ -177,6 +177,8 @@ class AdminServiceTest {
         );
 
         when(adminRepo.findById(ADMIN_ID)).thenReturn(Optional.of(admin));
+        when(passwordEncoder.encode("Supersecure_Password1234")).thenReturn("encodedPassword");
+        when(adminRepo.save(admin)).thenReturn(admin);
         when(adminMapper.toResponse(admin)).thenReturn(updatedResponse);
 
         AdminResponseDTO result = adminService.updateAdminById(ADMIN_ID, updateRequestDTO);
@@ -187,6 +189,7 @@ class AdminServiceTest {
         assertEquals(updatedName, admin.getName());
 
         verify(adminRepo).findById(ADMIN_ID);
+        verify(adminRepo).save(admin);
         verify(adminMapper).toResponse(admin);
     }
 

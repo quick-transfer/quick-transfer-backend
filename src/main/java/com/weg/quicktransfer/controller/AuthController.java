@@ -5,6 +5,7 @@ import com.weg.quicktransfer.dto.auth.ChangePasswordRequestDto;
 import com.weg.quicktransfer.dto.auth.FirstAccessRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
+import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
@@ -37,9 +38,6 @@ public class AuthController {
 
     @Value("${app.security.cookie-secure:true}")
     private boolean cookieSecure;
-
-    @Value("${app.security.cookie.secure:true}")
-    private boolean secureCookie;
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
@@ -95,6 +93,7 @@ public class AuthController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PostMapping("/logout")
     public ResponseEntity<Void> logout(Authentication authentication) {
 
         userService.revokeSessions(authentication.getName());
@@ -115,9 +114,11 @@ public class AuthController {
                 .build();
     }
 
-     @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/password-reset")
-    public UserResponseDTO resetPassword(@RequestBody @Valid LoginRequestDTO requestDTO) {
-        return userService.resetPassword(requestDTO);
+    public UserResponseDTO resetPassword(
+            @RequestBody @Valid PasswordResetRequestDTO requestDTO,
+            Authentication authentication) {
+        return userService.resetPassword(authentication.getName(), requestDTO);
     }
 }

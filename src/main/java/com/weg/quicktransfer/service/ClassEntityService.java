@@ -142,8 +142,8 @@ public class ClassEntityService {
     }
 
     private void validateDates(java.time.LocalDate startDate, java.time.LocalDate finishDate) {
-        if (startDate != null && finishDate != null && finishDate.isBefore(startDate)) {
-            throw new DateOutOfRangeException("Finish date cannot be before start date");
+        if (startDate != null && finishDate != null && !finishDate.isAfter(startDate)) {
+            throw new DateOutOfRangeException("Finish date must be after start date");
         }
     }
 }

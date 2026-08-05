@@ -81,7 +81,7 @@ services:
     depends_on:
       - app
     networks:
-      - quick-transfer-net
+      - quick-transfer
 
 # ==========================================
 # GLOBAL RESOURCES

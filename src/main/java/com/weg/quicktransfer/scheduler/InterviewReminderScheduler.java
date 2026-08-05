@@ -1,19 +1,17 @@
 package com.weg.quicktransfer.scheduler;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.UUID;
-
 import com.weg.quicktransfer.repo.InterviewRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -21,17 +19,16 @@ import org.springframework.stereotype.Component;
 public class InterviewReminderScheduler {
 
     private final InterviewRepository interviewRepository;
-    
     private final InterviewReminderProcessor reminderProcessor;
 
     @Value("${app.reminders.look-ahead-hours:24}")
-    private long lookAheadHours;
+    private long lookAheadHours = 24;
 
     @Value("${app.reminders.batch-size:100}")
-    private int batchSize;
+    private int batchSize = 100;
 
     @Value("${app.reminders.zone:America/Sao_Paulo}")
-    private String reminderZone;
+    private String reminderZone = "America/Sao_Paulo";
 
     @Scheduled(
             cron = "${app.reminders.cron:0 */5 * * * *}",
@@ -44,8 +41,7 @@ public class InterviewReminderScheduler {
                 deadline,
                 PageRequest.of(0, Math.max(1, Math.min(batchSize, 1000))));
 
-        for (UUID interviewId : interviewIds) {    
-
+        for (UUID interviewId : interviewIds) {
             try {
                 if (reminderProcessor.process(interviewId)) {
                     log.info("Reminder sent successfully for interview {}", interviewId);
