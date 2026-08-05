@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.weg.quicktransfer.model.Skill;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface SkillRepository extends JpaRepository<Skill, UUID>, JpaSpecificationExecutor<Skill> {
-    public Optional<Skill> findFirstByName(String name);
+    List<Skill> findByNameContainingIgnoreCase(String name);
 }

@@ -12,6 +12,7 @@ import com.weg.quicktransfer.model.VacancySkill;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class VacancyMapper {
             vacancyRequestDTO.name(),
             vacancyRequestDTO.description(),
             vacancyRequestDTO.numbersVacancies(),
-            Area.valueOf(vacancyRequestDTO.area()),
-            Shift.valueOf(vacancyRequestDTO.shift()),
+            Area.valueOf(vacancyRequestDTO.area().trim().toUpperCase(Locale.ROOT)),
+            Shift.valueOf(vacancyRequestDTO.shift().trim().toUpperCase(Locale.ROOT)),
             place
         );
 
