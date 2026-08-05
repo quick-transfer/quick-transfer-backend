@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
@@ -113,11 +114,11 @@ public class ClassEntityService {
         }
 
         if(classEntityUpdateRequestDTO.status() != null) {
-            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status()));
+            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.shiftClass() != null) {
-            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass()));
+            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {

@@ -34,6 +34,7 @@ public class Place {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false, name = "place_name")

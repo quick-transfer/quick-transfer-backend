@@ -1,14 +1,11 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.skill.SkillFilter;
 import com.weg.quicktransfer.repo.specifications.SkillSpecification;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +33,6 @@ public class SkillService {
     private final SkillMapper skillMapper;
     private final StudentRepository studentRepository;
 
-    @CacheEvict(value = "skills", allEntries = true)
     @Transactional
     public SkillResponseDTO create(SkillRequestDTO skillRequestDTO) {
         Student student = studentRepository.findById(skillRequestDTO.studentId()).orElseThrow(() -> new StudentNotFoundException(skillRequestDTO.studentId()));
@@ -48,7 +44,6 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
-    @Cacheable("skills")
     @Transactional(readOnly = true)
     public List<SkillResponseDTO> findAll() {
         List<Skill> skills = skillRepository.findAll();
@@ -61,7 +56,6 @@ public class SkillService {
         return skillRepository.findAll(pageable).map(skillMapper::toResponse);
     }
 
-    @Cacheable(value = "skillById", key = "#id")
     @Transactional(readOnly = true)
     public SkillResponseDTO findById(UUID id) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
@@ -70,11 +64,10 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
-    public SkillResponseDTO findByName(String name) {
-        Skill skill = skillRepository.findFirstByName(name)
-                .orElseThrow(() -> new SkillNotFoundException("Skill not found with the name: " + name));
-
-        return skillMapper.toResponse(skill);
+    public List<SkillResponseDTO> findByName(String name) {
+        return skillRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(skillMapper::toResponse)
+                .toList();
     }
 
     @Transactional
@@ -93,14 +86,6 @@ public class SkillService {
         return skillRepository.findAll(spec, pageable).map(skillMapper::toResponse);
     }
 
-    @Caching(
-            put = {
-                    @CachePut(value = "skillById", key = "#id")
-            },
-            evict = {
-                    @CacheEvict(value = "skills", allEntries = true)
-            }
-    )
     @Transactional
     public SkillResponseDTO update(UUID id, SkillUpdateRequestDTO skillUpdateRequestDTO) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new SkillNotFoundException(id));
@@ -110,7 +95,7 @@ public class SkillService {
         }
 
         if(skillUpdateRequestDTO.skillType() != null) {
-            skill.setSkillType(SkillType.valueOf(skillUpdateRequestDTO.skillType()));
+            skill.setSkillType(SkillType.valueOf(skillUpdateRequestDTO.skillType().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(skillUpdateRequestDTO.grade() != null) {
@@ -127,12 +112,6 @@ public class SkillService {
         return skillMapper.toResponse(skill);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "skills", allEntries = true),
-                    @CacheEvict(value = "skillById", key = "#id")
-            }
-    )
     @Transactional
     public void delete(UUID id) {
         if(!skillRepository.existsById(id)) {

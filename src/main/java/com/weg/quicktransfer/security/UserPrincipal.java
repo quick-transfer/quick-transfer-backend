@@ -21,6 +21,10 @@ public class UserPrincipal implements UserDetails {
         return user.getId();
     }
 
+     public long getTokenVersion() {
+        return user.getTokenVersion();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (user == null || user.getRole() == null) {

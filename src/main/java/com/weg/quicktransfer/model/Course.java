@@ -23,12 +23,13 @@ public class Course {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coordinator_id", nullable = false)
     private Coordinator coordinator;
 

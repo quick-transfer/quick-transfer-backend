@@ -2,6 +2,7 @@ package com.weg.quicktransfer.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.student.StudentFilter;
@@ -147,7 +148,7 @@ public class StudentService {
         }
 
         if(studentUpdateRequestDTO.statusStudentInterview() != null) {
-            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview()));
+            student.setStatus(StudentInterviewStatus.valueOf(studentUpdateRequestDTO.statusStudentInterview().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(studentUpdateRequestDTO.hasSeenEmail() != null) {
@@ -155,7 +156,7 @@ public class StudentService {
         }
 
         if(studentUpdateRequestDTO.statusStudent() != null) {
-            student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent()));
+            student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent().trim().toUpperCase(Locale.ROOT)));
         }
 
         Student studentAtt = studentRepository.save(student);
