@@ -45,8 +45,11 @@ public class StudentMapper {
             student.getRegistration(),
             student.getAttendanceRate(),
             student.getClassEntity().getName(),
-            student.getClassEntity().getShiftClass().name(),
-            student.getAverageGrade()
+            student.getOperationalShift() == null
+                    ? student.getClassEntity().getShiftClass().name()
+                    : student.getOperationalShift().getName(),
+            student.getAverageGrade(),
+            student.getOperationalShift() == null ? null : student.getOperationalShift().getId()
         );
     }
 
