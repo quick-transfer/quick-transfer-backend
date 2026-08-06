@@ -6,7 +6,7 @@ import com.weg.quicktransfer.dto.vacancy.VacancyRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancyResponseDTO;
 import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
-import com.weg.quicktransfer.enums.StudentInterviewStatus;
+import com.weg.quicktransfer.enums.InterviewOutcome;
 import com.weg.quicktransfer.enums.VacancyStatus;
 import com.weg.quicktransfer.model.Manager;
 import com.weg.quicktransfer.model.Place;
@@ -65,7 +65,7 @@ public class VacancyMapper {
             vacancy.getManager() == null ? null : vacancy.getManager().getName(),
             vacancy.getInterviews() == null ? 0 : vacancy.getInterviews().stream()
                     .filter(interview -> interview.getStudent() != null
-                            && interview.getStudent().getStatus() == StudentInterviewStatus.HIRED)
+                            && interview.getOutcome() == InterviewOutcome.APPROVED)
                     .count()
         );
     }

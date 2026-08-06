@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.repo;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import com.weg.quicktransfer.enums.InterviewOutcome;
+import com.weg.quicktransfer.enums.InterviewStatus;
 
 public interface InterviewRepository extends JpaRepository<Interview, UUID>, JpaSpecificationExecutor<Interview> {
      @Query("""
@@ -39,5 +42,13 @@ public interface InterviewRepository extends JpaRepository<Interview, UUID>, Jpa
     long countByVacancy_Id(UUID vacancyId);
 
     long countByVacancy_IdAndIdNot(UUID vacancyId, UUID interviewId);
+
+    boolean existsByStudentIdAndStatus(UUID studentId, InterviewStatus status);
+
+    boolean existsByStudentIdAndStatusAndIdNot(UUID studentId, InterviewStatus status, UUID interviewId);
+
+    long countByVacancyIdAndOutcome(UUID vacancyId, InterviewOutcome outcome);
+
+    Page<Interview> findAllByManagerId(UUID managerId, Pageable pageable);
 
 }
