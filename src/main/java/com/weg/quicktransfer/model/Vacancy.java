@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
+import com.weg.quicktransfer.enums.VacancyStatus;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -45,12 +46,23 @@ public class Vacancy {
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VacancyStatus status = VacancyStatus.OPEN;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "place_id")
     private Place place;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    private Manager manager;
+
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vacancy")
+    private List<VacancyApplication> applications = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -68,6 +80,19 @@ public class Vacancy {
         this.area = area;
         this.shift = shift;
         this.place = place;
+        this.status = VacancyStatus.OPEN;
+    }
+
+    public Vacancy(String name, String description, Long numbersVacancies, Area area, Shift shift,
+            VacancyStatus status, Place place, Manager manager) {
+        this.name = name;
+        this.description = description;
+        this.numbersVacancies = numbersVacancies;
+        this.area = area;
+        this.shift = shift;
+        this.status = status;
+        this.place = place;
+        this.manager = manager;
     }
 
     public void setSkills(List<VacancySkill> skills) {

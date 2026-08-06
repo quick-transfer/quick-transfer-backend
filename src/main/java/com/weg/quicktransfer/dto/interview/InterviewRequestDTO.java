@@ -16,16 +16,22 @@ public record InterviewRequestDTO(
     @Future(message = "Date and time must be in the future")
     LocalDateTime dateTime,
 
-    @NotNull(message = "Place ID must not be null")
     UUID placeId,
 
     @NotNull(message = "Student ID must not be null")
     UUID studentId,
 
-    @NotNull(message = "Manager ID must not be null")
     UUID managerId,
 
     @NotNull(message = "Vacancy ID must not be null")
-    UUID vacancyId
+    UUID vacancyId,
+
+    String notes,
+
+    UUID applicationId
 ) {
+    public InterviewRequestDTO(String interviewerName, LocalDateTime dateTime, UUID placeId,
+            UUID studentId, UUID managerId, UUID vacancyId) {
+        this(interviewerName, dateTime, placeId, studentId, managerId, vacancyId, null, null);
+    }
 }

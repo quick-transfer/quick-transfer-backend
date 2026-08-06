@@ -10,6 +10,13 @@ public record CourseRequestDTO(
         String name,
 
         @NotNull(message = "Coordinator id must not be null")
-        UUID coordinatorId
+        UUID coordinatorId,
+
+        String code,
+
+        String status
 ) {
+    public CourseRequestDTO(String name, UUID coordinatorId) {
+        this(name, coordinatorId, null, null);
+    }
 }

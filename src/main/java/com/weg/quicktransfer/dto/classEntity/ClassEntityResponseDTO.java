@@ -16,6 +16,17 @@ public record ClassEntityResponseDTO(
 
         String shiftClass,
 
-        String acronym
+        String acronym,
+
+        String name,
+
+        Long maxStudents,
+
+        long totalStudents
 ) {
+    public ClassEntityResponseDTO(UUID id, String courseName, LocalDate startDate,
+            LocalDate finishDate, String status, String shiftClass, String acronym) {
+        this(id, courseName, startDate, finishDate, status, shiftClass, acronym,
+                acronym, 30L, 0);
+    }
 }

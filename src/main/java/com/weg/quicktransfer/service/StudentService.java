@@ -27,6 +27,7 @@ import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
+import com.weg.quicktransfer.repo.OperationalShiftRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final ClassEntityRepository classEntityRepository;
+    private final OperationalShiftRepository operationalShiftRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -47,6 +49,9 @@ public class StudentService {
         ClassEntity classEntity = classEntityRepository.findById(studentRequestDTO.classId()).orElseThrow(() -> new ClassEntityNotFoundException(studentRequestDTO.classId()));
 
         Student student = studentMapper.toEntity(studentRequestDTO, classEntity);
+
+        operationalShiftRepository.findByCode(defaultShiftCode(classEntity))
+                .ifPresent(student::setOperationalShift);
 
         student = studentRepository.save(student);
 
@@ -62,8 +67,14 @@ public class StudentService {
         );
 
         List<Student> students = studentsRequest.stream()
-                .map(dto -> studentMapper.toEntity(dto, classEntityRepository.findById(dto.classId())
-                        .orElseThrow(() -> new ClassEntityNotFoundException("The operation was canceled because one of the classes id was invalid"))))
+                .map(dto -> {
+                    ClassEntity classEntity = classEntityRepository.findById(dto.classId())
+                            .orElseThrow(() -> new ClassEntityNotFoundException("The operation was canceled because one of the classes id was invalid"));
+                    Student student = studentMapper.toEntity(dto, classEntity);
+                    operationalShiftRepository.findByCode(defaultShiftCode(classEntity))
+                            .ifPresent(student::setOperationalShift);
+                    return student;
+                })
                 .toList();
 
         return studentRepository.saveAll(students).stream()
@@ -159,6 +170,16 @@ public class StudentService {
             student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent().trim().toUpperCase(Locale.ROOT)));
         }
 
+        if (studentUpdateRequestDTO.registration() != null
+                && !studentUpdateRequestDTO.registration().isBlank()) {
+            student.setRegistration(studentMapper.normalizeRegistration(
+                    studentUpdateRequestDTO.registration(), student.getEmail()));
+        }
+
+        if (studentUpdateRequestDTO.attendanceRate() != null) {
+            student.setAttendanceRate(studentUpdateRequestDTO.attendanceRate());
+        }
+
         Student studentAtt = studentRepository.save(student);
 
         return studentMapper.toResponse(studentAtt);
@@ -187,5 +208,16 @@ public class StudentService {
         Student savedStudent = studentRepository.save(student);
 
         return studentMapper.toResponse(savedStudent);
+    }
+
+    private String defaultShiftCode(ClassEntity classEntity) {
+        if (classEntity.getShiftClass() == null) {
+            return "TRN-A";
+        }
+        return switch (classEntity.getShiftClass()) {
+            case MORNING -> "TRN-A";
+            case AFTERNOON -> "TRN-B";
+            case NIGHT -> "TRN-C";
+        };
     }
 }

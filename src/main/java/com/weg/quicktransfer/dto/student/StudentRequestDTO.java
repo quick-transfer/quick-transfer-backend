@@ -34,6 +34,17 @@ public record StudentRequestDTO(
     String statusStudentInterview,
 
     @NotNull(message = "Email view cannot be null")
-    Boolean hasSeenEmail
+    Boolean hasSeenEmail,
+
+    String registration,
+
+    @PositiveOrZero(message = "Attendance rate cannot be negative")
+    @DecimalMax(value = "100.0", message = "Attendance rate cannot be greater than 100")
+    Double attendanceRate
 ) {
+    public StudentRequestDTO(String name, String email, Long age, Double averageGrade,
+            UUID classId, String statusStudentInterview, Boolean hasSeenEmail) {
+        this(name, email, age, averageGrade, classId, statusStudentInterview, hasSeenEmail,
+                null, null);
+    }
 }

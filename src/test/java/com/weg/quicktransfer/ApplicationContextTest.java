@@ -76,23 +76,35 @@ class ApplicationContextTest {
     void generatedSchemaMatchesVersionedMigrationColumns() {
         Map<String, Set<String>> expected = Map.ofEntries(
                 Map.entry("USERS", Set.of("ID", "NAME", "USER_NAME", "EMAIL", "PASSWORD",
-                        "ROLE", "FIRST_LOGIN", "TOKEN_VERSION", "VERSION")),
+                        "ROLE", "FIRST_LOGIN", "TOKEN_VERSION", "ACTIVE", "VERSION")),
                 Map.entry("ADMINS", Set.of("USER_ID")),
                 Map.entry("COORDINATORS", Set.of("USER_ID")),
                 Map.entry("MANAGERS", Set.of("USER_ID", "SECTION")),
-                Map.entry("COURSES", Set.of("ID", "NAME", "COORDINATOR_ID", "VERSION")),
+                Map.entry("COURSES", Set.of("ID", "NAME", "CODE", "STATUS", "COORDINATOR_ID", "VERSION")),
                 Map.entry("CLASS_ENTITIES", Set.of("ID", "COURSE_ID", "START_DATE", "FINISH_DATE",
-                        "STATUS", "SHIFT_CLASS", "ACRONYM", "VERSION")),
+                        "STATUS", "SHIFT_CLASS", "ACRONYM", "NAME", "MAX_STUDENTS", "VERSION")),
                 Map.entry("STUDENTS", Set.of("ID", "NAME", "EMAIL", "AGE", "AVERAGE_GRADE",
-                        "STATUS", "HAS_SEEN_EMAIL", "STATUS_STUDENT", "CLASSENTITY_ID", "VERSION")),
+                        "STATUS", "HAS_SEEN_EMAIL", "STATUS_STUDENT", "REGISTRATION",
+                        "ATTENDANCE_RATE", "CLASSENTITY_ID", "OPERATIONAL_SHIFT_ID", "VERSION")),
                 Map.entry("SKILLS", Set.of("ID", "NAME", "SKILL_TYPE", "GRADE", "STUDENT_ID", "VERSION")),
-                Map.entry("PLACES", Set.of("ID", "PLACE_NAME", "PARK", "SECTION", "VERSION")),
+                Map.entry("PLACES", Set.of("ID", "PLACE_NAME", "CODE", "DESCRIPTION", "CITY",
+                        "STATE", "STATUS", "PARK", "SECTION", "VERSION")),
                 Map.entry("VACANCIES", Set.of("ID", "NAME", "DESCRIPTION", "NUMBERS_VACANCIES",
-                        "AREA", "SHIFT", "PLACE_ID", "VERSION")),
+                        "AREA", "SHIFT", "STATUS", "PLACE_ID", "MANAGER_ID", "VERSION")),
                 Map.entry("VACANCY_SKILLS", Set.of("ID", "NAME", "SKILL_TYPE", "MINIMUM_GRADE", "VERSION")),
                 Map.entry("VACANCY_SKILL_ASSIGNMENTS", Set.of("VACANCY_ID", "VACANCY_SKILL_ID")),
+                Map.entry("VACANCY_APPLICATIONS", Set.of("ID", "VACANCY_ID", "STUDENT_ID",
+                        "COORDINATOR_ID", "STATUS", "NOTES", "CREATED_AT", "UPDATED_AT", "VERSION")),
                 Map.entry("INTERVIEWS", Set.of("ID", "INTERVIEWER_NAME", "DATE_TIME", "VACANCY_ID",
-                        "PLACE_ID", "MANAGER_ID", "STUDENT_ID", "REMINDER_SENT", "VERSION")));
+                        "PLACE_ID", "MANAGER_ID", "STUDENT_ID", "APPLICATION_ID", "NOTES", "STATUS",
+                        "OUTCOME", "REMINDER_SENT", "VERSION")),
+                Map.entry("OPERATIONAL_SHIFTS", Set.of("ID", "CODE", "NAME", "SUPERVISOR_NAME",
+                        "CAPACITY", "ACTIVE", "VERSION")),
+                Map.entry("SHIFT_TRANSFER_REQUESTS", Set.of("ID", "STUDENT_ID", "CURRENT_SHIFT_ID",
+                        "TARGET_SHIFT_ID", "REQUESTED_BY", "RESOLVED_BY", "REASON", "RESOLUTION_NOTES",
+                        "STATUS", "REQUESTED_AT", "RESOLVED_AT", "VERSION")),
+                Map.entry("SYSTEM_SETTINGS", Set.of("ID", "DEFAULT_SHIFT_CAPACITY",
+                        "HIGH_DEMAND_PERCENTAGE", "EMAIL_SENDER", "UPDATED_AT", "UPDATED_BY", "VERSION")));
 
         expected.forEach((table, expectedColumns) -> {
             Set<String> actualColumns = Set.copyOf(jdbcTemplate.queryForList(

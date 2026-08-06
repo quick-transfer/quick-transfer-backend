@@ -9,9 +9,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface VacancyRepository extends JpaRepository<Vacancy, UUID>, JpaSpecificationExecutor<Vacancy> {
 
     @Query("SELECT v FROM Vacancy v WHERE LOWER(v.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Vacancy> findByName(@Param("name") String name);
+
+    Page<Vacancy> findAllByManagerId(UUID managerId, Pageable pageable);
 }

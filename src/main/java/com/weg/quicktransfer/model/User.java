@@ -52,6 +52,10 @@ public abstract class User {
     @Column(nullable = false, name = "token_version")
     private long tokenVersion = 0L;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = Boolean.TRUE;
+
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;
         this.username = username;
@@ -59,5 +63,6 @@ public abstract class User {
         this.password = password;
         this.role = role;
         this.firstLogin = Boolean.TRUE;
+        this.active = Boolean.TRUE;
     }
 }

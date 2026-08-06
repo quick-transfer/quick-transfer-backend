@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.weg.quicktransfer.security.UserPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,49 +26,58 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
-    public ResponseEntity<VacancyResponseDTO> createVacancy(@RequestBody @Valid VacancyRequestDTO vacancyRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(vacancyService.create(vacancyRequestDTO));
+    public ResponseEntity<VacancyResponseDTO> createVacancy(
+            @RequestBody @Valid VacancyRequestDTO vacancyRequestDTO,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(vacancyService.create(vacancyRequestDTO, principal));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<VacancyResponseDTO> findVacancyById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<VacancyResponseDTO>> findVacancyByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<Page<VacancyResponseDTO>> findAllVacancies(Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll(pageable));
+    public ResponseEntity<Page<VacancyResponseDTO>> findAllVacancies(
+            Pageable pageable,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll(pageable, principal));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<VacancyResponseDTO>> searchVacancies(VacancyFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.searchVacancies(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<VacancyResponseDTO> updateVacancy(
             @PathVariable UUID id,
-            @RequestBody @Valid VacancyUpdateRequestDTO vacancyUpdateRequestDTO
+            @RequestBody @Valid VacancyUpdateRequestDTO vacancyUpdateRequestDTO,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(vacancyService.update(id, vacancyUpdateRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(vacancyService.update(id, vacancyUpdateRequestDTO, principal));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteVacancy(@PathVariable UUID id) {
-        vacancyService.delete(id);
+    public ResponseEntity<Void> deleteVacancy(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        vacancyService.delete(id, principal);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

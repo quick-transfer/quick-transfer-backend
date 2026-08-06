@@ -22,7 +22,10 @@ public class CoordinatorMapper {
                 coordinator.getId(),
                 coordinator.getName(),
                 coordinator.getUsername(),
-                coordinator.getEmail()
+                coordinator.getEmail(),
+                coordinator.getRole(),
+                coordinator.getActive(),
+                coordinator.getFirstLogin()
         );
     }
 }

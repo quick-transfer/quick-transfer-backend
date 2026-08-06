@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Locale;
+import com.weg.quicktransfer.enums.EntityStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -98,6 +100,15 @@ public class CourseService {
         if(courseUpdateRequestDTO.coordinatorId() != null) {
             Coordinator coordinator = coordinatorRepository.findById(courseUpdateRequestDTO.coordinatorId()).orElseThrow(() -> new CoordinatorNotFoundException(courseUpdateRequestDTO.coordinatorId()));
             course.setCoordinator(coordinator);
+        }
+
+        if (courseUpdateRequestDTO.code() != null && !courseUpdateRequestDTO.code().isBlank()) {
+            course.setCode(courseMapper.normalizeCode(courseUpdateRequestDTO.code(), course.getName()));
+        }
+
+        if (courseUpdateRequestDTO.status() != null && !courseUpdateRequestDTO.status().isBlank()) {
+            course.setStatus(EntityStatus.valueOf(
+                    courseUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         Course courseAtt = courseRepository.save(course);

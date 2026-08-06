@@ -24,37 +24,37 @@ public class SkillController {
 
     private final SkillService skillService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<SkillResponseDTO> createSkill(@RequestBody @Valid SkillRequestDTO skillRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(skillService.create(skillRequestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<SkillResponseDTO> findSkillById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<SkillResponseDTO>> findSkillByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<SkillResponseDTO>> findAllSkills(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<SkillResponseDTO>> searchSkills(SkillFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.searchSkills(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<SkillResponseDTO> updateSkill(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class SkillController {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.update(id, skillUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSkill(@PathVariable UUID id) {
         skillService.delete(id);

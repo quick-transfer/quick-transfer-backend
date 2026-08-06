@@ -32,7 +32,18 @@ public class InterviewMapper {
             interview.getPlace().getSection().name(),
             interview.getStudent().getName(),
             interview.getManager().getName(),
-            interview.getVacancy().getShift().name()
+            interview.getVacancy().getShift().name(),
+            interview.getStudent().getId(),
+            interview.getStudent().getEmail(),
+            interview.getVacancy().getId(),
+            interview.getVacancy().getName(),
+            interview.getPlace().getId(),
+            interview.getPlace().getPlaceName(),
+            interview.getManager().getId(),
+            interview.getNotes(),
+            interview.getStatus().name(),
+            interview.getOutcome().name(),
+            interview.getApplication() == null ? null : interview.getApplication().getId()
         );
     }
 }

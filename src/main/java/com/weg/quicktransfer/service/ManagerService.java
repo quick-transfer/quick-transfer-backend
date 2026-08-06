@@ -15,6 +15,7 @@ import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.repo.UserRepository;
+import com.weg.quicktransfer.repo.SystemSettingsRepository;
 import com.weg.quicktransfer.repo.specifications.ManagerSpecification;
 
 import jakarta.mail.MessagingException;
@@ -49,6 +50,7 @@ public class ManagerService {
     private final ManagerMapper managerMapper;
     private final InterviewRepository interviewRepository;
     private final StudentRepository studentRepository;
+    private final SystemSettingsRepository systemSettingsRepository;
     private final JavaMailSender mailSender;
 
     @Value("${app.mail.from:no-reply@quick-transfer.local}")
@@ -189,7 +191,11 @@ public class ManagerService {
         MimeMessage message = mailSender.createMimeMessage();
 
         MimeMessageHelper helper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
-        helper.setFrom(mailFrom);
+        String configuredSender = systemSettingsRepository.findById(1L)
+                .map(settings -> settings.getEmailSender())
+                .filter(StringUtils::hasText)
+                .orElse(mailFrom);
+        helper.setFrom(configuredSender);
         helper.setTo(to);
         Coordinator coordinator = coordinatorOf(student);
         if (coordinator != null && StringUtils.hasText(coordinator.getEmail())) {

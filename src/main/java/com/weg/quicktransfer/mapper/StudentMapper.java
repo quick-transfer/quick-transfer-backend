@@ -9,12 +9,17 @@ import com.weg.quicktransfer.enums.StudentInterviewStatus;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Student;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 @Component
 public class StudentMapper {
     public Student toEntity(StudentRequestDTO studentRequestDTO, ClassEntity classEntity) {
         return new Student(
             studentRequestDTO.name(),
             studentRequestDTO.email(),
+            normalizeRegistration(studentRequestDTO.registration(), studentRequestDTO.email()),
+            studentRequestDTO.attendanceRate() == null ? 0.0 : studentRequestDTO.attendanceRate(),
             studentRequestDTO.age(),
             studentRequestDTO.averageGrade(),
             classEntity,
@@ -36,7 +41,24 @@ public class StudentMapper {
             student.getClassEntity().getCourse().getName(),
             student.getStatus().name(),
             student.getHasSeenEmail(),
-            student.getStatusStudent().name()
+            student.getStatusStudent().name(),
+            student.getRegistration(),
+            student.getAttendanceRate(),
+            student.getClassEntity().getName(),
+            student.getOperationalShift() == null
+                    ? student.getClassEntity().getShiftClass().name()
+                    : student.getOperationalShift().getName(),
+            student.getAverageGrade(),
+            student.getOperationalShift() == null ? null : student.getOperationalShift().getId()
         );
+    }
+
+    public String normalizeRegistration(String registration, String email) {
+        if (registration != null && !registration.isBlank()) {
+            return registration.trim().toUpperCase(Locale.ROOT);
+        }
+        UUID stableId = UUID.nameUUIDFromBytes(email.trim().toLowerCase(Locale.ROOT)
+                .getBytes(StandardCharsets.UTF_8));
+        return "STU-" + stableId.toString().substring(0, 8).toUpperCase(Locale.ROOT);
     }
 }

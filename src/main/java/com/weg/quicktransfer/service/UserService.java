@@ -226,6 +226,15 @@ public class UserService {
             user.setTokenVersion(user.getTokenVersion() + 1);
         }
 
+        if (updateRequestDTO.active() != null) {
+            if (!(requester instanceof Admin)) {
+                throw new com.weg.quicktransfer.exception.UserNotAllowdException(
+                        "Only an administrator can change a user's active status");
+            }
+            user.setActive(updateRequestDTO.active());
+            user.setTokenVersion(user.getTokenVersion() + 1);
+        }
+
         userRepository.save(user);
         return mapUserToResponseDTO(user);
     }

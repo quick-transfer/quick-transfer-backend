@@ -30,19 +30,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<UserResponseDTO>> findUserByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByUsername(name));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<UserResponseDTO>> findAllUsers(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<Page<UserResponseDTO>> searchUsers(UserFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.searchUsers(filter, pageable));

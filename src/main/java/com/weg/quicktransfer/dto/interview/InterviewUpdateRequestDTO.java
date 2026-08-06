@@ -17,6 +17,19 @@ public record InterviewUpdateRequestDTO(
 
     UUID managerId,
 
-    UUID vacancyId
+    UUID vacancyId,
+
+    String notes,
+
+    String status,
+
+    String outcome,
+
+    UUID applicationId
 ) {
+    public InterviewUpdateRequestDTO(String interviewerName, LocalDateTime dateTime, UUID placeId,
+            UUID studentId, UUID managerId, UUID vacancyId) {
+        this(interviewerName, dateTime, placeId, studentId, managerId, vacancyId,
+                null, null, null, null);
+    }
 }

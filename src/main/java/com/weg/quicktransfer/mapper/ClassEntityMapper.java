@@ -7,8 +7,6 @@ import com.weg.quicktransfer.dto.classEntity.ClassEntityRequestDTO;
 import com.weg.quicktransfer.model.ClassEntity;
 import com.weg.quicktransfer.model.Course;
 
-import java.util.Locale;
-
 import org.springframework.stereotype.Component;
 import java.util.Locale;
 
@@ -22,7 +20,13 @@ public class ClassEntityMapper {
                 classEntityResquestDTO.finishDate(),
                 StatusClass.valueOf(classEntityResquestDTO.status().trim().toUpperCase(Locale.ROOT)),
                 ShiftClass.valueOf(classEntityResquestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)),
-                classEntityResquestDTO.acronym()
+                classEntityResquestDTO.acronym(),
+                classEntityResquestDTO.name() == null || classEntityResquestDTO.name().isBlank()
+                        ? classEntityResquestDTO.acronym()
+                        : classEntityResquestDTO.name(),
+                classEntityResquestDTO.maxStudents() == null
+                        ? 30L
+                        : classEntityResquestDTO.maxStudents()
         );
     }
 
@@ -34,7 +38,10 @@ public class ClassEntityMapper {
                 classEntity.getFinishDate(),
                 classEntity.getStatus().name(),
                 classEntity.getShiftClass().name(),
-                classEntity.getAcronym()
+                classEntity.getAcronym(),
+                classEntity.getName(),
+                classEntity.getMaxStudents(),
+                classEntity.getStudents().size()
         );
     }
 }

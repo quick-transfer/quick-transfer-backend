@@ -11,6 +11,11 @@ public record UserUpdateRequestDTO(
     
     @Length(min = 14, message = "Password must be at least 14 characters long")
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$", message = "The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
-    String password
+    String password,
+
+    Boolean active
 ) {
+    public UserUpdateRequestDTO(String name, String password) {
+        this(name, password, null);
+    }
 }

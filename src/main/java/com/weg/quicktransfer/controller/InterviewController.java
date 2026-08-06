@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.weg.quicktransfer.security.UserPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,43 +25,53 @@ public class InterviewController {
 
     private final InterviewService interviewService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
-    public ResponseEntity<InterviewResponseDTO> createInterview(@RequestBody @Valid InterviewRequestDTO interviewRequestDTO){
-        return ResponseEntity.status(HttpStatus.CREATED).body(interviewService.create(interviewRequestDTO));
+    public ResponseEntity<InterviewResponseDTO> createInterview(
+            @RequestBody @Valid InterviewRequestDTO interviewRequestDTO,
+            @AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(interviewService.create(interviewRequestDTO, principal));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<InterviewResponseDTO> findInterviewById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
-    public ResponseEntity<Page<InterviewResponseDTO>> findAllInterviews(Pageable pageable){
-        return ResponseEntity.status(HttpStatus.OK).body(interviewService.findAll(pageable));
+    public ResponseEntity<Page<InterviewResponseDTO>> findAllInterviews(
+            Pageable pageable,
+            @AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(interviewService.findAll(pageable, principal));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<InterviewResponseDTO>> searchCourses(InterviewFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.searchInterviews(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<InterviewResponseDTO> updateInterview(
             @PathVariable UUID id,
-            @RequestBody @Valid InterviewUpdateRequestDTO interviewUpdateRequestDTO
+            @RequestBody @Valid InterviewUpdateRequestDTO interviewUpdateRequestDTO,
+            @AuthenticationPrincipal UserPrincipal principal
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(interviewService.update(id, interviewUpdateRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(interviewService.update(id, interviewUpdateRequestDTO, principal));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteInterview(@PathVariable UUID id){
-        interviewService.delete(id);
+    public ResponseEntity<Void> deleteInterview(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal){
+        interviewService.delete(id, principal);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

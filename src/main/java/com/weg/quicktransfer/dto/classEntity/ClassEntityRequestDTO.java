@@ -29,6 +29,14 @@ public record ClassEntityRequestDTO(
 
         @NotBlank(message = "Class acronym must not be empty")
         @Pattern(regexp = "^[A-Z0-9-]+$")
-        String acronym
+        String acronym,
+
+        String name,
+
+        Long maxStudents
 ) {
+    public ClassEntityRequestDTO(UUID courseId, LocalDate startDate, LocalDate finishDate,
+            String status, String shiftClass, String acronym) {
+        this(courseId, startDate, finishDate, status, shiftClass, acronym, null, null);
+    }
 }

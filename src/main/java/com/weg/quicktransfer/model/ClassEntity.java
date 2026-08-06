@@ -46,6 +46,12 @@ public class ClassEntity {
     @Column(nullable = false, unique = true)
     private String acronym;
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column(name = "max_students", nullable = false)
+    private Long maxStudents = 30L;
+
     @OneToMany(mappedBy = "classEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Student> students = new ArrayList<>();
 
@@ -61,5 +67,29 @@ public class ClassEntity {
         this.status = status;
         this.shiftClass = shiftClass;
         this.acronym = acronym;
+        this.name = acronym;
+        this.maxStudents = 30L;
+    }
+
+    public ClassEntity(Course course, LocalDate startDate, LocalDate finishDate, StatusClass status,
+            ShiftClass shiftClass, String acronym, String name, Long maxStudents) {
+        this.course = course;
+        this.startDate = startDate;
+        this.finishDate = finishDate;
+        this.status = status;
+        this.shiftClass = shiftClass;
+        this.acronym = acronym;
+        this.name = name;
+        this.maxStudents = maxStudents;
+    }
+
+    @PrePersist
+    void applyDefaults() {
+        if (name == null || name.isBlank()) {
+            name = acronym;
+        }
+        if (maxStudents == null) {
+            maxStudents = 30L;
+        }
     }
 }

@@ -24,37 +24,37 @@ public class PlaceController {
 
     private final PlaceService placeService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<PlaceResponseDTO> createPlace(@RequestBody @Valid PlaceRequestDTO placeRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(placeService.create(placeRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<PlaceResponseDTO> findPlaceById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findById(id));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("find/name/{name}")
     public ResponseEntity<List<PlaceResponseDTO>> findByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findByName(name));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<PlaceResponseDTO>> searchPlaces(PlaceFilter filter, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.searchPlaces(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<PlaceResponseDTO>> findAllPlaces(Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(placeService.findAll(pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<PlaceResponseDTO> updatePlace(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class PlaceController {
         return ResponseEntity.status(HttpStatus.OK).body(placeService.update(id, placeUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePlace(@PathVariable UUID id){
         placeService.delete(id);
