@@ -66,7 +66,8 @@ public class VacancyMapper {
             vacancy.getInterviews() == null ? 0 : vacancy.getInterviews().stream()
                     .filter(interview -> interview.getStudent() != null
                             && interview.getOutcome() == InterviewOutcome.APPROVED)
-                    .count()
+                    .count(),
+            vacancy.getPlace().getId()
         );
     }
 }

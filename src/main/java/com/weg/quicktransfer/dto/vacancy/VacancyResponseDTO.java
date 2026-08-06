@@ -30,12 +30,14 @@ public record VacancyResponseDTO(
 
     String managerName,
 
-    long filledSpots
+    long filledSpots,
+
+    UUID placeId
 ) {
     public VacancyResponseDTO(UUID id, String name, String description, Long numbersVacancies,
             String area, String shift, String park, String section,
             List<VacancySkillResponseDTO> skills) {
         this(id, name, description, numbersVacancies, area, shift, park, section, skills,
-                null, "OPEN", null, null, 0);
+                null, "OPEN", null, null, 0, null);
     }
 }
