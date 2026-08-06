@@ -5,6 +5,8 @@ import com.weg.quicktransfer.dto.student.StudentRequestDTO;
 import com.weg.quicktransfer.dto.student.StudentResponseDTO;
 import com.weg.quicktransfer.dto.student.StudentUpdateRequestDTO;
 import com.weg.quicktransfer.service.StudentService;
+import com.weg.quicktransfer.service.StudentTimelineService;
+import com.weg.quicktransfer.dto.student.StudentTimelineResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class StudentController {
 
     private final StudentService studentService;
+    private final StudentTimelineService studentTimelineService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @PostMapping("/create")
@@ -42,6 +45,12 @@ public class StudentController {
     @GetMapping("/find/id/{id}")
     public ResponseEntity<StudentResponseDTO> findStudentById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.findById(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
+    @GetMapping("/find/id/{id}/timeline")
+    public ResponseEntity<List<StudentTimelineResponseDTO>> findStudentTimeline(@PathVariable UUID id) {
+        return ResponseEntity.ok(studentTimelineService.findByStudent(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
