@@ -10,6 +10,19 @@ public record PlaceRequestDTO(
     String park,
 
     @NotBlank(message = "Section must not be blank")
-    String section
+    String section,
+
+    String code,
+
+    String description,
+
+    String city,
+
+    String state,
+
+    String status
 ) {
+    public PlaceRequestDTO(String placeName, String park, String section) {
+        this(placeName, park, section, null, null, null, null, null);
+    }
 }

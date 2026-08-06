@@ -27,6 +27,14 @@ public record VacancyRequestDTO(
     @NotNull(message = "Place id must not be null")
     UUID placeId,
 
-    List<@NotNull(message = "Skill id must not be null") UUID> skillIds
+    List<@NotNull(message = "Skill id must not be null") UUID> skillIds,
+
+    UUID managerId,
+
+    String status
 ) {
+    public VacancyRequestDTO(String name, String description, Long numbersVacancies, String area,
+            String shift, UUID placeId, List<UUID> skillIds) {
+        this(name, description, numbersVacancies, area, shift, placeId, skillIds, null, null);
+    }
 }

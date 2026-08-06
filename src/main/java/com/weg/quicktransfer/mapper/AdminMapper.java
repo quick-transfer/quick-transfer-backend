@@ -22,7 +22,10 @@ public class AdminMapper {
                 admin.getId(),
                 admin.getName(),
                 admin.getUsername(),
-                admin.getEmail()
+                admin.getEmail(),
+                admin.getRole(),
+                admin.getActive(),
+                admin.getFirstLogin()
         );
     }
 }

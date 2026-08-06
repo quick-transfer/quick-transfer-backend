@@ -1,5 +1,6 @@
 package com.weg.quicktransfer.dto.user;
 
+import com.weg.quicktransfer.enums.Role;
 import java.util.UUID;
 
 public interface UserResponseDTO {
@@ -10,4 +11,10 @@ public interface UserResponseDTO {
     String getUsername();
     
     String getEmail();
+
+    Role getRole();
+
+    Boolean getActive();
+
+    Boolean getFirstLogin();
 }

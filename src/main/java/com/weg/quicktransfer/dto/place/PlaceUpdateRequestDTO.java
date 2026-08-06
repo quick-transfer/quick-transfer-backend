@@ -5,6 +5,19 @@ public record PlaceUpdateRequestDTO(
 
     String park,
 
-    String section
+    String section,
+
+    String code,
+
+    String description,
+
+    String city,
+
+    String state,
+
+    String status
 ) {
+    public PlaceUpdateRequestDTO(String placeName, String park, String section) {
+        this(placeName, park, section, null, null, null, null, null);
+    }
 }

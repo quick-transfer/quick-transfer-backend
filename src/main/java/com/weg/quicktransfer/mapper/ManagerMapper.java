@@ -1,7 +1,5 @@
 package com.weg.quicktransfer.mapper;
 
-import java.util.Locale;
-
 import org.springframework.stereotype.Component;
 import java.util.Locale;
 
@@ -28,7 +26,10 @@ public class ManagerMapper {
             manager.getName(),
             manager.getUsername(),
             manager.getEmail(),
-            manager.getSection().name()
+            manager.getSection().name(),
+            manager.getRole(),
+            manager.getActive(),
+            manager.getFirstLogin()
         );
     }
 }
