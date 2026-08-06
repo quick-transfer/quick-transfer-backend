@@ -21,4 +21,6 @@ public interface StudentRepository extends JpaRepository<Student, UUID>, JpaSpec
 
     @Query("SELECT s FROM Student s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     public List<Student> findByName(@Param("name") String name);
+
+    long countByOperationalShiftId(UUID operationalShiftId);
 }

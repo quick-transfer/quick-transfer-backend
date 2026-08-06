@@ -62,6 +62,10 @@ public class Student{
     @JoinColumn(name = "classentity_id", nullable = false)
     private ClassEntity classEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "operational_shift_id")
+    private OperationalShift operationalShift;
+
     @OneToMany(mappedBy = "student")
     private List<Interview> interviews = new ArrayList<>();
 

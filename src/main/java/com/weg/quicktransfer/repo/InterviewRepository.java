@@ -51,4 +51,6 @@ public interface InterviewRepository extends JpaRepository<Interview, UUID>, Jpa
 
     Page<Interview> findAllByManagerId(UUID managerId, Pageable pageable);
 
+    List<Interview> findAllByStudentIdOrderByDateTimeDesc(UUID studentId);
+
 }
