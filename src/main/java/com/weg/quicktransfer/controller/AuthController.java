@@ -7,6 +7,7 @@ import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.dto.auth.PasswordResetRequestDTO;
 import com.weg.quicktransfer.dto.user.UserResponseDTO;
+import com.weg.quicktransfer.security.UserPrincipal;
 import com.weg.quicktransfer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,6 +71,22 @@ public class AuthController {
     @GetMapping("/csrf")
     public CsrfToken csrf(CsrfToken token) {
         return token;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthenticatedUserResponseDTO> me(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        AuthenticatedUserResponseDTO response = new AuthenticatedUserResponseDTO(
+                principal.getId(),
+                principal.getName(),
+                principal.getUsername(),
+                principal.getRole()
+        );
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .body(response);
     }
 
     @PostMapping("/first-access")

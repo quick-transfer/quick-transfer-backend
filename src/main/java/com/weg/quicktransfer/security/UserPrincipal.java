@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.security;
 
 import com.weg.quicktransfer.model.User;
+import com.weg.quicktransfer.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,14 @@ public class UserPrincipal implements UserDetails {
 
     public UUID getId() {
         return user.getId();
+    }
+
+    public String getName() {
+        return user.getName();
+    }
+
+    public Role getRole() {
+        return user.getRole();
     }
 
     public long getTokenVersion() {
