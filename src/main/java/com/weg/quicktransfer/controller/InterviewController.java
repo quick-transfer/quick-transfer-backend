@@ -23,31 +23,31 @@ public class InterviewController {
 
     private final InterviewService interviewService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<InterviewResponseDTO> createInterview(@RequestBody @Valid InterviewRequestDTO interviewRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(interviewService.create(interviewRequestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<InterviewResponseDTO> findInterviewById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<InterviewResponseDTO>> findAllInterviews(Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<InterviewResponseDTO>> searchCourses(InterviewFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.searchInterviews(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<InterviewResponseDTO> updateInterview(
             @PathVariable UUID id,
@@ -56,7 +56,7 @@ public class InterviewController {
         return ResponseEntity.status(HttpStatus.OK).body(interviewService.update(id, interviewUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteInterview(@PathVariable UUID id){
         interviewService.delete(id);

@@ -23,7 +23,7 @@ public class VacancySkillController {
 
     private final VacancySkillService vacancySkillService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<VacancySkillResponseDTO> create(
             @RequestBody @Valid VacancySkillRequestDTO requestDTO
@@ -32,25 +32,25 @@ public class VacancySkillController {
                 .body(vacancySkillService.create(requestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<VacancySkillResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(vacancySkillService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<VacancySkillResponseDTO> findByName(@PathVariable String name) {
         return ResponseEntity.ok(vacancySkillService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<VacancySkillResponseDTO>> findAll(Pageable pageable) {
         return ResponseEntity.ok(vacancySkillService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<VacancySkillResponseDTO>> search(
             VacancySkillFilter filter,
@@ -59,7 +59,7 @@ public class VacancySkillController {
         return ResponseEntity.ok(vacancySkillService.searchSkills(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<VacancySkillResponseDTO> update(
             @PathVariable UUID id,
@@ -68,7 +68,7 @@ public class VacancySkillController {
         return ResponseEntity.ok(vacancySkillService.update(id, requestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         vacancySkillService.delete(id);

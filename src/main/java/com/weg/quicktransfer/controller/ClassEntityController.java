@@ -25,37 +25,37 @@ public class ClassEntityController {
 
     private final ClassEntityService classEntityService;
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @PostMapping("/create")
     public ResponseEntity<ClassEntityResponseDTO> createClassEntity(@RequestBody @Valid ClassEntityRequestDTO classEntityRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(classEntityService.create(classEntityRequestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<ClassEntityResponseDTO> findClassEntityById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("find/acronym/{acronym}")
     public ResponseEntity<List<ClassEntityResponseDTO>> findClassEntityByAcronym(@PathVariable String acronym){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findByAcronym(acronym));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<Page<ClassEntityResponseDTO>> searchClassEntities(ClassEntityFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.searchClassEntities(filter, pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @GetMapping("find/all")
     public ResponseEntity<Page<ClassEntityResponseDTO>> findAllClassEntities(Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.findAll(pageable));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<ClassEntityResponseDTO> updateClassEntity(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class ClassEntityController {
         return ResponseEntity.status(HttpStatus.OK).body(classEntityService.update(id, classEntityUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteClassEntity(@PathVariable UUID id){
         classEntityService.delete(id);

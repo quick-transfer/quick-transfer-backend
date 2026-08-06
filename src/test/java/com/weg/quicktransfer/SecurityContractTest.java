@@ -12,11 +12,13 @@ import com.weg.quicktransfer.dto.manager.ManagerUpdateRequestDTO;
 import com.weg.quicktransfer.dto.user.UserUpdateRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancySkillRequestDTO;
 import com.weg.quicktransfer.dto.vacancy.VacancySkillUpdateRequestDTO;
+import com.weg.quicktransfer.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -55,20 +57,27 @@ class SecurityContractTest {
     }
 
     @Test
+    void shouldExposeCurrentAuthenticatedUser() throws Exception {
+        Method method = AuthController.class.getMethod("me", UserPrincipal.class);
+        assertTrue(method.getParameters()[0]
+                .isAnnotationPresent(AuthenticationPrincipal.class));
+    }
+
+    @Test
     void shouldAuthorizeVacancySkillOperationsByRole() throws Exception {
         assertAuthorization(
                 VacancySkillController.class.getMethod("create", VacancySkillRequestDTO.class),
-                "hasRole('MANAGER')");
+                "hasAnyRole('ADMIN', 'MANAGER')");
         assertAuthorization(
                 VacancySkillController.class.getMethod("findById", UUID.class),
-                "hasAnyRole('COORDINATOR', 'MANAGER')");
+                "hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')");
         assertAuthorization(
                 VacancySkillController.class.getMethod(
                         "update", UUID.class, VacancySkillUpdateRequestDTO.class),
-                "hasRole('MANAGER')");
+                "hasAnyRole('ADMIN', 'MANAGER')");
         assertAuthorization(
                 VacancySkillController.class.getMethod("delete", UUID.class),
-                "hasRole('MANAGER')");
+                "hasAnyRole('ADMIN', 'MANAGER')");
     }
 
     private void assertPrincipalOwnership(
