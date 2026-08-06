@@ -29,6 +29,9 @@ public class Manager extends User{
     @OneToMany(mappedBy = "manager")
     List<Interview> interviews;
 
+    @OneToMany(mappedBy = "manager")
+    List<Vacancy> vacancies;
+
     public Manager(String name, String username, String email, String password, Section section) {
         super(name, username, email, password, Role.MANAGER);
         this.section = section;
