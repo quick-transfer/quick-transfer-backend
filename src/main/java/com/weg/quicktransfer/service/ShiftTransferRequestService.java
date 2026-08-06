@@ -58,6 +58,9 @@ public class ShiftTransferRequestService {
         OperationalShift target = shiftRepository.findByIdForUpdate(targetShiftId)
                 .orElseThrow(() -> shiftNotFound(targetShiftId));
         validateDifferentShift(student, target);
+        if (requestRepository.existsByStudentIdAndStatus(studentId, TransferRequestStatus.PENDING)) {
+            throw new IllegalArgumentException("Student already has a pending transfer request");
+        }
         validateCapacity(target);
 
         ShiftTransferRequest request = baseRequest(
@@ -101,6 +104,11 @@ public class ShiftTransferRequestService {
 
         User actor = findUser(principal);
         if (status == TransferRequestStatus.APPROVED) {
+            if (request.getStudent().getOperationalShift() == null
+                    || !request.getStudent().getOperationalShift().getId()
+                            .equals(request.getCurrentShift().getId())) {
+                throw new IllegalArgumentException("Student current shift has changed since the request was created");
+            }
             OperationalShift target = shiftRepository.findByIdForUpdate(request.getTargetShift().getId())
                     .orElseThrow(() -> shiftNotFound(request.getTargetShift().getId()));
             validateCapacity(target);

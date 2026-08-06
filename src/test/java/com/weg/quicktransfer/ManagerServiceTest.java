@@ -19,6 +19,7 @@ import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
 import com.weg.quicktransfer.repo.UserRepository;
+import com.weg.quicktransfer.repo.SystemSettingsRepository;
 import com.weg.quicktransfer.service.ManagerService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,9 @@ class ManagerServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private SystemSettingsRepository systemSettingsRepository;
 
     @Mock
     private JavaMailSender mailSender;
