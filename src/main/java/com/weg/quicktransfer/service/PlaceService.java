@@ -13,6 +13,7 @@ import com.weg.quicktransfer.dto.place.PlaceResponseDTO;
 import com.weg.quicktransfer.dto.place.PlaceUpdateRequestDTO;
 import com.weg.quicktransfer.enums.Park;
 import com.weg.quicktransfer.enums.Section;
+import com.weg.quicktransfer.enums.EntityStatus;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.mapper.PlaceMapper;
 import com.weg.quicktransfer.model.Place;
@@ -100,6 +101,27 @@ public class PlaceService {
 
         if(placeUpdateRequestDTO.section() != null && !placeUpdateRequestDTO.section().isBlank()) {
             place.setSection(Section.valueOf(placeUpdateRequestDTO.section().trim().toUpperCase(Locale.ROOT)));
+        }
+
+        if (placeUpdateRequestDTO.code() != null && !placeUpdateRequestDTO.code().isBlank()) {
+            place.setCode(placeMapper.normalizeCode(placeUpdateRequestDTO.code(), place.getPlaceName()));
+        }
+
+        if (placeUpdateRequestDTO.description() != null) {
+            place.setDescription(placeUpdateRequestDTO.description());
+        }
+
+        if (placeUpdateRequestDTO.city() != null) {
+            place.setCity(placeUpdateRequestDTO.city());
+        }
+
+        if (placeUpdateRequestDTO.state() != null) {
+            place.setState(placeMapper.normalizeState(placeUpdateRequestDTO.state()));
+        }
+
+        if (placeUpdateRequestDTO.status() != null && !placeUpdateRequestDTO.status().isBlank()) {
+            place.setStatus(EntityStatus.valueOf(
+                    placeUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         Place placeAtt = placeRepository.save(place);

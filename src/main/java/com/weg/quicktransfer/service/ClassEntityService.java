@@ -125,6 +125,18 @@ public class ClassEntityService {
             classEntity.setAcronym(classEntityUpdateRequestDTO.acronym());
         }
 
+        if (classEntityUpdateRequestDTO.name() != null
+                && !classEntityUpdateRequestDTO.name().isBlank()) {
+            classEntity.setName(classEntityUpdateRequestDTO.name());
+        }
+
+        if (classEntityUpdateRequestDTO.maxStudents() != null) {
+            if (classEntityUpdateRequestDTO.maxStudents() <= 0) {
+                throw new IllegalArgumentException("Maximum students must be greater than zero");
+            }
+            classEntity.setMaxStudents(classEntityUpdateRequestDTO.maxStudents());
+        }
+
         validateDates(classEntity.getStartDate(), classEntity.getFinishDate());
 
         ClassEntity classEntityAtt = classEntityRepository.save(classEntity);

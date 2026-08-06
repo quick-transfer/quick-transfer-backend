@@ -159,6 +159,16 @@ public class StudentService {
             student.setStatusStudent(StatusStudent.valueOf(studentUpdateRequestDTO.statusStudent().trim().toUpperCase(Locale.ROOT)));
         }
 
+        if (studentUpdateRequestDTO.registration() != null
+                && !studentUpdateRequestDTO.registration().isBlank()) {
+            student.setRegistration(studentMapper.normalizeRegistration(
+                    studentUpdateRequestDTO.registration(), student.getEmail()));
+        }
+
+        if (studentUpdateRequestDTO.attendanceRate() != null) {
+            student.setAttendanceRate(studentUpdateRequestDTO.attendanceRate());
+        }
+
         Student studentAtt = studentRepository.save(student);
 
         return studentMapper.toResponse(studentAtt);
