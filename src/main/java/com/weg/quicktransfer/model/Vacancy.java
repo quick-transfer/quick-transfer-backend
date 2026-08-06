@@ -61,6 +61,9 @@ public class Vacancy {
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "vacancy")
+    private List<VacancyApplication> applications = new ArrayList<>();
+
     @ManyToMany
     @JoinTable(
             name = "vacancy_skill_assignments",

@@ -62,8 +62,8 @@ public class Student{
     @JoinColumn(name = "classentity_id", nullable = false)
     private ClassEntity classEntity;
 
-    @OneToOne(mappedBy = "student")
-    private Interview interview;
+    @OneToMany(mappedBy = "student")
+    private List<Interview> interviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "student")
     private List<Skill> skills = new ArrayList<>();
@@ -79,7 +79,9 @@ public class Student{
         this.status = status;
         this.hasSeenEmail = hasSeenEmail;
         this.statusStudent = StatusStudent.ENROLLED;
-        this.interview = interview;
+        if (interview != null) {
+            this.interviews.add(interview);
+        }
         this.attendanceRate = 0.0;
     }
 
@@ -96,7 +98,9 @@ public class Student{
         this.status = status;
         this.hasSeenEmail = hasSeenEmail;
         this.statusStudent = StatusStudent.ENROLLED;
-        this.interview = interview;
+        if (interview != null) {
+            this.interviews.add(interview);
+        }
     }
 
     @PrePersist

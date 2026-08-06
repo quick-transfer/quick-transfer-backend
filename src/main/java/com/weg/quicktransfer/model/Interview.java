@@ -18,6 +18,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.weg.quicktransfer.enums.InterviewOutcome;
+import com.weg.quicktransfer.enums.InterviewStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "interviews")
@@ -52,9 +56,24 @@ public class Interview {
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "application_id", unique = true)
+    private VacancyApplication application;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InterviewStatus status = InterviewStatus.SCHEDULED;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InterviewOutcome outcome = InterviewOutcome.PENDING;
 
     @Column(name = "reminder_sent", nullable = false)
     private Boolean reminderSent = false;
@@ -67,5 +86,7 @@ public class Interview {
         this.place = place;
         this.manager = manager;
         this.student = student;
+        this.status = InterviewStatus.SCHEDULED;
+        this.outcome = InterviewOutcome.PENDING;
     }
 }

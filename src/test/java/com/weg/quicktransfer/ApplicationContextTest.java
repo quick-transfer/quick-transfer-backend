@@ -93,8 +93,11 @@ class ApplicationContextTest {
                         "AREA", "SHIFT", "STATUS", "PLACE_ID", "MANAGER_ID", "VERSION")),
                 Map.entry("VACANCY_SKILLS", Set.of("ID", "NAME", "SKILL_TYPE", "MINIMUM_GRADE", "VERSION")),
                 Map.entry("VACANCY_SKILL_ASSIGNMENTS", Set.of("VACANCY_ID", "VACANCY_SKILL_ID")),
+                Map.entry("VACANCY_APPLICATIONS", Set.of("ID", "VACANCY_ID", "STUDENT_ID",
+                        "COORDINATOR_ID", "STATUS", "NOTES", "CREATED_AT", "UPDATED_AT", "VERSION")),
                 Map.entry("INTERVIEWS", Set.of("ID", "INTERVIEWER_NAME", "DATE_TIME", "VACANCY_ID",
-                        "PLACE_ID", "MANAGER_ID", "STUDENT_ID", "REMINDER_SENT", "VERSION")));
+                        "PLACE_ID", "MANAGER_ID", "STUDENT_ID", "APPLICATION_ID", "NOTES", "STATUS",
+                        "OUTCOME", "REMINDER_SENT", "VERSION")));
 
         expected.forEach((table, expectedColumns) -> {
             Set<String> actualColumns = Set.copyOf(jdbcTemplate.queryForList(
