@@ -57,6 +57,7 @@ public class VacancyService {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
         List<VacancySkill> skills = resolveSkills(vacancyRequestDTO.skillIds());
         Manager manager = resolveManager(vacancyRequestDTO.managerId(), principal);
+        validateManagerSection(manager, place);
 
         Vacancy vacancy = manager == null
                 ? vacancyMapper.toEntity(vacancyRequestDTO, place, skills)
@@ -176,6 +177,8 @@ public class VacancyService {
                             vacancyUpdateRequestDTO.managerId())));
         }
 
+        validateManagerSection(vacancy.getManager(), vacancy.getPlace());
+
         Vacancy vacancyAtt = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancyAtt);
@@ -231,6 +234,12 @@ public class VacancyService {
         if (vacancy.getManager() == null
                 || !principal.getId().equals(vacancy.getManager().getId())) {
             throw new AccessDeniedException("Manager cannot modify another manager's vacancy");
+        }
+    }
+
+    private void validateManagerSection(Manager manager, Place place) {
+        if (manager != null && manager.getSection() != place.getSection()) {
+            throw new IllegalArgumentException("Manager and vacancy place must belong to the same section");
         }
     }
 }
