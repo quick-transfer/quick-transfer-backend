@@ -12,6 +12,7 @@ import com.weg.quicktransfer.model.Course;
 import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.repo.ClassEntityRepository;
 import com.weg.quicktransfer.repo.StudentRepository;
+import com.weg.quicktransfer.repo.OperationalShiftRepository;
 import com.weg.quicktransfer.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +49,9 @@ class StudentServiceTest {
 
     @Mock
     private ClassEntityRepository classEntityRepository;
+
+    @Mock
+    private OperationalShiftRepository operationalShiftRepository;
 
     @Mock
     private ObjectMapper objectMapper;
