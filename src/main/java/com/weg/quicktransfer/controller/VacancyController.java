@@ -24,37 +24,37 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<VacancyResponseDTO> createVacancy(@RequestBody @Valid VacancyRequestDTO vacancyRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(vacancyService.create(vacancyRequestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<VacancyResponseDTO> findVacancyById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<VacancyResponseDTO>> findVacancyByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<VacancyResponseDTO>> findAllVacancies(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<Page<VacancyResponseDTO>> searchVacancies(VacancyFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.searchVacancies(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<VacancyResponseDTO> updateVacancy(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class VacancyController {
         return ResponseEntity.status(HttpStatus.OK).body(vacancyService.update(id, vacancyUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteVacancy(@PathVariable UUID id) {
         vacancyService.delete(id);

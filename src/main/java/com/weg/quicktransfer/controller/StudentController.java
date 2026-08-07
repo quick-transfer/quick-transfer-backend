@@ -26,44 +26,44 @@ public class StudentController {
 
     private final StudentService studentService;
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<StudentResponseDTO> createStudent(@RequestBody @Valid StudentRequestDTO studentRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(studentRequestDTO));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @PostMapping("/create/multiple")
     public ResponseEntity<List<StudentResponseDTO>> createMultipleStudents(@RequestPart("file") MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.createMultiple(file));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<StudentResponseDTO> findStudentById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<StudentResponseDTO>> findCStudentByName(@PathVariable String name) {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<StudentResponseDTO>> findAllStudents(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<Page<StudentResponseDTO>> searchCourses(StudentFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.searchStudents(filter, pageable));
     }
 
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<StudentResponseDTO> updateStudent(
             @PathVariable UUID id,
@@ -72,7 +72,7 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.OK).body(studentService.update(id, updateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable UUID id) {
         studentService.delete(id);
