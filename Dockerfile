@@ -6,7 +6,7 @@ RUN mvn -B -ntp dependency:go-offline
 COPY src ./src
 RUN mvn -B -ntp clean verify
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S quicktransfer && adduser -S quicktransfer -G quicktransfer
 WORKDIR /app
 
