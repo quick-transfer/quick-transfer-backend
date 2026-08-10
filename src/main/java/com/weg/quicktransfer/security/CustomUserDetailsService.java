@@ -17,8 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findFirstByUsername(username)
-                .orElseGet(() -> userRepository.findFirstByName(username)
-                        .orElseThrow(() -> new UsernameNotFoundException("User not found with username/name: " + username)));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
 
         return new UserPrincipal(user);
     }

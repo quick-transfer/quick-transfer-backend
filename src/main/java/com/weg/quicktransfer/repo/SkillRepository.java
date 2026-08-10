@@ -1,14 +1,13 @@
 package com.weg.quicktransfer.repo;
 
 import java.util.UUID;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.weg.quicktransfer.model.Skill;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Optional;
-
 public interface SkillRepository extends JpaRepository<Skill, UUID>, JpaSpecificationExecutor<Skill> {
-    public Optional<Skill> findFirstByName(String name);
+    List<Skill> findByNameContainingIgnoreCase(String name);
 }

@@ -1,6 +1,9 @@
 package com.weg.quicktransfer.mapper;
 
+import java.util.Locale;
+
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.skill.SkillRequestDTO;
 import com.weg.quicktransfer.dto.skill.SkillResponseDTO;
@@ -13,7 +16,7 @@ public class SkillMapper {
     public Skill toEntity(SkillRequestDTO skillRequestDTO, Student student) {
         return new Skill(
             skillRequestDTO.name(),
-            SkillType.valueOf(skillRequestDTO.skillType()),
+            SkillType.valueOf(skillRequestDTO.skillType().trim().toUpperCase(Locale.ROOT)),
             skillRequestDTO.grade(),
             student
         );

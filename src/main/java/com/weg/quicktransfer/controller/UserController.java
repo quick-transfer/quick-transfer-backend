@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,9 +52,11 @@ public class UserController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable UUID id,
-            @RequestBody @Valid UserUpdateRequestDTO userUpdateRequestDTO
+            @RequestBody @Valid UserUpdateRequestDTO userUpdateRequestDTO,
+            Authentication authentication
             ) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.update(id, userUpdateRequestDTO));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.update(id, userUpdateRequestDTO, authentication.getName()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -8,7 +8,6 @@ import com.weg.quicktransfer.enums.Role;
 import com.weg.quicktransfer.enums.Section;
 import com.weg.quicktransfer.exception.InterviewNotFoundException;
 import com.weg.quicktransfer.exception.InvalidEmailException;
-import com.weg.quicktransfer.exception.InvalidPasswordException;
 import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.mapper.ManagerMapper;
 import com.weg.quicktransfer.model.Interview;
@@ -18,6 +17,8 @@ import com.weg.quicktransfer.model.Student;
 import com.weg.quicktransfer.model.Vacancy;
 import com.weg.quicktransfer.repo.InterviewRepository;
 import com.weg.quicktransfer.repo.ManagerRepository;
+import com.weg.quicktransfer.repo.StudentRepository;
+import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.service.ManagerService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +56,12 @@ class ManagerServiceTest {
     private InterviewRepository interviewRepository;
 
     @Mock
+    private StudentRepository studentRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private JavaMailSender mailSender;
 
     @InjectMocks
@@ -89,7 +96,6 @@ class ManagerServiceTest {
         student = new Student();
         student.setId(STUDENT_ID);
         student.setName("Bruno");
-        student.setEmail("destinatario@dominio.com");
 
         Place place = new Place();
         place.setPlaceName("Auditório Principal");
@@ -105,10 +111,6 @@ class ManagerServiceTest {
         interview.setPlace(place);
         interview.setVacancy(vacancy);
         interview.setInterviewerName("Lucas");
-        interview.setStudent(student);
-        interview.setManager(manager);
-        lenient().when(interviewRepository.save(any(Interview.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -139,7 +141,7 @@ class ManagerServiceTest {
                 () -> managerService.create(null)
         );
 
-        assertEquals("Manager can not be null", exception.getMessage());
+        assertEquals("Manager cannot be null", exception.getMessage());
     }
 
     @Test
@@ -224,17 +226,19 @@ class ManagerServiceTest {
         ManagerUpdateRequestDTO updateRequest = new ManagerUpdateRequestDTO(newName, newPassword, Section.IT.toString());
         ManagerResponseDTO updatedResponse = new ManagerResponseDTO(MANAGER_ID, newName, "manager01", "manager@dominio.com", null);
 
+        when(userRepository.findFirstByUsername("manager01")).thenReturn(Optional.of(manager));
         when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         when(managerRepository.save(manager)).thenReturn(manager);
         when(managerMapper.toResponse(manager)).thenReturn(updatedResponse);
 
-        ManagerResponseDTO result = managerService.update(MANAGER_ID, updateRequest);
+        ManagerResponseDTO result = managerService.update(MANAGER_ID, updateRequest, "manager01");
 
         assertNotNull(result);
         assertEquals(newName, result.name());
         assertEquals(encodedPassword, manager.getPassword());
 
+        verify(userRepository).findFirstByUsername("manager01");
         verify(managerRepository).findById(MANAGER_ID);
         verify(passwordEncoder).encode(newPassword);
         verify(managerRepository).save(manager);
@@ -242,18 +246,18 @@ class ManagerServiceTest {
     }
 
     @Test
-    @DisplayName("Should not update password if it fails strength regex validation")
-    void shouldNotUpdatePasswordWhenInvalidRegex() {
+    @DisplayName("Should reject a password that fails strength validation")
+    void shouldRejectPasswordWhenInvalidRegex() {
         String newName = "Manager Atualizado";
         String weakPassword = "123456";
 
         ManagerUpdateRequestDTO updateRequest = new ManagerUpdateRequestDTO(newName, weakPassword, Section.IT.toString());
 
+        when(userRepository.findFirstByUsername("manager01")).thenReturn(Optional.of(manager));
         when(managerRepository.findById(MANAGER_ID)).thenReturn(Optional.of(manager));
 
-        assertThrows(InvalidPasswordException.class,
-                () -> managerService.update(MANAGER_ID, updateRequest));
-
+        assertThrows(com.weg.quicktransfer.exception.InvalidPasswordException.class,
+                () -> managerService.update(MANAGER_ID, updateRequest, "manager01"));
         assertEquals("123456", manager.getPassword());
         verify(passwordEncoder, never()).encode(anyString());
         verify(managerRepository, never()).save(any());
@@ -287,11 +291,15 @@ class ManagerServiceTest {
         MimeMessage mimeMessage = mock(MimeMessage.class);
 
         when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(studentRepository.findByInterviewId(INTERVIEW_ID)).thenReturn(Optional.of(student));
+        when(managerRepository.findByInterviewId(INTERVIEW_ID)).thenReturn(Optional.of(manager));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        assertDoesNotThrow(() -> managerService.sendDynamicEmailAmp(INTERVIEW_ID));
+        assertDoesNotThrow(() -> managerService.sendDynamicEmailAmp("destinatario@dominio.com", INTERVIEW_ID));
 
         verify(interviewRepository).findById(INTERVIEW_ID);
+        verify(studentRepository).findByInterviewId(INTERVIEW_ID);
+        verify(managerRepository).findByInterviewId(INTERVIEW_ID);
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
     }
@@ -299,12 +307,9 @@ class ManagerServiceTest {
     @Test
     @DisplayName("Should throw InvalidEmailException when email format is invalid")
     void shouldThrowInvalidEmailExceptionWhenEmailIsInvalid() {
-        student.setEmail("email-invalido");
-        when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
-        assertThrows(InvalidEmailException.class, () -> managerService.sendDynamicEmailAmp(INTERVIEW_ID));
+        assertThrows(InvalidEmailException.class, () -> managerService.sendDynamicEmailAmp("email-invalido", INTERVIEW_ID));
 
-        verify(interviewRepository).findById(INTERVIEW_ID);
-        verifyNoInteractions(mailSender);
+        verifyNoInteractions(interviewRepository, studentRepository, managerRepository, mailSender);
     }
 
     @Test
@@ -312,10 +317,10 @@ class ManagerServiceTest {
     void shouldThrowInterviewNotFoundExceptionWhenInterviewNotFound() {
         when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.empty());
 
-        assertThrows(InterviewNotFoundException.class, () -> managerService.sendDynamicEmailAmp(INTERVIEW_ID));
+        assertThrows(InterviewNotFoundException.class, () -> managerService.sendDynamicEmailAmp("destinatario@dominio.com", INTERVIEW_ID));
 
         verify(interviewRepository).findById(INTERVIEW_ID);
-        verifyNoInteractions(mailSender);
+        verifyNoInteractions(studentRepository, mailSender);
     }
 
     @Test
@@ -324,9 +329,11 @@ class ManagerServiceTest {
         MimeMessage mimeMessage = mock(MimeMessage.class);
 
         when(interviewRepository.findById(INTERVIEW_ID)).thenReturn(Optional.of(interview));
+        when(studentRepository.findByInterviewId(INTERVIEW_ID)).thenReturn(Optional.of(student));
+        when(managerRepository.findByInterviewId(INTERVIEW_ID)).thenReturn(Optional.of(manager));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new RuntimeException("Mail server offline")).when(mailSender).send(any(MimeMessage.class));
 
-        assertThrows(RuntimeException.class, () -> managerService.sendDynamicEmailAmp(INTERVIEW_ID));
+        assertThrows(RuntimeException.class, () -> managerService.sendDynamicEmailAmp("destinatario@dominio.com", INTERVIEW_ID));
     }
 }

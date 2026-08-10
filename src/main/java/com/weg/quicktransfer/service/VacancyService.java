@@ -1,14 +1,11 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.vacancy.VacancyFilter;
 import com.weg.quicktransfer.repo.specifications.VacancySpecification;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +20,14 @@ import com.weg.quicktransfer.enums.Area;
 import com.weg.quicktransfer.enums.Shift;
 import com.weg.quicktransfer.exception.PlaceNotFoundException;
 import com.weg.quicktransfer.exception.VacancyNotFoundException;
+import com.weg.quicktransfer.exception.VacancySkillNotFoundException;
 import com.weg.quicktransfer.mapper.VacancyMapper;
 import com.weg.quicktransfer.model.Place;
 import com.weg.quicktransfer.model.Vacancy;
+import com.weg.quicktransfer.model.VacancySkill;
 import com.weg.quicktransfer.repo.PlaceRepository;
 import com.weg.quicktransfer.repo.VacancyRepository;
+import com.weg.quicktransfer.repo.VacancySkillRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,20 +37,20 @@ public class VacancyService {
     private final VacancyRepository vacancyRepository;
     private final VacancyMapper vacancyMapper;
     private final PlaceRepository placeRepository;
+    private final VacancySkillRepository vacancySkillRepository;
 
-    @CacheEvict(value = "vacancies", allEntries = true)
     @Transactional
     public VacancyResponseDTO create(VacancyRequestDTO vacancyRequestDTO) {
         Place place = placeRepository.findById(vacancyRequestDTO.placeId()).orElseThrow(() -> new PlaceNotFoundException(vacancyRequestDTO.placeId()));
+        List<VacancySkill> skills = resolveSkills(vacancyRequestDTO.skillIds());
 
-        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place);
+        Vacancy vacancy = vacancyMapper.toEntity(vacancyRequestDTO, place, skills);
 
         vacancy = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancy);
     }
 
-    @Cacheable("vacancies")
     @Transactional(readOnly = true)
     public List<VacancyResponseDTO> findAll() {
         List<Vacancy> vacancies = vacancyRepository.findAll();
@@ -63,7 +63,6 @@ public class VacancyService {
         return vacancyRepository.findAll(pageable).map(vacancyMapper::toResponse);
     }
 
-    @Cacheable(value = "vacancyById", key = "#id")
     @Transactional(readOnly = true)
     public VacancyResponseDTO findById(UUID id) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -99,14 +98,6 @@ public class VacancyService {
                 .toList();
     }
 
-    @Caching(
-            put = {
-                    @CachePut(value = "vacancyById", key = "#id")
-            },
-            evict = {
-                    @CacheEvict(value = "vacancies", allEntries = true)
-            }
-    )
     @Transactional
     public VacancyResponseDTO update(UUID id, VacancyUpdateRequestDTO vacancyUpdateRequestDTO) {
         Vacancy vacancy = vacancyRepository.findById(id).orElseThrow(() -> new VacancyNotFoundException(id));
@@ -120,11 +111,15 @@ public class VacancyService {
         }
 
         if(vacancyUpdateRequestDTO.area() != null && !vacancyUpdateRequestDTO.area().isBlank()) {
-            vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area()));
+            vacancy.setArea(Area.valueOf(vacancyUpdateRequestDTO.area().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(vacancyUpdateRequestDTO.shift() != null && !vacancyUpdateRequestDTO.shift().isBlank()) {
-            vacancy.setShift(Shift.valueOf(vacancyUpdateRequestDTO.shift()));
+            vacancy.setShift(Shift.valueOf(vacancyUpdateRequestDTO.shift().trim().toUpperCase(Locale.ROOT)));
+        }
+
+        if (vacancyUpdateRequestDTO.numbersVacancies() != null) {
+            vacancy.setNumbersVacancies(vacancyUpdateRequestDTO.numbersVacancies());
         }
 
         if(vacancyUpdateRequestDTO.placeId() != null) {
@@ -132,17 +127,15 @@ public class VacancyService {
             vacancy.setPlace(place);
         }
 
+        if (vacancyUpdateRequestDTO.skillIds() != null) {
+            vacancy.setSkills(resolveSkills(vacancyUpdateRequestDTO.skillIds()));
+        }
+
         Vacancy vacancyAtt = vacancyRepository.save(vacancy);
 
         return vacancyMapper.toResponse(vacancyAtt);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "vacancies", allEntries = true),
-                    @CacheEvict(value = "vacancyById", key = "#id")
-            }
-    )
     @Transactional
     public void delete(UUID id) {
         if(!vacancyRepository.existsById(id)) {
@@ -150,5 +143,17 @@ public class VacancyService {
         }
 
         vacancyRepository.deleteById(id);
+    }
+
+    private List<VacancySkill> resolveSkills(List<UUID> skillIds) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return List.of();
+        }
+
+        return skillIds.stream()
+                .distinct()
+                .map(skillId -> vacancySkillRepository.findById(skillId)
+                        .orElseThrow(() -> new VacancySkillNotFoundException(skillId)))
+                .toList();
     }
 }

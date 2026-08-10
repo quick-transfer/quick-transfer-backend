@@ -3,9 +3,9 @@ package com.weg.quicktransfer.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,44 +31,33 @@ public class Interview {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false, name = "interviewer_name")
     private String interviewerName;
-    
+
     @Column(nullable = false, name = "date_time")
     private LocalDateTime dateTime;
-    
-    @ManyToOne
-    @JoinColumn(name = "vacancy_id", nullable = false) 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vacancy_id", nullable = false)
     private Vacancy vacancy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "student_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false, unique = true)
     private Student student;
 
-    @Column(name = "reminder_sent")
+    @Column(name = "reminder_sent", nullable = false)
     private Boolean reminderSent = false;
-
-    @Column(name = "student_reminder_sent")
-    private Boolean studentReminderSent = false;
-
-    @Column(name = "coordinator_reminder_sent")
-    private Boolean coordinatorReminderSent = false;
-
-    @Column(name = "reminder_processing")
-    private Boolean reminderProcessing = false;
-
-    @Column(name = "reminder_claimed_at")
-    private LocalDateTime reminderClaimedAt;
 
     public Interview(String interviewerName, LocalDateTime dateTime, Vacancy vacancy, Place place, Manager manager,
             Student student) {

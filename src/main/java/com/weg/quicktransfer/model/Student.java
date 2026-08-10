@@ -24,6 +24,7 @@ public class Student{
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false)
@@ -49,7 +50,7 @@ public class Student{
     @Enumerated(EnumType.STRING)
     private StatusStudent statusStudent;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classentity_id", nullable = false)
     private ClassEntity classEntity;
 

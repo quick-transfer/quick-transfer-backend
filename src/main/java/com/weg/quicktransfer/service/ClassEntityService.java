@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.weg.quicktransfer.dto.classEntity.ClassEntityFilter;
@@ -113,11 +114,11 @@ public class ClassEntityService {
         }
 
         if(classEntityUpdateRequestDTO.status() != null) {
-            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status()));
+            classEntity.setStatus(StatusClass.valueOf(classEntityUpdateRequestDTO.status().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.shiftClass() != null) {
-            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass()));
+            classEntity.setShiftClass(ShiftClass.valueOf(classEntityUpdateRequestDTO.shiftClass().trim().toUpperCase(Locale.ROOT)));
         }
 
         if(classEntityUpdateRequestDTO.acronym() != null && !classEntityUpdateRequestDTO.acronym().isBlank()) {
@@ -141,8 +142,8 @@ public class ClassEntityService {
     }
 
     private void validateDates(java.time.LocalDate startDate, java.time.LocalDate finishDate) {
-        if (startDate != null && finishDate != null && finishDate.isBefore(startDate)) {
-            throw new DateOutOfRangeException("Finish date cannot be before start date");
+        if (startDate != null && finishDate != null && !finishDate.isAfter(startDate)) {
+            throw new DateOutOfRangeException("Finish date must be after start date");
         }
     }
 }

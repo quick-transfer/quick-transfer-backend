@@ -24,37 +24,37 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<CourseResponseDTO> createCourse(@RequestBody @Valid CourseRequestDTO courseRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.create(courseRequestDTO));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/id/{id}")
     public ResponseEntity<CourseResponseDTO> findCourseById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/name/{name}")
     public ResponseEntity<List<CourseResponseDTO>> findCourseByName(@PathVariable String name){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findByName(name));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/find/all")
     public ResponseEntity<Page<CourseResponseDTO>> findAllCourses(Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll(pageable));
     }
 
-    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'MANAGER', 'ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<Page<CourseResponseDTO>> searchCourses(CourseFilter filter, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(courseService.searchCourses(filter, pageable));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'ADMIN')")
     @PatchMapping("/update/{id}")
     public ResponseEntity<CourseResponseDTO> updateCourse(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(courseService.update(id, courseUpdateRequestDTO));
     }
 
-    @PreAuthorize("hasRole('COORDINATOR')")
+    @PreAuthorize("hasAnyRole('COORDINATOR', 'ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID id){
         courseService.delete(id);

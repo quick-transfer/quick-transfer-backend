@@ -1,6 +1,9 @@
 package com.weg.quicktransfer.mapper;
 
+import java.util.Locale;
+
 import org.springframework.stereotype.Component;
+import java.util.Locale;
 
 import com.weg.quicktransfer.dto.manager.ManagerRequestDTO;
 import com.weg.quicktransfer.dto.manager.ManagerResponseDTO;
@@ -15,7 +18,7 @@ public class ManagerMapper {
             managerRequestDTO.username(),
             managerRequestDTO.email(),
             managerRequestDTO.password(),
-            Section.valueOf(managerRequestDTO.section())
+            Section.valueOf(managerRequestDTO.section().trim().toUpperCase(Locale.ROOT))
         );
     }
 

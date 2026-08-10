@@ -1,6 +1,7 @@
 package com.weg.quicktransfer.config;
 
 import com.weg.quicktransfer.security.JwtAuthFilter;
+import com.weg.quicktransfer.security.RestSecurityErrorHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,15 +11,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -33,6 +35,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final RestSecurityErrorHandler securityErrorHandler;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -46,9 +49,14 @@ public class SecurityConfig {
     @Value("${app.cors.allow-credentials}")
     private boolean allowCredentials;
 
+    @Value("${app.cors.exposed-headers:X-Correlation-ID}")
+    private List<String> exposedHeaders;
+
     @Bean
     @Order(1)
-    public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain swaggerSecurityFilterChain(
+            HttpSecurity http,
+            BasicAuthenticationEntryPoint swaggerAuthenticationEntryPoint) throws Exception {
         return http
                 .securityMatcher("/v3/api-docs/**", "/actuator/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
@@ -57,10 +65,21 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .anyRequest().hasRole("ADMIN")
                 )
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(basic ->
+                        basic.authenticationEntryPoint(swaggerAuthenticationEntryPoint))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(swaggerAuthenticationEntryPoint)
+                        .accessDeniedHandler(securityErrorHandler))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
+    }
+
+    @Bean
+    public BasicAuthenticationEntryPoint swaggerAuthenticationEntryPoint() {
+        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+        entryPoint.setRealmName("QuickTransferAPI");
+        return entryPoint;
     }
 
     @Bean
@@ -76,6 +95,9 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(securityErrorHandler)
+                        .accessDeniedHandler(securityErrorHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/first-access", "/auth/csrf", "/error").permitAll()
                         .anyRequest().authenticated()
@@ -90,7 +112,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(allowedMethods);
         config.setAllowedHeaders(allowedHeaders);
+        config.setExposedHeaders(exposedHeaders);
         config.setAllowCredentials(allowCredentials);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -114,6 +138,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 }

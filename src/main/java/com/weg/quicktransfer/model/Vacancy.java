@@ -25,12 +25,13 @@ public class Vacancy {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
     
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false, name = "numbers_vacancies")
@@ -44,12 +45,21 @@ public class Vacancy {
     @Enumerated(EnumType.STRING)
     private Shift shift;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "place_id")
     private Place place;
 
     @OneToMany(mappedBy = "vacancy")
     private List<Interview> interviews = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "vacancy_skill_assignments",
+            joinColumns = @JoinColumn(name = "vacancy_id"),
+            inverseJoinColumns = @JoinColumn(name = "vacancy_skill_id")
+    )
+    @OrderBy("name ASC")
+    private List<VacancySkill> skills = new ArrayList<>();
 
     public Vacancy(String name, String description, Long numbersVacancies, Area area, Shift shift, Place place) {
         this.name = name;
@@ -58,5 +68,27 @@ public class Vacancy {
         this.area = area;
         this.shift = shift;
         this.place = place;
+    }
+
+    public void setSkills(List<VacancySkill> skills) {
+        new ArrayList<>(this.skills).forEach(this::removeSkill);
+        if (skills != null) {
+            skills.forEach(this::addSkill);
+        }
+    }
+
+    public void addSkill(VacancySkill skill) {
+        if (skill != null && !this.skills.contains(skill)) {
+            this.skills.add(skill);
+            if (!skill.getVacancies().contains(this)) {
+                skill.getVacancies().add(this);
+            }
+        }
+    }
+
+    public void removeSkill(VacancySkill skill) {
+        if (skill != null && this.skills.remove(skill)) {
+            skill.getVacancies().remove(this);
+        }
     }
 }

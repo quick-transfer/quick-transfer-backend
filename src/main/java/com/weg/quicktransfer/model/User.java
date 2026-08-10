@@ -25,6 +25,7 @@ public abstract class User {
     private UUID id;
 
     @Version
+    @Column(nullable = false)
     private Long version;
 
     @Column(nullable = false)
@@ -46,6 +47,10 @@ public abstract class User {
     @Builder.Default
     @Column(nullable = false, name = "first_login")
     private Boolean firstLogin = Boolean.TRUE;
+
+    @Builder.Default
+    @Column(nullable = false, name = "token_version")
+    private long tokenVersion = 0L;
 
     public User(String name, String username, String email, String password, Role role) {
         this.name = name;

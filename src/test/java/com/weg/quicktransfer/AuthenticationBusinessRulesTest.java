@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import com.weg.quicktransfer.dto.auth.LoginRequestDTO;
 import com.weg.quicktransfer.dto.auth.LoginResponseDTO;
 import com.weg.quicktransfer.exception.FirstLoginException;
-import com.weg.quicktransfer.exception.UserNotFoundException;
 import com.weg.quicktransfer.model.User;
 import com.weg.quicktransfer.repo.UserRepository;
 import com.weg.quicktransfer.security.JwtService;
@@ -19,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -82,17 +82,15 @@ public class AuthenticationBusinessRulesTest {
     }
 
     @Test
-    @DisplayName("System access with invalid user should throw UserNotFoundException")
+    @DisplayName("System access with invalid user should return generic bad credentials")
     public void systemAccessInvalidUserShouldThrowException() {
         LoginRequestDTO falseLoginRequestDTO = new LoginRequestDTO("nonexistent.user", "password123");
 
         when(userRepository.findFirstByUsername("nonexistent.user")).thenReturn(Optional.empty());
-        when(userRepository.findFirstByName("nonexistent.user")).thenReturn(Optional.empty());
-
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
             userService.login(falseLoginRequestDTO);
         });
 
-        assertEquals("User not found with: nonexistent.user", exception.getMessage());
+        assertEquals("Invalid credentials", exception.getMessage());
     }
 }

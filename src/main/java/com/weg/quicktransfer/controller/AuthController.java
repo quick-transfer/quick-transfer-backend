@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,8 +36,8 @@ public class AuthController {
     @Value("${app.jwt.expiration}")
     private long expirationMs;
 
-    @Value("${app.security.cookie.secure:true}")
-    private boolean secureCookie;
+    @Value("${app.security.cookie-secure:true}")
+    private boolean cookieSecure;
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticatedUserResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO) {
@@ -47,7 +46,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie
                 .from("JWT", response.token())
                 .httpOnly(true)
-                .secure(secureCookie)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(Duration.ofMillis(expirationMs))
@@ -68,8 +67,8 @@ public class AuthController {
     }
 
     @GetMapping("/csrf")
-    public Map<String, String> csrf(CsrfToken token) {
-        return Map.of("headerName", token.getHeaderName(), "token", token.getToken());
+    public CsrfToken csrf(CsrfToken token) {
+        return token;
     }
 
     @PostMapping("/first-access")
@@ -95,12 +94,14 @@ public class AuthController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINATOR', 'MANAGER')")
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity<Void> logout(Authentication authentication) {
+
+        userService.revokeSessions(authentication.getName());
         SecurityContextHolder.clearContext();
 
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(secureCookie)
+                .secure(cookieSecure)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
@@ -117,7 +118,7 @@ public class AuthController {
     @PostMapping("/password-reset")
     public UserResponseDTO resetPassword(
             @RequestBody @Valid PasswordResetRequestDTO requestDTO,
-            org.springframework.security.core.Authentication authentication) {
+            Authentication authentication) {
         return userService.resetPassword(authentication.getName(), requestDTO);
     }
 }
